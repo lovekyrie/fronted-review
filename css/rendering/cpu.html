@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .cpu {
+      background-color: darkgreen;
+      width: 50px;
+      height: 50px;
+      top: 0;
+      left: 0;
+      position: fixed;
+      animation: move 3.7s ease-in-out infinite;
+    }
+
+    @keyframes move {
+      25% {
+        left: 250px;
+        top: 0;
+      } 
+      50% {
+        left: 250px;
+        top: 250px;
+      }
+      75% {
+        left: 0;
+        top: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- 发现页面在循环进行布局和绘制操作 -->
+  <div class="cpu"></div> 
+</body>
+</html>

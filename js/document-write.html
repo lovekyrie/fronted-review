@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script>
+      function newContent() {
+        document.open()
+        document.write('<h1>旧的不去,新的不来!</h1>')
+        document.close()
+      }
+    </script>
+  </head>
+  <body onload="newContent()">
+    <p>一些文档的原始内容</p>
+  </body>
+</html>

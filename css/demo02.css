@@ -1,0 +1,102 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #557;
+  color: #fff;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  place-content: center;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+.grid__container {
+  border: 1px dashed #f36;
+  box-shadow: 0 0 0 6px rgb(0 0 0 / 13%);
+  border-radius: 1px;
+}
+
+.grid__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e8f0fe;
+  border: 2px soild #2938e9;
+  border-radius: 4px;
+  color: #000;
+  padding: 1rem;
+  font-size: 2rem;
+}
+
+.grid__item:nth-child(1){
+  background-color: #f1c2c6;
+}
+
+.grid__item:nth-child(2) {
+  background-color: #efe1ff;
+}
+
+.grid__item:nth-child(3) {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background-color: #bbd7af;
+  background-image: repeating-conic-gradient(
+    from 7.5deg at 50% 0,
+    transparent 0 15deg,
+    gold 0 30deg
+  ), linear-gradient(177deg, #f11818, #f4070700);
+  mix-blend-mode: difference;
+  background-blend-mode: luminosity;
+  text-shadow: 1px 1px 1px rgb(0 0 0 / 50%);
+  box-shadow: inset 0px 0px 0px 3px;
+  padding: 1.5rem;
+}
+
+.grid__item:nth-child(4) {
+  background-color: #209fbb;
+}
+
+.grid__item:nth-child(5) {
+  background-color: #00f0ff;
+}
+
+.grid__item:nth-child(6) {
+  background-color: #cefaf0;
+}
+
+:root {
+  --display: grid;
+}
+
+.grid__container {
+  display: var(--display);
+  gap: 10px;
+}
+
+.grid__container:nth-child(1) {
+  grid-template-columns: 150px 1fr;
+  grid-template-rows: 100px 1fr 80px;
+}
+
+.grid__container:nth-child(1) .grid__item:nth-child(3) {
+  grid-column: 2;
+  grid-row-start: 1;
+  grid-row-end: 4;
+}
+
+.grid__container:nth-child(2) {
+  grid-template-columns: 150px [item1-start] 1fr [item1-end];
+  grid-template-rows: [item1-start] 100px 1fr 80px [item1-end];
+}
+
+.grid__container:nth-child(2) .grid__item:nth-child(3) {
+  grid-column: item1-start / item1-end;
+  grid-row: item1-start / item1-end;
+}

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      grid-auto-rows: minmax(100px, auto);
+    }
+    .container > div {
+      border: 1px solid darkcyan;
+    }
+  </style>
+</head>
+<body>
+   <div class="container">
+    <div>Item 1</div>
+    <div>Item 2</div>
+    <div>Item 3</div>
+    <div>Item 4 (expands if content exceeds 100px)</div>
+   </div>
+</body>
+</html>

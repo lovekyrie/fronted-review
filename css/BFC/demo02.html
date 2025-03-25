@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .outer {
+      margin-top: 20px;
+      width: 100px;
+      height: 100px;
+      background-color: #000;
+      overflow: hidden; /* 让他变成BFC，这样就不会同属于html根目录下的BFC下而发生重叠*/
+    }
+
+    .inner {
+      margin-top: 30px;
+      width: 50px;
+      height: 50px;
+      background-color: #f00;
+    }
+  </style>
+</head>
+<body>
+  <div class="outer">
+    <div class="inner"></div>
+  </div> 
+</body>
+</html>

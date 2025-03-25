@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .float {
+      float: left;
+      width: 100px;
+      height: 100px;
+      background-color: #f00;
+      color: #fff;
+    }
+
+    p {
+      width: 200px;
+      height: 200px;
+      background-color: blue;
+      color: #f00;
+      overflow: hidden; /*if add this, the p become BFC. not show text wrap around.*/
+    }
+  </style>
+</head>
+<body>
+  <div class="float">I'm a floated box!</div> 
+  <p>I am a content inside the container.I am a content inside the container.I am a content inside the container.I am a content inside the container.</p>
+</body>
+</html>

@@ -1,0 +1,9 @@
+/* grid */
+.wp {
+  display: grid;
+}
+
+.box {
+  justify-self: center;
+  align-self: center;
+}

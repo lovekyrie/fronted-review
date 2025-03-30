@@ -1,0 +1,14 @@
+/* lineheight (把box设置行内元素） */
+.wp {
+  line-height: 300px;
+  text-align: center;
+  font-size: 0px;
+}
+
+.box {
+  font-size: 16px;
+  display: inline-block;
+  line-height: initial;
+  vertical-align: middle;
+  text-align: left; /** 修正文字 */
+}

@@ -1,0 +1,13 @@
+{
+  "name": "hand-write",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "promise.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

@@ -1,66 +1,152 @@
-var PENDING = 'pending'
-var FULFILLED = 'fulfilled'
-var REJECTED = 'rejected'
+const PENDING = 'pending'
+const FULFILLED = 'fulfilled'
+const REJECTED = 'rejected'
 
-function Promise(execute){
-  var self = this
+function Promise(execute) {
+  const self = this
   self.state = PENDING
-  self.onFulfilledFn = null
-  self.onRejectedFn = null
+  self.onFulfilledArray = []
+  self.onRejectedArray = []
 
   function resolve(value) {
-    if(self.state === PENDING) {
+    if (self.state === PENDING) {
       self.state = FULFILLED
       self.value = value
-      self.onFulfilledFn(self.value)
+      self.onFulfilledArray.forEach(fn => fn(self.value))
     }
   }
 
   function reject(reason) {
-    if(self.state === PENDING) {
+    if (self.state === PENDING) {
       self.state = REJECTED
       self.reason = reason
-      self.onRejectedFn(self.reason)
+      self.onRejectedArray.forEach(fn => fn(self.reason))
     }
   }
 
   try {
-    execute(resolve, reject) 
-  } catch (error) {
-   reject(error) 
+    execute(resolve, reject)
+  }
+  catch (error) {
+    reject(error)
   }
 }
 
-Promise.prototype.then = function(onFulfilled, onRejected) {
-  onFulfilled = typeof onFulfilled === 'function' ? onFulfilled: function(x) {
-    return x
-  }
-  onRejected = typeof onRejected === 'function' ? onRejected: function(e) {
-    throw e
-  }
+Promise.prototype.then = function (onFulfilled, onRejected) {
+  onFulfilled = typeof onFulfilled === 'function'
+    ? onFulfilled
+    : function (x) {
+      return x
+    }
+  onRejected = typeof onRejected === 'function'
+    ? onRejected
+    : function (e) {
+      throw e
+    }
 
-  var self = this
-  switch(self.state) {
+  const self = this
+  let promise
+  switch (self.state) {
     case FULFILLED:
-      setTimeout(function(){
-        onFulfilled(self.value) 
-      });
+      promise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          try {
+            const x = onFulfilled(self.value)
+            resolvePromise(promise, x, resolve, reject)
+          }
+          catch (error) {
+            reject(error)
+          }
+        })
+      })
       break
     case REJECTED:
-      setTimeout(function() {
-        onRejected(self.reason)
+      promise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          try {
+            const x = onRejected(self.reason)
+            resolvePromise(promise, x, resolve, reject)
+          }
+          catch (error) {
+            reject(error)
+          }
+        })
       })
       break
     case PENDING:
-      // todo 
-      self.onFulfilledFn = function() {
-        onFulfilled(self.value)
-      }
-      self.onRejectedFn = function() {
-        onRejected(self.reason)
-      }
+      // todo
+      promise = new Promise((resolve, reject) => {
+        self.onFulfilledArray.push(() => {
+          try {
+            const x = onFulfilled(self.value)
+            resolvePromise(promise, x, resolve, reject)
+          }
+          catch (error) {
+            reject(error)
+          }
+        })
+        self.onRejectedArray.push(() => {
+          try {
+            const x = onRejected(self.reason)
+            resolvePromise(promise, x, resolve, reject)
+          }
+          catch (error) {
+            reject(error)
+          }
+        })
+      })
       break
   }
+
+  return promise
 }
 
+function resolvePromise(promise, x, resolve, reject) {
+  if (x === promise) {
+    return reject(new TypeError('x 不能与 promise相等'))
+  }
+
+  if (x instanceof Promise) {
+    if (x.state === FULFILLED) {
+      resolve(x.value)
+    }
+    else if (x.state === REJECTED) {
+      reject(x.reason)
+    }
+    else {
+      x.then(y => resolvePromise(promise, y, resolve, reject), reject)
+    }
+  }
+  else if (x !== null && (typeof x === 'object' || typeof x === 'function')) {
+    let executed
+    try {
+      const then = x.then
+      if (typeof then === 'function') {
+        then.call(x, (y) => {
+          if (executed)
+            return
+          executed = true
+          resolvePromise(promise, y, resolve, reject)
+        }, (e) => {
+          if (executed)
+            return
+          executed = true
+          reject(e)
+        })
+      }
+      else {
+        resolve(x)
+      }
+    }
+    catch (error) {
+      if (executed)
+        return
+      executed = true
+      reject(error)
+    }
+  }
+  else {
+    resolve(x)
+  }
+}
 export default Promise

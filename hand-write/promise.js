@@ -9,19 +9,24 @@ function Promise(execute) {
   self.onRejectedArray = []
 
   function resolve(value) {
-    if (self.state === PENDING) {
-      self.state = FULFILLED
-      self.value = value
-      self.onFulfilledArray.forEach(fn => fn(self.value))
-    }
+    setTimeout(() => {
+      if (self.state === PENDING) {
+        self.state = FULFILLED
+        self.value = value
+        self.onFulfilledArray.forEach(fn => fn(self.value))
+      }
+    })
   }
 
+  // 这里为什么需要setTimeout是因为在 then的pengding中并没有setTimeout
   function reject(reason) {
-    if (self.state === PENDING) {
-      self.state = REJECTED
-      self.reason = reason
-      self.onRejectedArray.forEach(fn => fn(self.reason))
-    }
+    setTimeout(() => {
+      if (self.state === PENDING) {
+        self.state = REJECTED
+        self.reason = reason
+        self.onRejectedArray.forEach(fn => fn(self.reason))
+      }
+    })
   }
 
   try {

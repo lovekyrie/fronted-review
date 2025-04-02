@@ -8,7 +8,8 @@
   "keywords": [],
   "main": "promise.js",
   "scripts": {
-    "test": "node test.js"
+    "test": "node test.js",
+    "dev": "node vue/demo.js"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.11.0",

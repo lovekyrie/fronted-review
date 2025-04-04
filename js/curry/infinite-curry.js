@@ -1,6 +1,7 @@
-let sum = function (a) {
+function sum(a) {
   return function (b) {
-    if (b) return sum(a + b)
+    if (b)
+      return sum(a + b)
     return a
   }
 }

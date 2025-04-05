@@ -17,6 +17,7 @@ class TimeLimitedCache {
   }
 
   count() {
-    return this.cache.size()
+    // 注意size是一个属性
+    return this.cache.size
   }
 }

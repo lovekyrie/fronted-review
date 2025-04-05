@@ -22,5 +22,5 @@ TimeLimitedCache.prototype.get = function (key) {
 }
 
 TimeLimitedCache.prototype.count = function () {
-  return this.cache.size()
+  return this.cache.size
 }

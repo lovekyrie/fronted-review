@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>变量声明</title>
+</head>
+
+<body>
+  <script>
+    // let/const声明的变量与 var声明的变量作用域不同
+    var a = 1;
+    console.log(window.a)
+    let b = 1;
+    console.log(window.b) // undefined  b是在一个叫script的作用域下的
+    debugger
+  </script>
+</body>
+
+</html>

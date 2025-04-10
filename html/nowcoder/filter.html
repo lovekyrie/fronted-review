@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title></title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+  <select name="" id="">
+    <option value="0">请选择销量范围</option>
+    <option value="1">&lt100</option>
+    <option value="2">100~500</option>
+    <option value="3">&gt500</option>
+  </select>
+  <ul>
+    <li>牛客logo马克杯</li>
+    <li>无盖星空杯</li>
+    <li>老式茶杯</li>
+    <li>欧式印花杯</li>
+  </ul>
+
+  <script>
+    var cups = [
+      {type: 1, price: 100, color: 'black', sales: 60, name: '牛客logo马克杯'},
+      {type: 2, price: 40, color: 'blue', sales: 100, name: '无盖星空杯'},
+      {type: 4, price: 60, color: 'green', sales: 200, name: '老式茶杯'},
+      {type: 3, price: 50, color: 'green', sales: 600, name: '欧式印花杯'}
+    ]
+    var select = document.querySelector('select');
+    var ul = document.querySelector('ul');
+
+    // 补全代码
+    const renderUI = arr => {
+      let str = ''
+      arr.forEach(pro => {str += `<li>${pro.name}</li>`})
+      ul.innerHTML = str
+    }
+
+    select.onchange = function () {
+      switch (this.value) {
+        case '1':
+          const arr1 = cups.filter(cup => cup.sales < 100)
+          renderUI(arr1)
+          break;
+        case '2':
+          const arr2 = cups.filter(cup => cup.sales >= 100 && cup.sales <= 500)
+          renderUI(arr2)
+          break
+        case '3':
+          const arr3 = cups.filter(cup => cup.sales > 500)
+          renderUI(arr3)
+          break
+        default:
+          renderUI(cups)
+          break;
+      }
+    }
+
+  </script>
+</body>
+
+</html>

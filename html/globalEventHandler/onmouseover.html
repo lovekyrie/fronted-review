@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>onmouseover/onmouseout event example</title>
+  <style>
+    #foo {
+      border: 2px solid blue;
+    }
+  </style>
+</head>
+
+<body onload="initElement()" ;>
+  <span id='foo'>移动鼠标，在该元素上移进移出</span>
+  <div id='notice'></div>
+  <script>
+    // 语法：element.onmouseover= envent handling code (注意不需要调用函数，只需要指向函数名)
+    var notice = document.querySelector('#notice')
+    function initElement() {
+      var p = document.getElementById('foo')
+
+      p.onmouseover = showMouseOver; 
+      p.onmouseout = showMouseOut;
+    }
+
+    function showMouseOver() {
+      notice.innerHTML = '检测到鼠标移进'
+    }
+
+    function showMouseOut() {
+      notice.innerHTML = '检测到鼠标移出'
+    }
+  </script>
+</body>
+
+</html>

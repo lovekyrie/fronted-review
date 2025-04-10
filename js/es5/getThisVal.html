@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    var nanja1 = {
+      whoAmI: function () {
+        return this;
+      },
+    };
+
+    var nanja2 = {
+      whoAmI: nanja1.whoAmI,
+    };
+
+    var indentify = nanja2.whoAmI;
+
+    console.log(nanja1.whoAmI() === nanja1);
+    console.log(nanja2.whoAmI() === nanja1);
+
+    console.log(indentify() === nanja1)
+    console.log(nanja1.whoAmI.call(nanja2) === nanja2)
+  </script>
+</body>
+
+</html>

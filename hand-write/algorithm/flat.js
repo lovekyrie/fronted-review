@@ -5,11 +5,11 @@
  */
 
 const arr = [[1, 2, 2], [3, 4, 5, 5], [6, 7, 8, 9, [11, 12, [12, 13, [14]]]], 10]
-function falt(arr, newArr) {
+function flat(arr, newArr) {
   for (let i = 0; i < arr.length; i++) {
     const elem = arr[i]
     if (Array.isArray(elem)) {
-      falt(elem, newArr)
+      flat(elem, newArr)
     }
     else {
       newArr.push(elem)
@@ -18,7 +18,7 @@ function falt(arr, newArr) {
   return newArr
 }
 
-const res = falt(arr, [])
+const res = flat(arr, [])
 res.sort((a, b) => a - b)
 const removeRepeatArr = [...new Set(res)]
 console.log(removeRepeatArr)

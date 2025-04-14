@@ -5,15 +5,15 @@ function Person(name) {
 // constructor变成了可枚举属性
 Person.prototype = {
   constructor: Person,
-  getName: function() {
+  getName() {
     return this.name
-  }
+  },
 }
 
 const person = new Person('dyp')
-for(let key in person) {
+for (const key in person) {
   // name constructor getName
-  console.log(key);
+  console.log(key)
 }
 
 Object.defineProperty(Person.prototype, 'constructor', {
@@ -21,8 +21,7 @@ Object.defineProperty(Person.prototype, 'constructor', {
   enumerable: false,
 })
 
-for(let key in person) {
+for (const key in person) {
   // name getName
-  console.log(key);
+  console.log(key)
 }
-

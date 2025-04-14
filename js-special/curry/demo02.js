@@ -1,9 +1,15 @@
+/**
+ * es6的实现方式在hand-write/simulate/curry.js es6中可以直接省略apply用法
+ * @param {*} func
+ * @returns
+ */
 function curry(func) {
   return function curried(...args1) {
-    if(args1.length >=func.length) {
+    if (args1.length >= func.length) {
       return func.apply(this, args1)
-    } else {
-      return function(...args2) {
+    }
+    else {
+      return function (...args2) {
         return curried.apply(this, args1.concat(args2))
       }
     }

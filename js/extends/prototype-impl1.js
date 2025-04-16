@@ -9,7 +9,9 @@ function Child() {
 
 Child.prototype = new Parent()
 const child = new Child()
+child.name = 'child'
 const child1 = new Child()
 
 child.play.push(4)
 console.log(child1.play) // [1, 2, 3, 4]
+console.log(child1.name)

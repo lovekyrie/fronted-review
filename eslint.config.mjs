@@ -10,5 +10,6 @@ export default antfu({
   rules: {
     'no-unused-vars': 'off',
     'unused-imports/no-unused-vars': 'off',
+    'no-undef': 'off',
   },
 })

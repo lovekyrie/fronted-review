@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AMD Module Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+    <script>
+        require.config({
+            baseUrl: './',
+            paths: {
+                'math': 'math',
+                'calculator': 'calculator'
+            }
+        });
+
+        require(['calculator'], function(calculator) {
+            // 使用计算器模块
+            console.log('Addition:', calculator.calculate('add', 5, 3));
+            console.log('Subtraction:', calculator.calculate('subtract', 5, 3));
+            console.log('Multiplication:', calculator.calculate('multiply', 5, 3));
+            console.log('Division:', calculator.calculate('divide', 6, 3));
+        });
+    </script>
+</head>
+<body>
+    <h1>AMD Module Demo</h1>
+    <p>Check the console for results!</p>
+</body>
+</html> 

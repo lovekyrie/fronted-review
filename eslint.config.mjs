@@ -6,7 +6,7 @@ export default antfu({
     'no-console': 'off',
   },
 }, {
-  files: ['js/**/*.js', 'js-of-30-days/**/*.js', 'hand-write/**/*.js', 'algorithm/**/*.js'],
+  files: ['js/**/*.js', 'js-of-30-days/**/*.js', 'hand-write/**/*.js', 'algorithm/**/*.js', 'js-questions/**/*.js'],
   rules: {
     'no-unused-vars': 'off',
     'unused-imports/no-unused-vars': 'off',

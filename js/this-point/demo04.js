@@ -8,3 +8,5 @@ function Counter() {
 }
 
 new Counter();
+
+// 如果想要在setTimeout中使用this，可以使用bind方法 

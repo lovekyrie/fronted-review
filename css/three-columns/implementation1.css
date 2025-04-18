@@ -1,0 +1,21 @@
+.container {
+  display: flex;
+}
+
+.main {
+  order: 1;
+  flex: 1;
+  background-color: yellow;
+}
+
+.left {
+  order: 0;
+  flex-basis: 200px;
+  background-color: green;
+}
+
+.right {
+  order: 2;
+  flex-basis: 200px;
+  background-color: #0ff;
+}

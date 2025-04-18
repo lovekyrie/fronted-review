@@ -1,6 +1,7 @@
 // 需要在package.json中type设置为module
-import {a} from './a.js'
+import { a } from './a.js'
+
 console.log(a)
 setTimeout(() => {
-  console.log(a) 
-}, 1000);
+  console.log(a)
+}, 1000)

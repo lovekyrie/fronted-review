@@ -1,0 +1,23 @@
+body {
+  margin: 0;
+}
+
+.container {
+  height: 100vh;
+}
+.parent {
+  height: calc(100% - 20px);
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.fixed-child {
+  height: 60px;
+  background-color: fuchsia;
+}
+
+.auto-child {
+  flex: 1;
+  background-color: green;
+}

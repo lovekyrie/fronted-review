@@ -1,6 +1,9 @@
 .wp {
   position: relative;
+  border: 10px solid #f00;
+  padding: 20px;
 }
+/** 当把top改成10px的时候可以知道，absolute相对父元素padding的距离 */
 .box {
   position: absolute;
   top: 50%;

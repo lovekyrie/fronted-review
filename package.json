@@ -1,0 +1,18 @@
+{
+  "name": "hand-write",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
+  "main": "promise.js",
+  "scripts": {
+    "test": "node test.js",
+    "dev": "node vue/demo.js"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.11.0",
+    "eslint": "^9.23.0"
+  }
+}

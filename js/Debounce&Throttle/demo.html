@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="./debounce-immediate.js"></script>
+</head>
+<body>
+  <button id="btn">测试执行</button> 
+  <script>
+    const btn = document.querySelector('#btn')
+    btn.addEventListener('click',debounceImmediate( e => {
+      console.log('我点击按钮了，并且触发了按钮方法');
+    }, 2000, true))
+  </script>
+</body>
+</html>

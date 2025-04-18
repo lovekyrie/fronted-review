@@ -5,7 +5,7 @@ function add(...args) {
     return fn
   }
   fn.toString = fn.valueOf = function () {
-    return arr.reduce((acc, cur) => acc + parseInt(cur))
+    return arr.reduce((acc, cur) => acc + Number.parseInt(cur))
   }
 
   return fn

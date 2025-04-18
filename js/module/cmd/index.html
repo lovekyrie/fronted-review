@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CMD Module Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/seajs/3.0.3/sea.js"></script>
+    <script>
+        // 配置Sea.js
+        seajs.config({
+            base: './',
+            alias: {
+                'math': 'math.js',
+                'calculator': 'calculator.js'
+            }
+        });
+
+        // 加载主模块
+        seajs.use(['calculator'], function(calculator) {
+            // 使用计算器模块
+            console.log('Addition:', calculator.calculate('add', 5, 3));
+            console.log('Subtraction:', calculator.calculate('subtract', 5, 3));
+            console.log('Multiplication:', calculator.calculate('multiply', 5, 3));
+            console.log('Division:', calculator.calculate('divide', 6, 3));
+        });
+    </script>
+</head>
+<body>
+    <h1>CMD Module Demo</h1>
+    <p>Check the console for results!</p>
+</body>
+</html> 

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+  .box {
+    width: 200px;
+    height: 300px;
+  }
+  .sidebar {
+    width: 50px;
+    height: 100px;
+    background-color: red;
+    float: left;
+  }
+  /* 
+    再添加overflow: hidden;之前，sidebar会脱离文档流，就是main直接无视sidebar的存在，直接占据sidebar的位置
+    添加overflow: hidden;之后main会形成BFC，然后从float元素的右侧开始布局
+  */
+  .main {
+    height: 200px;
+    background-color: blue;
+    overflow: hidden;
+  }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="sidebar"></div>
+    <div class="main"></div>
+  </div>
+</body>
+</html>

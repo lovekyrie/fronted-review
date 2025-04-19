@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    section{
+      display: grid;
+      width: 600px;
+      height: 600px;
+      grid-template-columns: repeat(3, 200px);
+      grid-template-rows: repeat(3, 200px);
+      grid-template-areas: "a a a"
+                            ". b b"
+                            "c b b";
+    }
+    
+    div{
+      border: 1px solid red;
+    }
+    div:nth-child(1){
+      grid-area: a;
+    }
+    div:nth-child(2){
+      grid-area: b;
+    }
+    div:nth-child(3){
+      grid-area: c;
+    }
+  </style>
+</head>
+<body>
+  <section>
+    <div>1</div>
+    <div>2</div>
+    <div>3</div>
+    <div>4</div>
+  </section>
+</body>
+</html>

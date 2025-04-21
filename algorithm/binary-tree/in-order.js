@@ -6,16 +6,16 @@
 //     /
 //    3
 // 输出: [1,3,2]
-import { mockTree } from "../utils/mock.js"
+import { mockTree } from '../utils/mock.js'
 
 /**
- *  递归版本 
- * @param {*} root 
- * @param {*} array 
- * @returns 
+ *  递归版本
+ * @param {*} root
+ * @param {*} array
+ * @returns
  */
 function inOrderTraversal(root, array) {
-  if(root) {
+  if (root) {
     inOrderTraversal(root.left, array)
     array.push(root.val)
     inOrderTraversal(root.right, array)
@@ -33,8 +33,8 @@ function noRecursionImpl(root) {
   const result = []
   const stack = []
   let current = root
-  while(current || stack.length) {
-    while(current) {
+  while (current || stack.length) {
+    while (current) {
       stack.push(current)
       current = current.left
     }
@@ -46,11 +46,10 @@ function noRecursionImpl(root) {
   return result
 }
 
-console.time('recursion');
+console.time('recursion')
 console.log(inOrderTraversal(mockTree, []))
-console.timeEnd('recursion');
+console.timeEnd('recursion')
 
-console.time('norecursion');
-console.log(noRecursionImpl(mockTree)) 
-console.timeEnd('norecursion');
-
+console.time('norecursion')
+console.log(noRecursionImpl(mockTree))
+console.timeEnd('norecursion')

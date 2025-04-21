@@ -1,6 +1,6 @@
-//组合继承
+// 组合继承
 function Parent(name) {
-  this.name = name;
+  this.name = name
   this.colors = ['red', 'blue', 'green']
 }
 
@@ -14,16 +14,16 @@ function Child(name, age) {
 }
 
 Child.prototype = new Parent()
-Child.prototype.constructor = Child;
+Child.prototype.constructor = Child
 
-var child1 = new Child('kevin', 18)
+const child1 = new Child('kevin', 18)
 child1.colors.push('black')
 
 console.log(child1.name)
 console.log(child1.age)
 console.log(child1.colors)
 
-var child2 = new Child('daisy', 19)
+const child2 = new Child('daisy', 19)
 
 console.log(child2.name)
 console.log(child2.age)

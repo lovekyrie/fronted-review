@@ -1,16 +1,16 @@
 ;(function () {
   // 私有变量
-  var states = {}
+  const states = {}
 
-  var toString = Object.prototype.toString
+  const toString = Object.prototype.toString
   // 判断数据类型
   function getType(elem) {
     if (elem == null) {
-      return elem + ''
+      return `${elem}`
     }
     return toString
       .call(elem)
-      .replace(/[\[\]]/g, '')
+      .replace(/[[\]]/g, '')
       .split(' ')[1]
       .toLowerCase()
   }
@@ -34,13 +34,14 @@
    * @param {*} target 属性值为对象的属性，只在函数实现时递归中传入
    */
   function set(options, target) {
-    var keys = Object.keys(options)
-    var o = target ? target : states
+    const keys = Object.keys(options)
+    const o = target || states
 
-    keys.map(function (item) {
+    keys.map((item) => {
       if (typeof o[item] == 'undefined') {
         o[item] = options[item]
-      } else {
+      }
+      else {
         typeof o[item] == 'object' ? set(options[item], o[item]) : (o[item] = options[item])
       }
       return item

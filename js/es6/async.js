@@ -7,13 +7,13 @@ async function asyncF() {
   return 'TEST'
 }
 
-async function fn1(){
+async function fn1() {
   console.log(1)
   await fn2()
-  console.log(2) //阻塞(会加入微任务)
+  console.log(2) // 阻塞(会加入微任务)
 }
 
-async function fn2(){
+async function fn2() {
   console.log('fn2')
 }
 
@@ -32,16 +32,16 @@ async function async2() {
 }
 
 console.log('script start')
-setTimeout(function(){
+setTimeout(() => {
   console.log('settimeout')
 })
 
 async1()
-new Promise(function(resolve){
+new Promise((resolve) => {
   console.log('promise1')
   resolve()
-}).then(function(){
-    console.log('promise2')
+}).then(() => {
+  console.log('promise2')
 })
 console.log('script end')
 // 'script start' 'async1 start' 'async2' 'promise1' 'script end' 'async1 end' 'promise2' 'settimeout'

@@ -1,5 +1,4 @@
-
-let myCounter=require('./counter')
+let myCounter = require('./counter')
 
 myCounter++
 

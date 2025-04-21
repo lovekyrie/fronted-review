@@ -3,15 +3,15 @@
  * @param {Function} fn
  * @return {number[]}
  */
-var map = function(arr, fn) {
-    return arr.reduce((acc, next, idx) =>{
-        acc.push(fn(next, idx))
-        return acc
-    }, [])
-};
+function map(arr, fn) {
+  return arr.reduce((acc, next, idx) => {
+    acc.push(fn(next, idx))
+    return acc
+  }, [])
+}
 
-var arr  = [1,2,3]
-var fn = function plusone(n) {
+const arr = [1, 2, 3]
+function fn(n) {
   return n + 1
 }
 

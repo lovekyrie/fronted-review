@@ -1,12 +1,12 @@
-var value=1;
+const value = 1
 
-function foo(){
+function foo() {
   console.log(value)
 }
 
-function bar(){
-  var value=2;
-  foo();
+function bar() {
+  const value = 2
+  foo()
 }
 
-bar();
+bar()

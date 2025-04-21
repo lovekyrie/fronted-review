@@ -5,20 +5,20 @@ ES5只规定能够定义属性的属性描述符或访问器.而Proxy增强到�
 
 // 1. hanlder.apply apply可以拦截一个函数（js中函数也是对象，proxy可以拦截函数）的执行，可以用在函数节流中
 
-const proxy = (func, time) => {
-  let previous = new Date(0).getTime();
+function proxy(func, time) {
+  let previous = new Date(0).getTime()
 
-  let handler = {
+  const handler = {
     apply(target, context, args) {
-      let now = new Date().getTime();
+      const now = new Date().getTime()
       if (now - previous > time) {
-        previous = now;
-        Reflect.apply(func, context, args);
+        previous = now
+        Reflect.apply(func, context, args)
       }
     },
-  };
-  return new Proxy(func, handler);
-};
+  }
+  return new Proxy(func, handler)
+}
 
 // DOM.addEventListener("mousemove", proxy(func, TIME));
 
@@ -31,24 +31,25 @@ function onChange(obj, callback) {
   const handler = {
     get(target, key) {
       try {
-        return new Proxy(target[key], handler);
-      } catch (e) {
-        Reflect.get(target, key);
+        return new Proxy(target[key], handler)
+      }
+      catch (e) {
+        Reflect.get(target, key)
       }
     },
     defineProperty(target, key, descriptor) {
-      callback();
-      return Reflect.defineProperty(target, key, descriptor);
+      callback()
+      return Reflect.defineProperty(target, key, descriptor)
     },
-  };
-  return new Proxy(obj, handler);
+  }
+  return new Proxy(obj, handler)
 }
 
-let obj = onChange({}, () => {
-  console.log("oops");
-});
-obj.a = {};
-obj.a.b = 1;
+const obj = onChange({}, () => {
+  console.log('oops')
+})
+obj.a = {}
+obj.a.b = 1
 /* 1.这里使用了递归的操作,当需要访问对象的属性时候,会判断代理的对象属性的值仍是一个可以代理的对象就递归的进行代理,
 否则通过错误捕获执行默认的get操作
    2.定义了defineProperty的拦截方法,当对这个代理对象的某个属性进行赋值的时候会执行对象内部默认的[[SET]]操作进行赋值,

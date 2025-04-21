@@ -9,10 +9,12 @@
   "main": "promise.js",
   "scripts": {
     "test": "node test.js",
-    "dev": "node vue/demo.js"
+    "dev": "node vue/demo.js",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^4.11.0",
-    "eslint": "^9.23.0"
+    "@antfu/eslint-config": "^4.12.0",
+    "eslint": "^9.25.1"
   }
 }

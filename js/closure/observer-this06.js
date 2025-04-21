@@ -1,5 +1,5 @@
-var a = 10
-var obj = {
+const a = 10
+const obj = {
   a: 20,
 }
 

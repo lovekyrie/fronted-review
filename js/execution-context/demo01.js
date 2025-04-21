@@ -1,11 +1,11 @@
-// 浏览器call stack顺序 global context => changeColor in => swapColor in => swapColor out => changeColor out 
-var color = 'blue'
+// 浏览器call stack顺序 global context => changeColor in => swapColor in => swapColor out => changeColor out
+let color = 'blue'
 
 function changeColor() {
-  var anotherColor = 'red'
+  let anotherColor = 'red'
 
   function swapColor() {
-    var tempColor = anotherColor
+    const tempColor = anotherColor
     anotherColor = color
     color = tempColor
   }

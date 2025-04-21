@@ -1,10 +1,11 @@
 // 偏函数
-const partialFunc = (func, ...args) => {
+function partialFunc(func, ...args) {
   let placeholderNum = 0
   return (...args2) => {
-    args2.forEach(arg => {
-      let index = args.findIndex(item => item === '_')
-      if (index < 0) return //不用throw new Error跳出循环？
+    args2.forEach((arg) => {
+      const index = args.findIndex(item => item === '_')
+      if (index < 0)
+        return // 不用throw new Error跳出循环？
       args[index] = arg
       placeholderNum++
     })
@@ -15,9 +16,9 @@ const partialFunc = (func, ...args) => {
     return func.apply(this, [...args, ...args2])
   }
 }
-//使用
-let add = (a, b, c, d) => a + b + c + d
-let partialAdd2 = partialFunc(add, '_', 2, '_')
+// 使用
+const add = (a, b, c, d) => a + b + c + d
+const partialAdd2 = partialFunc(add, '_', 2, '_')
 console.log(partialAdd2(1, 3, 4))
-let partialAdd3 = partialFunc(add, 1, 2)
+const partialAdd3 = partialFunc(add, 1, 2)
 console.log(partialAdd3(3, 4))

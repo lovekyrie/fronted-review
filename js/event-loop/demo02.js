@@ -10,7 +10,7 @@ arr.reduce(async (prev, next, index) => {
   // 因为prev是一个promise，而不是return一个promise的函数，所以不需要执行prev()
   const t = await prev
   const time = index === 0 ? 0 : 1000 + (index - 1) * 500
-  return new Promise(res => {
+  return new Promise((res) => {
     setTimeout(() => {
       console.log(next)
       res(time)

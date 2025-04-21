@@ -1,7 +1,7 @@
 const { loadImg, urlIds } = require('./index')
 
-const loadImgOneByOn = async () => {
-  for (let i of urlIds) {
+async function loadImgOneByOn() {
+  for (const i of urlIds) {
     await loadImg(urlIds[i])
   }
 }

@@ -1,2 +1,2 @@
-let counter=10
+const counter = 10
 export default counter

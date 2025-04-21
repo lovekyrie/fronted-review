@@ -1,6 +1,6 @@
 import Vue from './Vue.js'
 
-let o = new Vue({
+const o = new Vue({
   data: {
     test: 'I am test',
   },

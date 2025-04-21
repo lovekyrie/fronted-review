@@ -1,16 +1,16 @@
 ;(function (window) {
-  var a = 10
-  var b = 20
+  const a = 10
+  const b = 20
 
-  var test = {
+  const test = {
     m: 20,
-    add: function (x) {
+    add(x) {
       return a + x
     },
-    sum: function () {
+    sum() {
       return a + b + this.m
     },
-    mark: function (k, j) {
+    mark(k, j) {
       return k + j
     },
   }
@@ -22,5 +22,5 @@ console.log(test.add(100))
 console.log(test.sum())
 console.log(test.mark(1, 2))
 
-var _sum = test.sum
+const _sum = test.sum
 console.log(_sum())

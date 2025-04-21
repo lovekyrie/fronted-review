@@ -7,16 +7,16 @@ const ACTIONS = {
   代码扫描: scan,
   代码复杂度分析: codeComplexity,
   代码行数检测: codeLine,
-};
+}
 
 async function codeAnalyze(args) {
   const answer = await inquirer.prompt([
     {
-      type: "list",
-      name: "type",
-      message: "请选择要执行代码分析的指标？",
+      type: 'list',
+      name: 'type',
+      message: '请选择要执行代码分析的指标？',
       choices: Object.keys(ACTIONS),
     },
-  ]);
-  ACTIONS[answer.type](args);
+  ])
+  ACTIONS[answer.type](args)
 }

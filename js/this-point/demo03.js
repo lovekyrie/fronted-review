@@ -1,6 +1,6 @@
 const obj3 = {
   name: 'Eva',
-  greet: function () {
+  greet() {
     console.log(this)
     setTimeout(() => {
       // Eve, because arrow function uses 'this' from greet's context
@@ -14,9 +14,9 @@ obj3.greet()
 // change style
 const obj5 = {
   name: 'Frank',
-  greet: function() {
+  greet() {
     console.log(this.name)
-  }
+  },
 }
 
 setTimeout(() => obj5.greet(), 100)

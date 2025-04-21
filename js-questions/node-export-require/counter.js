@@ -1,2 +1,2 @@
-let counter=10
-module.exports=counter
+const counter = 10
+module.exports = counter

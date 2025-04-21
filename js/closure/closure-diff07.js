@@ -4,7 +4,7 @@
  * 通常我们通过闭包所对应的函数来获得对闭包的访问
  */
 function foo() {
-  var a = 10
+  const a = 10
 
   // 若去掉fn1函数声明，则不会在foo执行的时候形成闭包
   function fn1() {

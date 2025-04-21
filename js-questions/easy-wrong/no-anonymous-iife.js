@@ -1,8 +1,8 @@
-var b = 10;
+const b = 10;
 (function b() {
   // 'use strict'
-  b = 20;
-  console.log(b);
+  b = 20
+  console.log(b)
 })();
 
 /**
@@ -16,7 +16,7 @@ var b = 10;
 // 第二种情况
 (function () {
   // 'use strict'
-  var b = 20;
-  console.log(window.b); //在浏览器环境下运行 10
-  console.log(b);
-})();
+  const b = 20
+  console.log(window.b) // 在浏览器环境下运行 10
+  console.log(b)
+})()

@@ -1,5 +1,5 @@
 // That's why when you pass an object to a function, changes inside the function affect the original object.
-var person = {
+const person = {
   name: 'Nicholas',
   age: 20,
 }

@@ -1,13 +1,13 @@
 function firstNonRepeatingLetter(s) {
   // Add your code here
-  const lowerCase = s.toLowerCase();
+  const lowerCase = s.toLowerCase()
   for (let i = 0; i < lowerCase.length; i++) {
     // ignore uppercase and lowercase
-    if(lowerCase.indexOf(lowerCase[i]) === lowerCase.lastIndexOf(lowerCase[i])) {
-      return s[i];
+    if (lowerCase.indexOf(lowerCase[i]) === lowerCase.lastIndexOf(lowerCase[i])) {
+      return s[i]
     }
   }
-  return '';
+  return ''
 }
 
 console.log(firstNonRepeatingLetter('aabbcc'))

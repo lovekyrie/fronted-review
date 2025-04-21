@@ -1,11 +1,12 @@
-//优化
+// 优化
 // const { toUpperCase, hello } = require("./try");
-import { toUpperCase, hello } from "./try";
-var compose = function (f, g) {
-  return function (x) {
-    return f(g(x));
-  };
-};
+import { hello, toUpperCase } from './try'
 
-var greet = compose(hello, toUpperCase);
-console.log(greet("kevin"));
+function compose(f, g) {
+  return function (x) {
+    return f(g(x))
+  }
+}
+
+const greet = compose(hello, toUpperCase)
+console.log(greet('kevin'))

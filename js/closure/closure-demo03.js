@@ -1,8 +1,8 @@
 function foo() {
-  var a = 2
+  const a = 2
 
   return function bar() {
-    var b = 9
+    const b = 9
 
     return function fn() {
       console.log(a)
@@ -10,6 +10,6 @@ function foo() {
   }
 }
 
-var bar = foo()
-var fn = bar()
+const bar = foo()
+const fn = bar()
 fn()

@@ -42,4 +42,3 @@ setTimeout(() => {
     console.log('timeout2_then')
   })
 })
-

@@ -1,7 +1,7 @@
 export default class Comparator {
   // 可以自定义比较方式
   constructor(compareFunction) {
-    this.compare = compareFunction || Comparator.defaultCompareFunction;
+    this.compare = compareFunction || Comparator.defaultCompareFunction
   }
 
   /**
@@ -12,9 +12,9 @@ export default class Comparator {
    */
   static defaultCompareFunction(a, b) {
     if (a === b) {
-      return 0;
+      return 0
     }
-    return a < b ? -1 : 1;
+    return a < b ? -1 : 1
   }
 
   /**
@@ -24,7 +24,7 @@ export default class Comparator {
    * @returns {boolean}
    */
   equal(a, b) {
-    return this.compare(a, b) === 0;
+    return this.compare(a, b) === 0
   }
 
   /**
@@ -34,7 +34,7 @@ export default class Comparator {
    * @returns {boolean}
    */
   lessThan(a, b) {
-    return this.compare(a, b) < 0;
+    return this.compare(a, b) < 0
   }
 
   /**
@@ -44,7 +44,7 @@ export default class Comparator {
    * @returns {boolean}
    */
   greaterThan(a, b) {
-    return this.compare(a, b) > 0;
+    return this.compare(a, b) > 0
   }
 
   /**
@@ -54,7 +54,7 @@ export default class Comparator {
    * @returns {boolean}
    */
   lessThanOrEqual(a, b) {
-    return this.lessThan(a, b) || this.equal(a, b);
+    return this.lessThan(a, b) || this.equal(a, b)
   }
 
   /**
@@ -64,14 +64,14 @@ export default class Comparator {
    * @returns {boolean}
    */
   greaterThanOrEqual(a, b) {
-    return this.greaterThan(a, b) || this.equal(a, b);
+    return this.greaterThan(a, b) || this.equal(a, b)
   }
 
   /**
    * 反转参数
    */
   reverse() {
-    const compareOriginal = this.compare;
-    this.compare = (a, b) => this.compareOriginal(b, a);
+    const compareOriginal = this.compare
+    this.compare = (a, b) => this.compareOriginal(b, a)
   }
 }

@@ -1,13 +1,13 @@
-//惰性函数
-var foo = function () {
-  var t = new Date();
+// 惰性函数
+let foo = function () {
+  const t = new Date()
   foo = function () {
-    return t;
-  };
-  return foo();
-};
+    return t
+  }
+  return foo()
+}
 
-var first = foo();
-var second = foo();
-console.log(first);
-console.log(second);
+const first = foo()
+const second = foo()
+console.log(first)
+console.log(second)

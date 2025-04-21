@@ -6,7 +6,7 @@
 //     /
 //    3
 // 输出: [1,2,3]
-import { mockTree } from "../utils/mock.js"
+import { mockTree } from '../utils/mock.js'
 /**
  *  递归实现
  * @param {*} root
@@ -27,8 +27,8 @@ function noRecursionImpl(root) {
   const result = [] // 输出的结果
   const stack = [] // 需要知道当前的节点
   let current = root
-  while(current || stack.length) {
-    while(current) {
+  while (current || stack.length) {
+    while (current) {
       result.push(current.val)
       stack.push(current)
       current = current.left
@@ -39,11 +39,10 @@ function noRecursionImpl(root) {
   return result
 }
 
+console.time('recursion')
+console.log(perOrderTraversal(mockTree, []))
+console.timeEnd('recursion')
 
-console.time('recursion');
-console.log(perOrderTraversal(mockTree, []));
-console.timeEnd('recursion');
-
-console.time('norecursion');
-console.log(noRecursionImpl(mockTree));
-console.timeEnd('norecursion');
+console.time('norecursion')
+console.log(noRecursionImpl(mockTree))
+console.timeEnd('norecursion')

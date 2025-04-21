@@ -3,5 +3,5 @@
 // 例如，在表达式left instanceof right，会沿着left的原型链查找，看看是否存在right的prototype对象。
 // left.__proto__.__proto__... =?= right.prototype
 
-var obj = { a: 1 }
+const obj = { a: 1 }
 console.log(obj instanceof Object)

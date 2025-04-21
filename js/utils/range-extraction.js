@@ -1,9 +1,9 @@
 function solution(list) {
-  // TODO: complete solution 
-  let result = '';
+  // TODO: complete solution
+  let result = ''
   for (let i = 0; i < list.length; i++) {
     if (list[i] + 1 === list[i + 1]) {
-      result += list[i] + '-';
+      result += `${list[i]}-`
     }
   }
 }

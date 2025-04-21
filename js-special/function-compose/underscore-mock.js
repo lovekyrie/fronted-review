@@ -1,13 +1,13 @@
-//支持多个函数
+// 支持多个函数
 function compose() {
-  var args = arguments;
-  var start = args.length - 1;
+  const args = arguments
+  const start = args.length - 1
   return function () {
-    var i = start;
-    var result = args[start].apply(this, arguments);
-    while (i--) result = args[i].call(this, result);
-    return result;
-  };
+    let i = start
+    let result = args[start].apply(this, arguments)
+    while (i--) result = args[i].call(this, result)
+    return result
+  }
 }
 
-module.exports = compose;
+module.exports = compose

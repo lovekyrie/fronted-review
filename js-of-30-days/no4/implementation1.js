@@ -2,23 +2,23 @@
  * @param {integer} init
  * @return { increment: Function, decrement: Function, reset: Function }
  */
-var createCounter = function(init) {
-    var initial = init
-    return {
-        increment: function(){  
-            initial ++
-            return initial
-        },
-        decrement:function(){ 
-            initial -- 
-            return initial 
-        },
-        reset:function(){ 
-            initial = init
-            return initial
-        }
-    }
-};
+function createCounter(init) {
+  let initial = init
+  return {
+    increment() {
+      initial++
+      return initial
+    },
+    decrement() {
+      initial--
+      return initial
+    },
+    reset() {
+      initial = init
+      return initial
+    },
+  }
+}
 
 /**
  * const counter = createCounter(5)

@@ -1,6 +1,6 @@
-var fn
+let fn
 function foo() {
-  var a = 2
+  const a = 2
   function baz() {
     console.log(a)
   }

@@ -1,10 +1,10 @@
 // A 运用了闭包
-var scope = "global scope";
+const scope = 'global scope'
 function checkscope() {
-  var scope = "local scope";
+  const scope = 'local scope'
   function f() {
-    return scope;
+    return scope
   }
-  return f();
+  return f()
 }
-checkscope();
+checkscope()

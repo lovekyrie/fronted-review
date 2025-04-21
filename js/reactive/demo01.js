@@ -1,19 +1,19 @@
 // object.defineProperty无法监听属性为对象或者数组类型
-var o = {
+const o = {
   array: [],
 }
 ;(function (o) {
-  var obj = { id: 1 }
-  var array = []
+  let obj = { id: 1 }
+  let array = []
 
   Object.defineProperty(o, 'obj', {
     enumerable: true,
     configurable: true,
     configurable: true,
-    get: function () {
+    get() {
       return obj
     },
-    set: function (val) {
+    set(val) {
       console.log('set object')
       obj = val
     },
@@ -22,10 +22,10 @@ var o = {
   Object.defineProperty(o, 'arary', {
     enumerable: true,
     configurable: true,
-    get: function () {
+    get() {
       return array
     },
-    set: function (val) {
+    set(val) {
       console.log('set array')
       array = val
     },

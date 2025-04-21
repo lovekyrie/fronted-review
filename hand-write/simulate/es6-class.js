@@ -14,6 +14,6 @@ function inherit(subType, superType) {
       configurable: true,
       writable: true,
     },
-  });
-  Object.setPrototypeOf(subType, superType);
+  })
+  Object.setPrototypeOf(subType, superType)
 }

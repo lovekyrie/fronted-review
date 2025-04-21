@@ -1,3 +1,3 @@
-import * as data from "./module.mjs"
+import * as data from './module.mjs'
 
 console.log(data)

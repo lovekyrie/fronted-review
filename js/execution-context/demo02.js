@@ -1,5 +1,5 @@
 function f1() {
-  var n = 999
+  const n = 999
   function f2() {
     alert(n)
   }
@@ -7,5 +7,5 @@ function f1() {
   return f2
 }
 
-var result = f1()
+const result = f1()
 result()

@@ -1,6 +1,6 @@
 const urlIds = [1, 2, 3, 4, 5]
 
-const loadImg = urlId => {
+function loadImg(urlId) {
   const url = `https://www.image.com/${urlId}`
 
   return new Promise((resolve, reject) => {

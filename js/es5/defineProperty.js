@@ -3,26 +3,26 @@
   访问器有configurable,enumerable,get,set 前两个同上，后两个都是函数，定义了get，set
   后对元素的读写操作都会执行后面的getter / setter函数, 并且覆盖默认的读写行为
 */
-let obj = {};
-Object.defineProperty(obj, "a", {
+const obj = {}
+Object.defineProperty(obj, 'a', {
   configurable: true,
   enumerable: false,
-  value: "1",
+  value: '1',
   writable: false,
-});
+})
 
-console.log(obj.a);
-obj.a = 2; //不会报错，只是不能修改掉值？
-Object.keys(obj); //[]
+console.log(obj.a)
+obj.a = 2 // 不会报错，只是不能修改掉值？
+Object.keys(obj) // []
 
-let obj2 = {};
-Object.defineProperty(obj2, "b", {
+const obj2 = {}
+Object.defineProperty(obj2, 'b', {
   configurable: true,
   enumerable: true,
   get() {
-    return 1;
+    return 1
   },
-});
+})
 
-console.log(obj2.b);
-obj2.b = 2; //不会报错，只是不能修改掉值？
+console.log(obj2.b)
+obj2.b = 2 // 不会报错，只是不能修改掉值？

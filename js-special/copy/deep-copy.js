@@ -1,14 +1,14 @@
-//最常见的深拷贝 JSON.parse(JSON.stringify(obj)),但是有一个问题，不能拷贝函数
-var arr = [
+// 最常见的深拷贝 JSON.parse(JSON.stringify(obj)),但是有一个问题，不能拷贝函数
+const arr = [
   function () {
-    console.log(a);
+    console.log(a)
   },
   {
-    b: function () {
-      console.log(b);
+    b() {
+      console.log(b)
     },
   },
-];
+]
 
-var newArr = JSON.parse(JSON.stringify(arr));
-console.dir(newArr);
+const newArr = JSON.parse(JSON.stringify(arr))
+console.dir(newArr)

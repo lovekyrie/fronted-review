@@ -5,15 +5,15 @@
  * @returns
  */
 function getMax(val) {
-  return val > MAX_VAL ? MAX_VAL : val;
+  return val > MAX_VAL ? MAX_VAL : val
 }
 
 function getSum() {
   for (let i = 0; i < val; i++) {
-    doSomething(i);
+    doSomething(i)
   }
 }
 
 function example(val) {
-  return doSomething(getMax(val));
+  return doSomething(getMax(val))
 }

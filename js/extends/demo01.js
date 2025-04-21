@@ -80,7 +80,7 @@ function _setPrototypeOf(t, e) {
 function _defineProperties(e, r) {
   // Defines properties (methods) on a class's prototype or the class itself.
   for (let t = 0; t < r.length; t++) {
-    let o = r[t]
+    const o = r[t]
     ;(o.enumerable = o.enumerable || !1), (o.configurable = !0), 'value' in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o)
   }
 }
@@ -92,7 +92,7 @@ function _createClass(e, r, t) {
 
 function _toPropertyKey(t) {
   // Converts a value to a property key (string or symbol).
-  let i = _toPrimitive(t, 'string')
+  const i = _toPrimitive(t, 'string')
   return _typeof(i) == 'symbol' ? i : `${i}`
 }
 
@@ -100,9 +100,9 @@ function _toPrimitive(t, r) {
   // Converts an object to a primitive value.
   if (_typeof(t) != 'object' || !t)
     return t
-  let e = t[Symbol.toPrimitive]
+  const e = t[Symbol.toPrimitive]
   if (void 0 !== e) {
-    let i = e.call(t, r || 'default')
+    const i = e.call(t, r || 'default')
     if (_typeof(i) != 'object')
       return i
     throw new TypeError('@@toPrimitive must return a primitive value.')
@@ -116,13 +116,13 @@ function _classCallCheck(a, n) {
     throw new TypeError('Cannot call a class as a function')
 }
 
-let Person = /* #__PURE__ */ _createClass(function Person() {
+const Person = /* #__PURE__ */ _createClass(function Person() {
   // Constructor for the Person class.
   _classCallCheck(this, Person)
   this.type = 'person'
 })
 
-let Student = /* #__PURE__ */ (function (_Person) {
+const Student = /* #__PURE__ */ (function (_Person) {
   function Student() {
     // Constructor for the Student class.
     _classCallCheck(this, Student)

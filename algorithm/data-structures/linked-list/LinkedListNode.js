@@ -5,8 +5,8 @@ export default class LinkedListNode {
    * @param {*} next
    */
   constructor(value, next = null) {
-    this.value = value;
-    this.next = next;
+    this.value = value
+    this.next = next
   }
 
   /**
@@ -15,6 +15,6 @@ export default class LinkedListNode {
    * @returns
    */
   toString(callback) {
-    return callback ? callback(this.value) : `${this.value}`;
+    return callback ? callback(this.value) : `${this.value}`
   }
 }

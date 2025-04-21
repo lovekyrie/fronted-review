@@ -1,21 +1,22 @@
-//第一版
+// 第一版
 const isArrayLike = require('../type-judgment/type-below')
 
 function each(obj, callback) {
-  var length, i = 0
+  let length; let i = 0
   if (isArrayLike(obj)) {
     length = obj.length
     for (; i < length; i++) {
-      //中止循环
+      // 中止循环
       if (callback(i, obj[i]) === false) {
-        break;
+        break
       }
     }
-  } else {
+  }
+  else {
     for (i in obj) {
-      //中止循环
+      // 中止循环
       if (callback(i, obj[i]) === false) {
-        break;
+        break
       }
     }
   }

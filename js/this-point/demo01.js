@@ -1,11 +1,11 @@
 const obj = {
   name: 'Alice',
-  greet: function() {
+  greet() {
     console.log(this.name)
   },
   arrowGreat: () => {
     console.log(this.name)
-  }
+  },
 }
 
 obj.greet()

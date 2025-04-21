@@ -12,6 +12,6 @@ B.prototype.b = function () {
   return 'b'
 }
 
-var c = new B()
+const c = new B()
 c.b()
 c.a()

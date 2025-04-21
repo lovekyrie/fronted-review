@@ -1,47 +1,48 @@
 // underscore防抖实现
-var count = 1;
-var container = document.getElementById("container");
+let count = 1
+const container = document.getElementById('container')
 function getUserAction() {
-  container.innerHTML = count++;
+  container.innerHTML = count++
 }
-var setUseAction = debounce(getUserAction, 1000, false);
-container.onmousemove = setUseAction;
+const setUseAction = debounce(getUserAction, 1000, false)
+container.onmousemove = setUseAction
 
-document.getElementById("button").addEventListener("click", function () {
-  setUseAction.cancel();
-});
+document.getElementById('button').addEventListener('click', () => {
+  setUseAction.cancel()
+})
 
 function debounce(fn, wait, immediate) {
-  var timeout, result;
+  let timeout, result
 
   return function () {
-    var context = this;
-    var args = arguments;
+    const context = this
+    const args = arguments
 
     if (timeout) {
-      clearTimeout(timeout);
+      clearTimeout(timeout)
     }
     if (immediate) {
-      //立即执行，如果执行过，则不执行
-      var callNow = !timeout;
+      // 立即执行，如果执行过，则不执行
+      const callNow = !timeout
       timeout = setTimeout(() => {
-        timeout = null;
-      }, wait);
+        timeout = null
+      }, wait)
       if (callNow) {
-        result = fn.apply(context, args);
+        result = fn.apply(context, args)
       }
-    } else {
-      timeout = setTimeout(function () {
-        fn.apply(context, args);
-      }, wait);
     }
-    return result;
-  };
+    else {
+      timeout = setTimeout(() => {
+        fn.apply(context, args)
+      }, wait)
+    }
+    return result
+  }
 
   debounce.cancel = function () {
-    clearTimeout(timeout);
-    timeout = nul;
-  };
+    clearTimeout(timeout)
+    timeout = nul
+  }
 
-  return debounce;
+  return debounce
 }

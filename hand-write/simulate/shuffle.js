@@ -1,7 +1,7 @@
-//洗牌模式 打乱数据用
+// 洗牌模式 打乱数据用
 function shuffle(arr) {
   for (let i = 0, len = arr.length; i < len; i++) {
-    let randomIndex = i + Math.floor(Math.random() * (len - i));
+    const randomIndex = i + Math.floor(Math.random() * (len - i));
     [arr[i], arr[randomIndex]] = [arr[randomIndex], arr[i]]
   }
   return arr
@@ -13,7 +13,7 @@ console.log(shuffle(arr))
 function shuffle2(arr) {
   const _arr = []
   while (arr.length) {
-    let randomIndex = Math.floor(Math.random() * arr.length)
+    const randomIndex = Math.floor(Math.random() * arr.length)
     _arr.push(arr.splice(randomIndex, 1)[0])
   }
   return _arr

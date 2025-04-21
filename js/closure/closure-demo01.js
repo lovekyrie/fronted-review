@@ -4,6 +4,7 @@ function foo() {
   function baz() {
     console.log(a)
   }
+  // 跟return baz一样
   fn = baz
 }
 

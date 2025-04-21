@@ -1,4 +1,4 @@
-;(function () {
+;(function (window) {
   var a = 10
   var b = 20
 
@@ -16,11 +16,11 @@
   }
 
   window.test = test
-})()
+})(globalThis)
 
-test.add(100)
-test.sum()
-test.mark()
+console.log(test.add(100))
+console.log(test.sum())
+console.log(test.mark(1, 2))
 
-var _mark = test.mark
-_mark()
+var _sum = test.sum
+console.log(_sum())

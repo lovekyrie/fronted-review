@@ -22,11 +22,11 @@
 
     var indentify = nanja2.whoAmI;
 
-    console.log(nanja1.whoAmI() === nanja1);
-    console.log(nanja2.whoAmI() === nanja1);
+    console.log(nanja1.whoAmI() === nanja1); // true
+    console.log(nanja2.whoAmI() === nanja1); // false
 
-    console.log(indentify() === nanja1)
-    console.log(nanja1.whoAmI.call(nanja2) === nanja2)
+    console.log(indentify() === nanja1) // false indentify()的this指向window
+    console.log(nanja1.whoAmI.call(nanja2) === nanja2) // true 通过call方法，强制将this指向nanja2
   </script>
 </body>
 

@@ -29,6 +29,8 @@
   }
 
   function clearAllObjects() {
+    console.log(add)
+    // 通过调试可以看出，add原来有一个scope为3层的作用域，其中一个就是闭包。
     if (add) {
       add = null;
     }

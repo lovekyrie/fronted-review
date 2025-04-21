@@ -39,6 +39,27 @@ function noRecursionImpl(root) {
   return result
 }
 
+// 迭代实现方式2
+function noRecursionImpl2(root) {
+  const result = []
+  const stack = []
+  if (root) {
+    stack.push(root)
+  }
+  while (stack.length) {
+    const node = stack.pop()
+    result.push(node.val)
+    // 先右后左入栈， 先左后右出栈
+    if (node.right) {
+      stack.push(node.right)
+    }
+    if (node.left) {
+      stack.push(node.left)
+    }
+  }
+  return result
+}
+
 console.time('recursion')
 console.log(perOrderTraversal(mockTree, []))
 console.timeEnd('recursion')
@@ -46,3 +67,7 @@ console.timeEnd('recursion')
 console.time('norecursion')
 console.log(noRecursionImpl(mockTree))
 console.timeEnd('norecursion')
+
+console.time('norecursion2')
+console.log(noRecursionImpl2(mockTree))
+console.timeEnd('norecursion2')

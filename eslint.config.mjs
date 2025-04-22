@@ -6,10 +6,11 @@ export default antfu({
     'no-console': 'off',
   },
 }, {
-  files: ['js/**/*.js', 'js-of-30-days/**/*.js', 'hand-write/**/*.js', 'algorithm/**/*.js', 'js-questions/**/*.js'],
+  files: ['js/**/*.js', 'js-of-30-days/**/*.js', 'hand-write/**/*.js', 'algorithm/**/*.js', 'js-questions/**/*.js', 'js-questions/nowcoder/**/*.js'],
   rules: {
     'no-unused-vars': 'off',
     'unused-imports/no-unused-vars': 'off',
     'no-undef': 'off',
+    'regexp/no-unused-capturing-group': 'off',
   },
 })

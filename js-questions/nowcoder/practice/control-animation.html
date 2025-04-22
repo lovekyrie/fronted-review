@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset=utf-8>
+        <style type="text/css">
+            #rect {
+                width: 120px;
+                height: 100px;
+                background-color: black;
+                /*补全代码*/
+                animation: rect 10s linear 0s infinite;          
+            }
+            @keyframes rect {
+                from {
+                    transform: rotate(0deg);
+                }
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- 补全代码 -->
+    	<div id="rect"></div>
+      <input id="range" type="range" min="1" max="10" step="1" value="1" />
+      <script src="control-animation.js"></script>    
+    </body>
+</html>

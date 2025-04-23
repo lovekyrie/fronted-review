@@ -5,3 +5,11 @@
 
 const obj = { a: 1 }
 console.log(obj instanceof Object)
+
+function Person() {}
+const p = new Person()
+console.log(p instanceof Person)
+// p.__proto__ = Person.prototype
+// Person.prototype.__proto__ = Object.prototype (可以参考原型链那张图)
+// Object.prototype.__proto__ = null
+console.log(p instanceof Object)

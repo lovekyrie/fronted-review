@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+  ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .options li {
+    float: left;
+    width: 100px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border: solid 1px #ddd;
+  }
+
+  .items li {
+    width: 405px;
+    height: 405px;
+    display: none;
+    border: solid 1px #ddd;
+  }
+  </style>
+</head>
+<body>
+   <ul class='options'>
+    <li data-type="0" style='background-color: #25bb9b;'>题库</li>
+    <li data-type="1">面试</li>
+    <li data-type="2">学习</li>
+    <li data-type="3">求职</li>
+  </ul>
+  <ul class='items'>
+    <li style="display: block;">牛客题库，包含编程题、选择题等</li>
+    <li>为你的面试提供一站式服务</li>
+    <li>校招学习来牛客</li>
+    <li>求职中有什么难题，可以联系我们</li>
+  </ul>
+
+  <script src="./switch-tab.js"></script>
+</body>
+</html>

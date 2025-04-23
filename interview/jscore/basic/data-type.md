@@ -126,7 +126,7 @@ Object.prototype.toString.call(window) // "[object Window]"
  * This method is called in priority by string conversion, but numeric conversion and primitive conversion call valueOf() in priority.
  valueOf() 返回的是自身，如果是object类型需要强转，调用该方法还是返回的object类型。不是primitive类型。
  #### 隐式转换
- - '==' 的隐式类型转换规则
+- '==' 的隐式类型转换规则
   1. operands the same type
     * Object: only return true both operands reference the same object
     * Number: return true only if both operands have the same value.+0 and -0are treated as the same value. If either operand is NaN, return false; so, NaN is never equal to NaN.
@@ -144,9 +144,11 @@ Object.prototype.toString.call(window) // "[object Window]"
     * Number to Bigint: compare by their mathematical value. If the value is  ±Infinity or NaN, return false.
     * String to Bigint: convert the string to a BigInt using the same algorithm as the BigInt() constructor. If conversion fails, return false.
 - '+' 的隐式类型转换规则
-'+' 号操作符，不仅可以用作数字相加，还可以用作字符串拼接。仅当 '+' 号两边都是数字时，进行的是加法运算；如果两边都是字符串，则直接拼接，无须进行隐式类型转换。
-除了上述比较常规的情况外，还有一些特殊的规则，如下所示。
-  * 如果其中有一个是字符串，另外一个是 undefined、null 或布尔型，则调用 toString() 方法进行字符串拼接；如果是纯对象、数组、正则等，则默认调用对象的转换方法会存在优先级（下一讲会专门介绍），然后再进行拼接。
+  '+' 号操作符，不仅可以用作数字相加，还可以用作字符串拼接。仅当 '+' 号两边都是数字时，进行的是加法运算；如果两边都是字符串，则直接拼接，无须进行隐式类型转换。
+  除了上述比较常规的情况外，还有一些特殊的规则，如下所示。
+
+  -  如果其中有一个是字符串，另外一个是 undefined、null 或布尔型，则调用 toString() 方法进行字符串拼接；如果是纯对象、数组、正则等，则默认调用对象的转换方法会存在优先级（下一讲会专门介绍），然后再进行拼接。
+
   * 如果其中有一个是数字，另外一个是 undefined、null、布尔型或数字，则会将其转换成数字进行加法运算，对象的情况还是参考上一条规则。
   * 如果其中一个是字符串、一个是数字，则按照字符串规则进行拼接。
 - Object 的转换规则

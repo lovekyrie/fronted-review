@@ -54,6 +54,7 @@ export default {
 
 #### 2. 渲染优化
 ##### 2.1 使用v-show代替v-if
+v-if 的效果是把元素设置display: none，而v-show的效果是把元素设置visible: hidden，从而减少页面渲染。
 ```html
 <!-- 频繁切换时使用v-show -->
 <template>

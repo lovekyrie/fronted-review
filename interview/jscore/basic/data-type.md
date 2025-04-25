@@ -135,7 +135,7 @@ Object.prototype.toString.call(window) // "[object Window]"
     * BigInt: return true only if both operands have the same value.
     * Symbol: return true only if both operands reference the same symbol.
   2. one operands is unll or undefined
-  3. one is object type, the other is primitive.
+  3. one is object type, the other is primitive. convert the object to primitive type.
   4. At this step, both operands are converted to primitives(one of String, Number, Boolean, Symbol and BigInt). The rest of the conversation is done one by one.
     * If they are the same type, compare them using step 1.
     * If one of the operands is Symbol but the other is not, return false.

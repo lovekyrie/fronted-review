@@ -14,5 +14,6 @@ function asciiToNumber(char) {
 
 console.log(findMissingLetter(['a', 'b', 'c', 'd', 'f']))
 console.log('a的ASCII码是:', asciiToNumber('a')) // 输出: 97
+console.log('a的ASCII码是:', asciiToNumber('z')) // 输出: 122
 console.log('A的ASCII码是:', asciiToNumber('A')) // 输出: 65
 console.log('1的ASCII码是:', asciiToNumber('1')) // 输出: 49

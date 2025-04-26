@@ -13,4 +13,6 @@ function camelCase(string) {
 }
 
 const str = 'foo Bar'
-camelCase(str)
+const str1 = '-webkit-border-bottom-right-radius'
+console.log(camelCase(str))
+console.log(camelCase(str1)) // 会把第一个字母也转换成大写

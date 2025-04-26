@@ -7,6 +7,7 @@ console.log(convertToBinary(128, 8))
 
 // 将给定数字转换成二进制字符串。如果字符串长度不足 8 位，则在前面补 0 到满8位。
 function convertToBinary2(num) {
+  // padStart方法在牛客的编译器中不支持, 需要用repeat替换
   return num.toString(2).padStart(8, '0')
 }
 

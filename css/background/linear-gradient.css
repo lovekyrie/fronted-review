@@ -1,0 +1,38 @@
+/* linear-gradient default to bottom equals to 180deg */
+
+ /* 技巧一：渐变的颜色可以是透明色（transparent） */
+.box-1 {
+  background: linear-gradient(#fff, transparent);
+  border: 1px solid #000;
+}
+
+/* 技巧二：渐变可以是从一种颜色直接到另外一种颜色 */
+.box-2 {
+  background: linear-gradient(#fff 0%, #fff 50%,  #f00 50%, #f00 100%);
+  border: 1px solid #000;
+}
+
+/* 得到一个三角形 */
+.box-3 {
+  background: linear-gradient(45deg, #f00 0%, #f00 50%, transparent 50%,  transparent 100%);
+}
+
+/* 技巧三：渐变是可以叠加多层的 */
+.box-4 {
+  width: 200px;
+  height: 120px;
+  background: linear-gradient(135deg, transparent 15px,  deeppink 0),
+    linear-gradient(-135deg, transparent 15px,  deeppink 0), 
+    linear-gradient(-45deg, transparent 15px,  deeppink 0),
+    linear-gradient(45deg, transparent 15px,  deeppink 0);
+  background-size:  50% 50%;
+  background-position: top left, top right, bottom right, bottom left;
+  background-repeat: no-repeat;
+}
+
+/* 技巧四：利用 repeating-linear-gradient 节省代码 */
+.box-5 {
+  width: 300px;
+  height: 100px;
+  background: repeating-linear-gradient(45deg, #f06a0e, #f06a0e 11px, transparent 11px, transparent 20px);
+}

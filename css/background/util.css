@@ -1,0 +1,19 @@
+body {
+  margin: 0;
+}
+
+.outter {
+  padding: 20px;
+  background-color: #8b4513; 
+}
+
+.box {
+  margin: 10px;
+  width: 200px;
+  height: 200px;
+  /* 背景色 棕色 */
+}
+
+.box + .box {
+  margin-top: 10px;
+}

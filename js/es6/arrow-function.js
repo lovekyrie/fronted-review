@@ -1,7 +1,7 @@
 // 与变量结构结合
 const func = ({ value, num }) => ({ total: value * num })
 // 使用
-var result = func({
+let result = func({
   value: 10,
   num: 10,
 })
@@ -49,11 +49,15 @@ const button = new Button('button')
 
 // eg1. 因为箭头函数没有this,所以不能用call()、apply()、bind()这些方法改变this的指向
 const value = 1
-var result = (() => this.value).bind({ value: 2 })()
-console.log(result) // 需要在浏览器环境下执行
+// 去掉下面这行eslint报错注释就知道 这里不能使用bind()
+// eslint-disable-next-line no-extra-bind
+const res = (() => this.value).bind({ value: 2 })()
+console.log(res) // 需要在浏览器环境下执行
 
 // eg2 .没有arguments (1)可以访问外层arguments,前提不是箭头函数 (2)如何访问?命名参数和rest参数形式
 function constant() {
+  // 去掉下面这行eslint报错就知道 这里不能使用arguments，推荐使用rest参数
+  // eslint-disable-next-line prefer-rest-params
   return () => arguments[0]
 }
 const result1 = constant(1)

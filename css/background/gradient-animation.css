@@ -1,0 +1,99 @@
+.box-1 {
+  width: 100%;
+  background: linear-gradient(90deg, #ffc700 0%, #e91e1e 50%, #6f27b0 100% );
+  background-size: 200% 100%;
+  background-position: 0 0;
+  animation: gradient-animation 2s infinite linear alternate;
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+/* 而至于为什么要配合 background-position: 100% 0，是由于如果不设置 background-position ，默认情况下的值为 0% 0%，会导致动画最左侧的颜色不变 */
+.box-2 {
+  width: 100%;
+  background: linear-gradient(90deg, #ffc700 0%, #e91e1e 33%, #6f27b0 66%, #0f8 100% );
+  background-position: 100% 0;
+  animation: bgSize 5s infinite ease-in-out alternate;
+}
+
+@keyframes bgSize {
+  0% {
+    background-size: 300% 100%;
+  }
+  100% {
+    background-size: 100% 100%;
+  }
+}
+
+/* 上述两种方式，由于使用了 background-position 和 background-size，并且在渐变中改变这两个属性，导致页面不断地进行大量的重绘（repaint），对页面性能消耗非常严重，所以我们还可以试试 transfrom 的方法 */
+
+/* 通过滤镜 hue-rotate 实现渐变动画 */
+.box-3 {
+  width: 100%;
+  background: linear-gradient(45deg, #5fddcc, #ff004d);
+  animation: hueRotate 10s infinite  alternate;
+}
+
+@keyframes hueRotate {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+/* 使用 CSS @property 实现背景色渐变动画 */
+@property --colorA {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: fuchsia;
+}
+
+@property --colorC {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #f79188;
+}
+
+@property --colorF {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: red;
+}
+
+.box-4 {
+  width: 100%;
+  background: linear-gradient(45deg, var(--colorA), var(--colorC), var(--colorF));
+  animation: colorChange 10s infinite linear;
+}
+
+@keyframes colorChange {
+   20% {
+        --colorA: red;
+        --colorC: #a93ee0;
+        --colorF: fuchsia;
+    }
+    40% {
+        --colorA: #ff3c41;
+        --colorC: #e228a0;
+        --colorF: #2e4c96;
+    }
+    60% {
+        --colorA: orange;
+        --colorC: green;
+        --colorF: teal;
+    }
+    80% {
+        --colorA: #ae63e4;
+        --colorC: #0ebeff;
+        --colorF: #efc371;
+    }
+}

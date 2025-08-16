@@ -1,0 +1,46 @@
+ul, li {
+  list-style: none;
+}
+
+.box {
+  width: 400px;
+  height: 200px;
+  background: url(niu.jpg) no-repeat center center / cover;
+  /* 这里得到了使用 mask 最重要结论：元素的内容与 mask 生成的渐变的透明重叠部分，将会变得透明。 */
+  mask: linear-gradient(to right, transparent, #000);
+}
+
+/* 技巧一: 使用mask进行内容裁切 */
+.box-1 {
+  margin-top: 10px;
+  width: 200px;
+  height: 120px;
+  background: url(niu.jpg) no-repeat center center / cover;
+  mask:linear-gradient(135deg, transparent 15px, deeppink 0)
+    top left,linear-gradient(-135deg, transparent 15px, deeppink 0)
+    top right,linear-gradient(-45deg, transparent 15px, deeppink 0)
+    bottom right,linear-gradient(45deg, transparent 15px, deeppink 0)
+    bottom left;
+  mask-size: 50% 50%;
+  mask-repeat: no-repeat;
+}
+
+/* 技巧二：巧用 mask 实现渐变消失布局 */
+ul {
+  padding: 0;
+  display: flex;
+  width: 300px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  mask: linear-gradient(90deg, #000 70%, transparent);
+}
+
+li {
+  border: 1px solid #ccc;
+  padding: 2px 4px;
+  margin-right: 10px;
+  &:hover {
+    background: #000;
+    color: #fff;
+  }
+}

@@ -1,21 +1,25 @@
-// 函数 useArguments 可以接收 1 个及以上的参数。请实现函数 useArguments，返回所有调用参数相加后的结果。
-// 本题的测试参数全部为 Number 类型，不需考虑参数转换。
-function useArguments(...rest) {
-  return rest.reduce((acc, curr) => acc + curr, 0)
-}
-
-function useArguments1(...rest) {
-  let sum = 0
-  for (let i = 0; i < rest.length; i++) {
-    sum += rest[i]
+function test() {
+  let str = ''
+  for (let i = 0; i < 1000; i++) {
+    // eslint-disable-next-line prefer-template
+    str += ['hello'] + 'world'
   }
-  return sum
+  return str
 }
 
-console.time('useArguments')
-console.log(useArguments(1, 2, 3, 4, 5))
-console.timeEnd('useArguments')
+function test1() {
+  let str = ''
+  for (let i = 0; i < 1000; i++) {
+    str += 'hello' + 'world'
+  }
+  return str
+}
 
-console.time('useArguments1')
-console.log(useArguments1(1, 2, 3, 4, 5))
-console.timeEnd('useArguments1')
+// 类型转换比较损耗性能
+console.time('test')
+test()
+console.timeEnd('test')
+
+console.time('test1')
+test1()
+console.timeEnd('test1')

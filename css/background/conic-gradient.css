@@ -1,0 +1,20 @@
+.box-1 {
+  background: conic-gradient(from 270deg at 50px 50px,deeppink, yellowgreen);
+}
+
+/* 技巧七：利用角向渐变 repeat 配合 position 完成特殊图案 */
+.box-2 {
+  background: conic-gradient(from 270deg at 50px 50px,deeppink 0%, deeppink 90deg, transparent 90deg, transparent 360deg) yellow;
+  background-position: -25px -25px;
+}
+
+.outter {
+  background-color: #fff;
+}
+
+.box-3 {
+  width: 100px;
+  height: 100px;
+  background: conic-gradient(from 270deg at 40px 40px,#fff 0%, #fff 90deg, transparent 90deg, transparent 360deg) #000;
+  background-position: -20px -20px;
+}

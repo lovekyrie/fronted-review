@@ -1,0 +1,29 @@
+.box {
+  width: 100px;
+  height: 100px;
+  padding: 20px;
+  background: #000;
+  background-repeat: no-repeat;
+  border: 10px dashed red;
+}
+
+/* default 默认不设置，背景会延伸到 border 的外面 */
+.box-1 {
+  background-clip: border-box;
+}
+
+.box-2 {
+  background-clip: padding-box;
+}
+
+.box-3 {
+  background-clip: content-box;
+}
+
+.box-4 {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(#fff, #fff), #e91e63;
+  background-clip: padding-box, border-box;
+  border: 5px dashed #ffeb3b;
+}

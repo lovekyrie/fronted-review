@@ -1,0 +1,7 @@
+.color-picker {
+  width: 100px;
+  height: 100px;
+  background-color: #0978f3;
+  border-radius: 2px;
+  border: 10px solid #ccc;
+}

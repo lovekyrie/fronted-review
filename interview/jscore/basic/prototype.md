@@ -98,10 +98,13 @@ child.sayName(); // child
 ```
 
 #### 2. 构造函数继承
+父类原型上的方法不会被继承
 ```js
 function Parent(name) {
   this.name = name;
 }
+
+parent.prototype.sayName = function() {}  // 不会被继承 
 
 function Child(name, age) {
   Parent.call(this, name);
@@ -111,6 +114,7 @@ function Child(name, age) {
 const child = new Child('John', 20);
 console.log(child.name); // John
 console.log(child.age); // 20
+console.log(child.sayName()); // undefined
 ```
 
 #### 3. 组合继承

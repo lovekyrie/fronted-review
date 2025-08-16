@@ -155,6 +155,56 @@ person.foo(); // 'John'
 4. 避免在回调函数中丢失`this`的指向
 5. 使用`const self = this`或箭头函数保存`this`的引用
 6. 在类方法中使用箭头函数定义回调
+```js
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+
+  // 错误示例：使用普通函数
+  fetchUserData() {
+    fetch('/api/user')
+      .then(function(response) {
+        // 这里的 this 指向 window 或 undefined
+        console.log(this.name); // 报错：Cannot read property 'name' of undefined
+      });
+  }
+}
+```
+```js
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+
+  // 正确示例：使用箭头函数
+  fetchUserData() {
+    fetch('/api/user')
+      .then((response) => {
+        // 箭头函数保持 this 指向 User 实例
+        console.log(this.name); // 正确输出：用户名称
+      });
+  }
+
+  // 另一个例子：事件处理
+  setupEventListeners() {
+    document.getElementById('button')
+      .addEventListener('click', () => {
+        // 箭头函数保持 this 指向 User 实例
+        this.handleClick();
+      });
+  }
+
+  handleClick() {
+    console.log(`Hello, ${this.name}!`);
+  }
+}
+
+// 使用示例
+const user = new User('John');
+user.fetchUserData();
+user.setupEventListeners();
+```
 7. 使用`bind`方法创建绑定函数
 8. 使用`call`或`apply`方法调用函数
 9. 使用`new`关键字创建对象

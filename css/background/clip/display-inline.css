@@ -1,0 +1,20 @@
+
+/* background与display:inline-block */
+.box-3, .a-3 {
+  width: 100%;
+  font-size: 24px;
+  line-height: 1.2;
+  color: #000;
+  cursor: pointer;
+  text-align: justify;
+  background: linear-gradient(to right, blue, green);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  transition: all .6s linear;
+}
+
+.box-3:hover, .a-3:hover {
+  background-size: 0 100%;
+}
+
+

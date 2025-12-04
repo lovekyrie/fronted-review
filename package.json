@@ -11,7 +11,14 @@
     "test": "node test.js",
     "dev": "node vue/demo.js",
     "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "lint:fix": "eslint --fix",
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview"
+  },
+  "dependencies": {
+    "vitepress": "^1.6.4",
+    "vue": "^3.5.25"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.12.0",

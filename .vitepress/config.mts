@@ -54,7 +54,11 @@ export default defineConfig({
           text: '布局',
           items: [
             { text: '常用布局', link: '/html&css/layout' },
-            { text: '语义化标签', link: '/html&css/semantic-tag' }
+            { text: '语义化标签', link: '/html&css/semantic-tag' },
+            { text: 'HTML5 新特性', link: '/html&css/html5-feature' },
+            { text: 'css动画', link: '/html&css/animation' },
+            {text: 'css盒模型', link: '/html&css/box-model'},
+
           ]
         }
       ]

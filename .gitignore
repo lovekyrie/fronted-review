@@ -2,3 +2,4 @@
 */node_modules
 *.yaml
 node_modules
+.vitepress/cache/

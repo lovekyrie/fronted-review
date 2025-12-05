@@ -57,12 +57,38 @@ export default defineConfig({
             { text: '语义化标签', link: '/html&css/semantic-tag' },
             { text: 'HTML5 新特性', link: '/html&css/html5-feature' },
             { text: 'css动画', link: '/html&css/animation' },
-            {text: 'css盒模型', link: '/html&css/box-model'},
+            { text: 'css盒模型', link: '/html&css/box-model' },
+            { text: '浏览器兼容性', link: '/html&css/browser-compatibility' },
+            { text: '响应式设计', link: '/html&css/responsive-design' },
+          ]
+        }
+      ],
 
+      '/framework/': [
+        {
+          text: 'Vue',
+          items: [
+            { text: 'Vue 3', link: '/framework/vue/vue3' },
+            { text: '响应式原理', link: '/framework/vue/reactivity' },
+            { text: '生命周期', link: '/framework/vue/lifecycles' },
+            { text: '路由', link: '/framework/vue/router' },
+            { text: '状态管理', link: '/framework/vue/state-management' },
+            { text: '性能优化', link: '/framework/vue/performance-optimization' },
+            { text: 'dom-diff', link: '/framework/vue/dom-diff' },
+            { text: '组件通信', link: '/framework/vue/component-communication' },
+          ]
+        },
+        {
+          text: 'React',
+          items: [
+            { text: '虚拟DOM', link: '/framework/react/virtual-dom' },
+            { text: '路由', link: '/framework/react/router' },
+            { text: 'Hooks', link: '/framework/react/hooks' },
+            { text: '状态管理', link: '/framework/react/state-management' },
+            { text: '性能优化', link: '/framework/react/performance-optimization' },
           ]
         }
       ]
-      // ... 为其他目录配置侧边栏
     },
 
     // 开启本地搜索

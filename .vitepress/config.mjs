@@ -7,6 +7,9 @@ export default defineConfig({
   // 关键配置：将根目录指向你的 interview 文件夹
   srcDir: './interview',
 
+  // 排除的文件
+  srcExclude: ['interview.md'],
+
   themeConfig: {
     // 1. 顶部导航栏 (Tabs)
     // 对应你的文件夹结构，点击后跳转到该分类下的第一个文件

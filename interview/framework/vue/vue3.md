@@ -61,8 +61,12 @@ watch(count, (newValue, oldValue) => {
 ```
 
 #### 2. 新特性
+Vue3 还引入了一些内置组件和特性，方便开发者处理更复杂的UI结构和异步逻辑。
 
 ##### 2.1 Teleport
+`Teleport` 允许将组件的 DOM 结构“传送”到组件树之外的节点（如 `body`）。
+**场景**：模态框 (Modal)、通知 (Toast)、弹窗等，避免父组件 `overflow: hidden` 或 `z-index` 限制。
+
 ```html
 <!-- 将内容传送到指定位置 -->
 <template>
@@ -75,6 +79,9 @@ watch(count, (newValue, oldValue) => {
 ```
 
 ##### 2.2 Fragments
+Vue3 支持多根节点组件，不再强制要求 `<template>` 下必须有一个根 `div` 包裹。
+**好处**：减少无意义的 DOM 嵌套，HTML 结构更干净。
+
 ```html
 <!-- 多根节点组件 -->
 <template>
@@ -85,6 +92,9 @@ watch(count, (newValue, oldValue) => {
 ```
 
 ##### 2.3 Suspense
+`Suspense` 是一对新的内置组件，用于协调对异步依赖的处理。
+**场景**：在组件树中等待异步组件或异步数据加载时，显示加载状态（fallback 内容），待加载完成后显示默认内容。
+
 ```html
 <!-- 异步组件加载 -->
 <template>
@@ -107,8 +117,15 @@ const AsyncComponent = defineAsyncComponent(() =>
 </script>
 ```
 
+
 #### 3. 性能改进
-##### 3.1 虚拟DOM重写
+Vue3 在底层做了大量的性能优化，使得运行时性能大幅提升。
+
+##### 3.1 虚拟DOM重写 (Block Tree)
+Vue3 重写了 diff 算法。通过编译阶段的优化，Vue3 能区分静态节点和动态节点。
+- **PatchFlag**：给动态节点打标（如 text, class, style），diff 时只对比这些变化点。
+- **Block Tree**：将模板切分为 block，只收集动态节点，diff 时直接遍历动态节点数组，忽略静态节点，将 diff 复杂度从 O(TemplateSize) 降为 O(DynamicNodes)。
+
 ```javascript
 // 更高效的虚拟DOM diff算法
 const vnode = h('div', { id: 'app' }, [
@@ -117,7 +134,10 @@ const vnode = h('div', { id: 'app' }, [
 ]);
 ```
 
-##### 3.2 静态树提升
+##### 3.2 静态树提升 (Static Hoisting)
+编译器会检测静态节点、子树甚至静态属性，将其提升到渲染函数之外。
+**好处**：静态内容只会在应用启动时创建一次，后续更新直接复用，不再重复创建 VNode。
+
 ```html
 <!-- 静态内容会被提升 -->
 <template>
@@ -130,6 +150,11 @@ const vnode = h('div', { id: 'app' }, [
 ```
 
 ##### 3.3 基于Proxy的响应式系统
+Vue3 废弃了 `Object.defineProperty`，改用 ES6 的 `Proxy`。
+**优势**：
+- **全方位监听**：原生支持监听数组索引修改、数组长度变化、对象属性的新增和删除。
+- **性能更优**：不需要初始化时一次性递归遍历整个对象（Vue2 是递归 defineProperty），而是按需代理（访问深层属性时才代理），初始化速度提升明显。
+
 ```javascript
 // 使用Proxy实现响应式
 const state = reactive({
@@ -143,8 +168,14 @@ const state = reactive({
 state.user.name = 'Jane';
 ```
 
+
 #### 4. TypeScript支持
+Vue3 源码完全使用 TypeScript 重写，提供了更好的 TS 支持。
+
 ##### 4.1 类型定义
+Vue3 提供了 `defineComponent` 函数，使得组件内部逻辑（特别是 `setup` 中）能够获得完美的类型推导。
+**优势**：在 IDE 中编写代码时，能获得精准的属性补全和类型检查，极大减少运行时错误。
+
 ```typescript
 // 使用TypeScript
 import { defineComponent, ref } from 'vue';
@@ -169,11 +200,16 @@ export default defineComponent({
 ```
 
 ##### 4.2 类型推导
+Vue3 的 API 设计充分考虑了类型推导。
+- **ref/reactive**：能自动推导出响应式数据的类型。
+- **props/emits**：在组合式 API 中声明时，能直接使用 TS 泛型或接口定义，不再需要复杂的 PropType 包装。
+
 ```typescript
 // 自动类型推导
 const count = ref(0); // Ref<number>
 const user = ref({ name: 'John' }); // Ref<{ name: string }>
 ```
+
 
 #### 5. 最佳实践
 1. 使用组合式API

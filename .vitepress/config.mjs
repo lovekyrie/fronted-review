@@ -1,9 +1,9 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: "前端面试知识库",
-  description: "我的前端复习笔记",
-  
+  title: '前端面试知识库',
+  description: '我的前端复习笔记',
+
   // 关键配置：将根目录指向你的 interview 文件夹
   srcDir: './interview',
 
@@ -15,7 +15,7 @@ export default defineConfig({
       { text: 'HTML & CSS', link: '/html&css/layout' },
       { text: '框架原理', link: '/framework/vue/vue3' },
       { text: '算法', link: '/algorithm&data-structure/sort' },
-      { text: '工程化', link: '/engineering/webpack/loader' }
+      { text: '工程化', link: '/engineering/webpack/loader' },
     ],
 
     // 2. 侧边栏 (Sidebar)
@@ -29,26 +29,31 @@ export default defineConfig({
             { text: '数据类型', link: '/jscore/basic/data-type' },
             { text: 'This 关键字', link: '/jscore/basic/this' },
             { text: '原型链', link: '/jscore/basic/prototype' },
-            {text: '作用域', link: '/jscore/basic/scope-closure'},
-            {text: 'ES6', link: '/jscore/basic/es6'},
-            {text: 'Event Loop', link: '/jscore/basic/event-loop'},
-            {text: '异步编程', link: '/jscore/basic/async-program'},
-          ]
+            { text: '作用域', link: '/jscore/basic/scope-closure' },
+            { text: 'ES6', link: '/jscore/basic/es6' },
+            { text: 'Event Loop', link: '/jscore/basic/event-loop' },
+            { text: '异步编程', link: '/jscore/basic/async-program' },
+            { text: '性能优化', link: '/jscore/basic/performance-optimization' },
+          ],
         },
         {
           text: '进阶',
           items: [
             { text: '闭包', link: '/jscore/advanced/closure' },
-            {text: 'Promise', link: '/jscore/advanced/promise'},
-            {text: 'Generator', link: '/jscore/advanced/generator'},
-            {text: 'Async/Await', link: '/jscore/advanced/async-await'},
-            {text: 'Web Worker', link: '/jscore/advanced/web-worker'},
-            {text: 'Web Assembly', link: '/jscore/advanced/web-assembly'},
-            {text: 'Web Socket', link: '/jscore/advanced/web-socket'},
-          ]
-        }
+            { text: '函数式编程', link: '/jscore/advanced/functional-programming' },
+            { text: '设计模式', link: '/jscore/advanced/design-pattern' },
+            { text: '模块化', link: '/jscore/advanced/modules' },
+            { text: 'TypeScript 基础', link: '/jscore/advanced/typescript-basic' },
+            { text: 'Promise', link: '/jscore/advanced/promise' },
+            { text: 'Generator', link: '/jscore/advanced/generator' },
+            { text: 'Async/Await', link: '/jscore/advanced/async-await' },
+            { text: 'Web Worker', link: '/jscore/advanced/web-worker' },
+            { text: 'Web Assembly', link: '/jscore/advanced/web-assembly' },
+            { text: 'Web Socket', link: '/jscore/advanced/web-socket' },
+          ],
+        },
       ],
-      
+
       '/html&css/': [
         {
           text: '布局',
@@ -60,8 +65,8 @@ export default defineConfig({
             { text: 'css盒模型', link: '/html&css/box-model' },
             { text: '浏览器兼容性', link: '/html&css/browser-compatibility' },
             { text: '响应式设计', link: '/html&css/responsive-design' },
-          ]
-        }
+          ],
+        },
       ],
 
       '/framework/': [
@@ -76,7 +81,7 @@ export default defineConfig({
             { text: '性能优化', link: '/framework/vue/performance-optimization' },
             { text: 'dom-diff', link: '/framework/vue/dom-diff' },
             { text: '组件通信', link: '/framework/vue/component-communication' },
-          ]
+          ],
         },
         {
           text: 'React',
@@ -86,14 +91,14 @@ export default defineConfig({
             { text: 'Hooks', link: '/framework/react/hooks' },
             { text: '状态管理', link: '/framework/react/state-management' },
             { text: '性能优化', link: '/framework/react/performance-optimization' },
-          ]
-        }
-      ]
+          ],
+        },
+      ],
     },
 
     // 开启本地搜索
     search: {
-      provider: 'local'
-    }
-  }
+      provider: 'local',
+    },
+  },
 })

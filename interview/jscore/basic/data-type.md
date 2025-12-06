@@ -93,7 +93,7 @@ Object.prototype.toString.call(window) // "[object Window]"
   * 如果是 undefined，返回 NaN；
   * 如果是字符串，遵循以下规则：如果字符串中只包含数字（或者是 0X / 0x 开头的十六进制数字字符串，允许包含正负号），则将其转换为十进制；如果字符串中包含有效的浮点格式，将其转换为浮点数值；如果是空字符串，将其转换为 0；如果不是以上格式的字符串，均返回 NaN；
   * 如果是 Symbol，抛出错误；
-  * **如果是对象，并且部署了 [Symbol.toPrimitive] ，那么调用此方法，否则调用对象的 valueOf() 方法，然后依据前面的规则转换返回的值；如果转换的结果是 NaN ，则调用对象的 toString() 方法，再次依照前面的顺序转换返回对应的值（Object 转换规则会在下面细讲）。**
+  * **如果是对象，并且部署了 `[Symbol.toPrimitive]` ，那么调用此方法，否则调用对象的 valueOf() 方法，然后依据前面的规则转换返回的值；如果转换的结果是 NaN ，则调用对象的 toString() 方法，再次依照前面的顺序转换返回对应的值（Object 转换规则会在下面细讲）。**
 
 - String()
   * 字符串按原样返回。
@@ -103,7 +103,7 @@ Object.prototype.toString.call(window) // "[object Window]"
   * 使用与 toString(10) 相同的算法转换数字。
   * 使用与 toString(10) 相同的算法转换 BigInt。
   * Symbol 抛出 TypeError。
-  * **对于对象，首先，通过依次调用其 [Symbol.toPrimitive]()（hint 为 "string"）、toString() 和 valueOf() 方法将其转换为原始值。然后将生成的原始值转换为一个字符串。**
+  * **对于对象，首先，通过依次调用其 `[Symbol.toPrimitive]()`（hint 为 "string"）、toString() 和 valueOf() 方法将其转换为原始值。然后将生成的原始值转换为一个字符串。**
 
 - parseInt(string ,_radix)
   * 如果第一个字符不能转换为数字，parseInt 会返回 NaN。
@@ -152,7 +152,7 @@ Object.prototype.toString.call(window) // "[object Window]"
   * 如果其中有一个是数字，另外一个是 undefined、null、布尔型或数字，则会将其转换成数字进行加法运算，对象的情况还是参考上一条规则。
   * 如果其中一个是字符串、一个是数字，则按照字符串规则进行拼接。
 - Object 的转换规则
-对象转换的规则，会先调用内置的 [ToPrimitive] 函数，其规则逻辑如下：
+对象转换的规则，会先调用内置的 `[ToPrimitive]` 函数，其规则逻辑如下：
   * 如果部署了 Symbol.toPrimitive 方法，优先调用再返回；
   * 调用 valueOf()，如果转换为基础类型，则返回；
   * 调用 toString()，如果转换为基础类型，则返回；

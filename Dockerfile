@@ -7,10 +7,10 @@ WORKDIR /app
 RUN npm install -g pnpm
 
 # copy package.json and pnpm-lock.yaml
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 
 # install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # Copy source code
 COPY . .

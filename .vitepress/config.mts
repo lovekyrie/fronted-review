@@ -11,9 +11,9 @@ export default defineConfig({
     // 1. 顶部导航栏 (Tabs)
     // 对应你的文件夹结构，点击后跳转到该分类下的第一个文件
     nav: [
-      { text: 'JS Core', link: '/jscore/basic/this' },
+      { text: 'JS Core', link: '/jscore/basic/data-type' },
       { text: 'HTML & CSS', link: '/html&css/layout' },
-      { text: '框架原理', link: '/framework/vue/reactivity' },
+      { text: '框架原理', link: '/framework/vue/vue3' },
       { text: '算法', link: '/algorithm&data-structure/sort' },
       { text: '工程化', link: '/engineering/webpack/loader' }
     ],

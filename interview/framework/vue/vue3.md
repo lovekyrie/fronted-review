@@ -2,6 +2,8 @@
 Vue 3是Vue.js的最新主要版本，带来了许多新特性和改进。
 
 #### 1. 组合式API
+相较于Vue2的options API，最大的优点就是可以自定义封装hooks，就是逻辑性关联较强的代码可以整合在一块，然后更好的支持ts
+
 ##### 1.1 基本使用
 ```javascript
 // 使用组合式API
@@ -59,6 +61,7 @@ watch(count, (newValue, oldValue) => {
 ```
 
 #### 2. 新特性
+
 ##### 2.1 Teleport
 ```html
 <!-- 将内容传送到指定位置 -->

@@ -1,0 +1,5 @@
+node_modules
+.git
+.vitepress/dist
+.DS_Store
+

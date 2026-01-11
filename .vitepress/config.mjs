@@ -19,6 +19,7 @@ export default defineConfig({
       { text: '框架原理', link: '/framework/vue/vue3' },
       { text: '算法', link: '/algorithm&data-structure/sort' },
       { text: '工程化', link: '/engineering/webpack/loader' },
+      { text: '手写代码', link: '/handwrite' },
     ],
 
     // 2. 侧边栏 (Sidebar)
@@ -96,6 +97,29 @@ export default defineConfig({
             { text: '性能优化', link: '/framework/react/performance-optimization' },
           ],
         },
+      ],
+      '/handwrite/': [
+        {
+          text: 'array方法实现',
+          items: [
+            { text: 'map', link: '/handwrite/array-map' },
+            { text: 'filter', link: '/handwrite/array-filter' },
+            { text: 'reduce', link: '/handwrite/array-reduce' },
+            { text: 'some', link: '/handwrite/array-some' },
+            { text: 'reduce-filter', link: '/handwrite/reduce-filter' },
+            { text: 'reduce-map', link: '/handwrite/reduce-map' },
+            { text: 'reduce-flat', link: '/handwrite/reduce-flat' },
+          ],
+        },
+        { text: '防抖', link: '/handwrite/debounce' },
+        { text: '节流', link: '/handwrite/throttle' },
+        { text: 'call', link: '/handwrite/call' },
+        { text: 'bind', link: '/handwrite/bind' },
+        { text: 'new', link: '/handwrite/new' },
+        { text: 'instanceof', link: '/handwrite/instanceof' },
+        { text: 'typeof', link: '/handwrite/typeof' },
+        { text: 'hasOwnProperty', link: '/handwrite/hasOwnProperty' },
+        { text: 'isPrototypeOf', link: '/handwrite/isPrototypeOf' },
       ],
     },
 

@@ -1,18 +1,12 @@
-import Comparator from '../../utils/comparator/comparator'
-import LinkedListNode from './LinkedListNode'
+import LinkedListNode from './LinkedListNode.js'
 
 export default class LinkedList {
-  /**
-   * @param {*} compareFunction
-   */
-  constructor(compareFunction) {
+  constructor() {
     /** @var LinkedListNode */
     this.head = null
 
     /** @var LinkedListNode */
     this.tail = null
-
-    this.compare = new Comparator(compareFunction)
   }
 
   /**
@@ -21,8 +15,8 @@ export default class LinkedList {
    * @returns {LinkedList}
    */
   prepend(value) {
-    // Make new node to be a head. 让新节点的next指向原来head
-    const newNode = LinkedListNode(value, this.head)
+    // 让新节点的next指向原来head
+    const newNode = new LinkedListNode(value, this.head)
     this.head = newNode
 
     // If there is not tail yet let's make new node a tail.
@@ -56,7 +50,37 @@ export default class LinkedList {
     return this
   }
 
-  insert(value, rawIndex) {
+  /**
+   * 将数组转换为链表（静态方法，方便测试）
+   * @param {*[]} values
+   * @return {LinkedList}
+   */
+  static fromArray(values) {
+    const list = new LinkedList()
+    values.forEach(value => list.append(value))
+    return list
+  }
 
+  /**
+   * 将链表转为数组，方便 console.log 查看
+   * @return {*[]}
+   */
+  toArray() {
+    const nodes = []
+    let currentNode = this.head
+    while (currentNode) {
+      nodes.push(currentNode.value)
+      currentNode = currentNode.next
+    }
+    return nodes
+  }
+
+  /**
+   * 打印链表
+   * @param {Function} [callback]
+   * @return {string}
+   */
+  toString(callback) {
+    return this.toArray().map(node => node.toString(callback)).toString()
   }
 }

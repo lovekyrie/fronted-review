@@ -165,8 +165,11 @@ export {
 
 #### 3. 使用对比
 ##### 3.1 Vuex使用
+
+**1. 基础使用方式**
+通过 `this.$store` 直接访问。
+
 ```javascript
-// 组件中使用Vuex
 export default {
   computed: {
     count() {
@@ -178,11 +181,39 @@ export default {
   },
   methods: {
     increment() {
-      this.$store.commit('increment');
+      this.$store.commit('increment'); // 提交 mutation
     },
     incrementAsync() {
-      this.$store.dispatch('incrementAsync');
+      this.$store.dispatch('incrementAsync'); // 分发 action
     }
+  }
+}
+```
+
+**2. 辅助函数（缩写方式）**
+使用 `mapState`, `mapGetters`, `mapActions`, `mapMutations` 简化代码。
+
+```javascript
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
+
+export default {
+  computed: {
+    // 映射 state.count 为 this.count
+    ...mapState(['count']),
+    // 映射 getters.doubleCount 为 this.doubleCount
+    ...mapGetters(['doubleCount']),
+    
+    // 如果是带命名空间的模块：
+    // ...mapState('user', ['userInfo']),
+  },
+  methods: {
+    // 映射 this.increment() 为 this.$store.commit('increment')
+    ...mapMutations(['increment']),
+    // 映射 this.incrementAsync() 为 this.$store.dispatch('incrementAsync')
+    ...mapActions(['incrementAsync']),
+    
+    // 也可以重命名：
+    // ...mapActions({ addAsync: 'incrementAsync' })
   }
 }
 ```

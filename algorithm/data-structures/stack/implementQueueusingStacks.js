@@ -9,6 +9,8 @@
  * - 当需要出队而 `stackOut` 为空时，将 `stackIn` 的所有元素弹出并压入 `stackOut`。
  */
 
+// stackIn: [1, 2, 3]
+// peek的时候，stackOut = [3, 2, 1]
 class MyQueue {
   constructor() {
     this.stackIn = []

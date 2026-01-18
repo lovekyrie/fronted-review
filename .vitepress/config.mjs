@@ -19,7 +19,7 @@ export default defineConfig({
       { text: '框架原理', link: '/framework/vue/vue3' },
       { text: '算法', link: '/algorithm&data-structure/sort' },
       { text: '工程化', link: '/engineering/webpack/loader' },
-      { text: '手写代码', link: '/handwrite' },
+      { text: '手写代码', link: '/handwrite/array-map' },
     ],
 
     // 2. 侧边栏 (Sidebar)

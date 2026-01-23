@@ -17,7 +17,7 @@ export default defineConfig({
       { text: 'JS Core', link: '/jscore/basic/data-type' },
       { text: 'HTML & CSS', link: '/html&css/layout' },
       { text: '框架原理', link: '/framework/vue/vue3' },
-      { text: '算法', link: '/algorithm&data-structure/sort' },
+      { text: '算法', link: '/algorithm&data-structure/array-operation' },
       { text: '工程化', link: '/engineering/webpack/loader' },
       { text: '手写代码', link: '/handwrite/array-map' },
     ],

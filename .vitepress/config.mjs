@@ -121,6 +121,38 @@ export default defineConfig({
           ],
         },
       ],
+      '/algorithm&data-structure/': [
+        {
+          text: '操作',
+          items: [
+            { text: '数组操作', link: '/algorithm&data-structure/array-operation' },
+            { text: '字符串操作', link: '/algorithm&data-structure/string-operation' },
+            { text: '链表操作', link: '/algorithm&data-structure/linked-operation' },
+          ],
+        },
+        {
+          text: '算法',
+          items: [
+            { text: '排序', link: '/algorithm&data-structure/sort' },
+            { text: '双指针', link: '/algorithm&data-structure/two-pointers' },
+            { text: '滑动窗口', link: '/algorithm&data-structure/sliding-window' },
+            { text: '动态规划', link: '/algorithm&data-structure/dynamic-programming' },
+            { text: '贪心算法', link: '/algorithm&data-structure/greedy-algorithm' },
+            { text: '回溯算法', link: '/algorithm&data-structure/backtracking' },
+            { text: '分治算法', link: '/algorithm&data-structure/divide-and-conquer' },
+          ],
+        },
+        {
+          text: '数据结构',
+          items: [
+            { text: '数组', link: '/algorithm&data-structure/array' },
+            { text: '树', link: '/algorithm&data-structure/binary-tree' },
+            { text: '链表', link: '/algorithm&data-structure/linked-list' },
+            { text: '栈', link: '/algorithm&data-structure/stack' },
+            { text: '队列', link: '/algorithm&data-structure/queue' },
+          ],
+        },
+      ],
     },
 
     // 开启本地搜索

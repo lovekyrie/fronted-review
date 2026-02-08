@@ -30,6 +30,8 @@ const element = <span>Hello, {name}!</span>;
 ```
 
 ##### 1.3 与 HTML 的差异
+
+::: v-pre
 | HTML | JSX | 说明 |
 |------|-----|------|
 | `class` | `className` | 避免与 JS 的 class 关键字冲突 |
@@ -38,6 +40,7 @@ const element = <span>Hello, {name}!</span>;
 | `style="color: red"` | `style={{ color: 'red' }}` | 样式为对象 |
 | `innerHTML` | `dangerouslySetInnerHTML={{ __html: raw }}` | 渲染原始 HTML（需防 XSS） |
 | `aria-*`、`data-*` | 保持不变 | 不驼峰化 |
+:::
 
 ```jsx
 <div className="container" style={{ color: 'red', fontWeight: 'bold' }}>

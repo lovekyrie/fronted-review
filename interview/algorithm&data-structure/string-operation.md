@@ -70,8 +70,10 @@ const paddedEnd = str.padEnd(15, '*');  // 'Hello World****'
 const repeated = str.repeat(2);  // 'Hello WorldHello World'
 
 // 字符串比较
+// 注意这边比较的不是ASCII码
 const compare = str.localeCompare('Hello World');  // 0
 const compare2 = str.localeCompare('hello world');  // 1
+const compare3 = 'a'.localeCompare('c') // -1 'a' refrenceStr 'c' compareString
 ```
 
 #### 3. 字符串算法

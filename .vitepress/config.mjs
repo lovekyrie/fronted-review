@@ -90,11 +90,13 @@ export default defineConfig({
         {
           text: 'React',
           items: [
+            { text: '基础概念', link: '/framework/react/basics' },
             { text: '虚拟DOM', link: '/framework/react/virtual-dom' },
-            { text: '路由', link: '/framework/react/router' },
             { text: 'Hooks', link: '/framework/react/hooks' },
+            { text: 'React 19 新特性', link: '/framework/react/react19-features' },
             { text: '状态管理', link: '/framework/react/state-management' },
             { text: '性能优化', link: '/framework/react/performance-optimization' },
+            { text: '路由', link: '/framework/react/router' },
           ],
         },
       ],

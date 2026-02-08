@@ -159,6 +159,34 @@ function ExpensiveComponent({ data }) {
 }
 ```
 
+##### 2.4 useRef
+```javascript
+// 存储不触发重新渲染的可变值
+function TextInput() {
+  const inputRef = useRef(null);
+
+  const focusInput = () => {
+    inputRef.current?.focus();
+  };
+
+  return (
+    <>
+      <input ref={inputRef} />
+      <button onClick={focusInput}>聚焦</button>
+    </>
+  );
+}
+
+// 存储上一次的值（模拟 componentDidUpdate 跳过首次）
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+```
+
 #### 3. 自定义Hooks
 ##### 3.1 基本使用
 ```javascript

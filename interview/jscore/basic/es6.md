@@ -5,6 +5,7 @@ ES6（ECMAScript 2015）引入了许多新的语言特性，使JavaScript更加�
 ES6 引入了块级作用域的声明方式，解决了 `var` 带来的变量提升和全局污染问题。
 - **let**：用于声明可变变量，受块级作用域约束。
 - **const**：用于声明常量，受块级作用域约束，必须初始化，且引用地址不可变。
+- **注意**：`const` 声明的对象/数组，内部属性可修改，但不可重新赋值整个引用。
 
 1. **let 和 const**
 ```js
@@ -29,7 +30,7 @@ console.log(x); // 错误：x is not defined
 #### 2. 箭头函数
 语法更简洁的函数定义方式。
 - **特性**：不绑定自己的 `this`，继承外层上下文的 `this`。
-- **限制**：不能作为构造函数（new），没有 `arguments` 对象。
+- **限制**：不能作为构造函数（new），没有 `arguments` 对象，没有 `prototype` 属性，不可使用 `yield`。
 
 1. **基本语法**
 ```js
@@ -58,6 +59,7 @@ const obj = {
 #### 3. 解构赋值
 一种从数组或对象中提取数据的优雅语法。
 - **场景**：交换变量、提取接口返回值、函数参数默认值。
+- **注意**：解构时可设置默认值，如 `const { name = 'Guest' } = {}`。
 
 1. **数组解构**
 ```js
@@ -73,11 +75,19 @@ const { name, age, ...other } = { name: 'John', age: 30, city: 'New York' };
 console.log(name); // 'John'
 console.log(age); // 30
 console.log(other); // { city: 'New York' }
+
+// 重命名
+const { foo: f, bar: b } = { foo: 'a', bar: 'b' }
+console.log(f) // 'a'
+console.log(b) // 'b'
+
+// 嵌套解构 比如接口返回值是 res.data.data
+const {data: {data}} = res
 ```
 
 #### 4. 模板字符串
 增强版的字符串，支持多行文本和嵌入变量。
-- **语法**：使用反引号 (\`) 包裹，变量使用 `${}`。
+- **语法**：使用反引号 `` ` `` 包裹，变量使用 `${}`。
 
 ```js
 const name = 'John';
@@ -85,9 +95,10 @@ const age = 30;
 const greeting = `Hello, my name is ${name} and I am ${age} years old.`;
 ```
 
-#### 5. 展开运算符
+#### 5. 展开运算符与剩余参数
 `...` 运算符，用于将数组或对象展开为逗号分隔的序列。
-- **场景**：合并数组/对象、复制数组/对象（浅拷贝）、函数不定参数。
+- **Spread（展开）**：合并数组/对象、复制数组/对象（浅拷贝）。
+- **Rest（剩余）**：用于函数不定参数，替代 `arguments`。
 
 1. **数组展开**
 ```js
@@ -101,6 +112,14 @@ console.log(arr2); // [1, 2, 3, 4, 5]
 const obj1 = { a: 1, b: 2 };
 const obj2 = { ...obj1, c: 3 };
 console.log(obj2); // { a: 1, b: 2, c: 3 }
+```
+
+3. **剩余参数**
+```js
+function sum(...nums) {
+  return nums.reduce((a, b) => a + b, 0);
+}
+sum(1, 2, 3, 4); // 10
 ```
 
 #### 6. 类 (Class)
@@ -131,7 +150,7 @@ person.sayHello(); // Hello, my name is John
 ```
 
 #### 7. 模块化 (Module)
-ES6 原生支持的模块系统。
+ES6 原生支持的模块系统.
 - **export**：导出模块接口（命名导出、默认导出）。
 - **import**：引入其他模块提供的接口。
 
@@ -151,8 +170,9 @@ import Calculator, { add, subtract } from './math.js';
 
 #### 8. Promise
 用于处理异步操作的对象，解决了回调地狱问题。
-- **状态**：pending -> fulfilled / rejected。
+- **状态**：pending -> fulfilled / rejected（状态不可逆）。
 - **链式调用**：`.then()` 返回新的 Promise。
+- **静态方法**：`Promise.all`、`Promise.race`、`Promise.allSettled` 等。
 
 ```js
 const promise = new Promise((resolve, reject) => {
@@ -192,10 +212,11 @@ console.log(gen.next()); // { value: 1, done: false }
 #### 10. 新的数据结构
 - **Set**：成员唯一（去重）的集合。
 - **Map**：键值对集合，键可以是任意类型（包括对象）。
-- **WeakMap/WeakSet**：弱引用版本，防止内存泄漏。
+- **WeakMap/WeakSet**：弱引用版本，键必须是对象，不计入垃圾回收，防止内存泄漏。
 
 1. **Symbol**
 唯一标识符，常用于定义对象的唯一属性名。
+- **注意**：即使描述相同，每次创建的 Symbol 也不相等。
 
 ```js
 const sym = Symbol('description');
@@ -216,7 +237,7 @@ console.log(set); // Set { 1, 2, 3 }
 ```
 
 #### 11. 新的数组方法
-简化数组操作的高阶函数。
+ES6 新增的数组方法，简化数组操作。
 
 1. **map**
 返回新数组，每个元素映射为回调函数的返回值。
@@ -248,7 +269,7 @@ console.log(sum); // 10
 #### 12. 新的对象方法
 
 1. **Object.assign**
-用于合并对象（浅拷贝）。
+用于合并对象（浅拷贝）。后续对象会覆盖前面同名属性。
 
 ```js
 const obj1 = { a: 1 };
@@ -265,6 +286,14 @@ const obj = { a: 1, b: 2 };
 console.log(Object.entries(obj)); // [['a', 1], ['b', 2]]
 ```
 
+3. **Object.is**
+比较两个值是否严格相等，解决了 `NaN === NaN` 为 false、`+0 === -0` 为 true 的问题。
+
+```js
+Object.is(NaN, NaN); // true
+Object.is(+0, -0);   // false
+```
+
 #### 最佳实践
 1. **拥抱 const/let**：彻底抛弃 `var`。
 2. **巧用解构**：让代码更 clean，提取参数更方便。
@@ -272,4 +301,4 @@ console.log(Object.entries(obj)); // [['a', 1], ['b', 2]]
 4. **使用 Class**：在需要面向对象编程时，优先使用 Class 而不是构造函数+原型链。
 5. **善用 Map/Set**：处理频繁增删键值对或去重场景，性能优于 Object/Array。
 6. **模板字符串**：拼接字符串时首选。
-7. **模块化**：坚持使用 `import/export`，避免全局污染。 
+7. **模块化**：坚持使用 `import/export`，避免全局污染。

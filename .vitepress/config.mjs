@@ -18,7 +18,7 @@ export default defineConfig({
       { text: 'HTML & CSS', link: '/html&css/layout' },
       { text: '框架原理', link: '/framework/vue/vue3' },
       { text: '算法', link: '/algorithm&data-structure/array-operation' },
-      { text: '工程化', link: '/engineering/webpack/loader' },
+      { text: '工程化', link: '/engineering/build-tools' },
       { text: '手写代码', link: '/handwrite/array-map' },
     ],
 
@@ -100,6 +100,7 @@ export default defineConfig({
           ],
         },
       ],
+
       '/handwrite/': [
         {
           text: '手写方法实现',
@@ -123,6 +124,7 @@ export default defineConfig({
           ],
         },
       ],
+
       '/algorithm&data-structure/': [
         {
           text: '操作',
@@ -152,6 +154,18 @@ export default defineConfig({
             { text: '链表', link: '/algorithm&data-structure/linked-list' },
             { text: '栈', link: '/algorithm&data-structure/stack' },
             { text: '队列', link: '/algorithm&data-structure/queue' },
+          ],
+        },
+      ],
+
+      '/engineering/': [
+        {
+          text: '工程化',
+          items: [
+            { text: '构建工具', link: '/engineering/build-tools' },
+            { text: '包管理工具', link: '/engineering/package-manage' },
+            { text: 'CI/CD', link: '/engineering/CI-CD' },
+            { text: 'GIT', link: '/engineering/git' },
           ],
         },
       ],

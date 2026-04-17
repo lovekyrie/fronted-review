@@ -17,8 +17,9 @@ export default defineConfig({
       { text: 'JS Core', link: '/jscore/basic/data-type' },
       { text: 'HTML & CSS', link: '/html&css/layout' },
       { text: '框架原理', link: '/framework/vue/vue3' },
-      { text: '算法', link: '/algorithm&data-structure/sort' },
-      { text: '工程化', link: '/engineering/webpack/loader' },
+      { text: '算法', link: '/algorithm&data-structure/array-operation' },
+      { text: '工程化', link: '/engineering/build-tools' },
+      { text: '手写代码', link: '/handwrite/array-map' },
     ],
 
     // 2. 侧边栏 (Sidebar)
@@ -89,11 +90,82 @@ export default defineConfig({
         {
           text: 'React',
           items: [
+            { text: '基础概念', link: '/framework/react/basics' },
             { text: '虚拟DOM', link: '/framework/react/virtual-dom' },
-            { text: '路由', link: '/framework/react/router' },
             { text: 'Hooks', link: '/framework/react/hooks' },
+            { text: 'React 19 新特性', link: '/framework/react/react19-features' },
             { text: '状态管理', link: '/framework/react/state-management' },
             { text: '性能优化', link: '/framework/react/performance-optimization' },
+            { text: '路由', link: '/framework/react/router' },
+          ],
+        },
+      ],
+
+      '/handwrite/': [
+        {
+          text: '手写方法实现',
+          items: [
+            { text: 'map', link: '/handwrite/array-map' },
+            { text: 'filter', link: '/handwrite/array-filter' },
+            { text: 'reduce', link: '/handwrite/array-reduce' },
+            { text: 'some', link: '/handwrite/array-some' },
+            { text: 'reduce-filter', link: '/handwrite/reduce-filter' },
+            { text: 'reduce-map', link: '/handwrite/reduce-map' },
+            { text: 'reduce-flat', link: '/handwrite/reduce-flat' },
+            { text: '防抖', link: '/handwrite/debounce' },
+            { text: '节流', link: '/handwrite/throttle' },
+            { text: 'call', link: '/handwrite/call' },
+            { text: 'bind', link: '/handwrite/bind' },
+            { text: 'new', link: '/handwrite/new' },
+            { text: 'instanceof', link: '/handwrite/instanceof' },
+            { text: 'typeof', link: '/handwrite/typeof' },
+            { text: 'hasOwnProperty', link: '/handwrite/hasOwnProperty' },
+            { text: 'isPrototypeOf', link: '/handwrite/isPrototypeOf' },
+          ],
+        },
+      ],
+
+      '/algorithm&data-structure/': [
+        {
+          text: '操作',
+          items: [
+            { text: '数组操作', link: '/algorithm&data-structure/array-operation' },
+            { text: '字符串操作', link: '/algorithm&data-structure/string-operation' },
+            { text: '链表操作', link: '/algorithm&data-structure/linked-operation' },
+          ],
+        },
+        {
+          text: '算法',
+          items: [
+            { text: '排序', link: '/algorithm&data-structure/sort' },
+            { text: '双指针', link: '/algorithm&data-structure/two-pointers' },
+            { text: '滑动窗口', link: '/algorithm&data-structure/sliding-window' },
+            { text: '动态规划', link: '/algorithm&data-structure/dynamic-programming' },
+            { text: '贪心算法', link: '/algorithm&data-structure/greedy-algorithm' },
+            { text: '回溯算法', link: '/algorithm&data-structure/backtracking' },
+            { text: '分治算法', link: '/algorithm&data-structure/divide-and-conquer' },
+          ],
+        },
+        {
+          text: '数据结构',
+          items: [
+            { text: '数组', link: '/algorithm&data-structure/array' },
+            { text: '树', link: '/algorithm&data-structure/binary-tree' },
+            { text: '链表', link: '/algorithm&data-structure/linked-list' },
+            { text: '栈', link: '/algorithm&data-structure/stack' },
+            { text: '队列', link: '/algorithm&data-structure/queue' },
+          ],
+        },
+      ],
+
+      '/engineering/': [
+        {
+          text: '工程化',
+          items: [
+            { text: '构建工具', link: '/engineering/build-tools' },
+            { text: '包管理工具', link: '/engineering/package-manage' },
+            { text: 'CI/CD', link: '/engineering/CI-CD' },
+            { text: 'GIT', link: '/engineering/git' },
           ],
         },
       ],

@@ -70,7 +70,15 @@ git stash apply
 git reset --soft HEAD^
 git reset --mixed HEAD^
 git reset --hard HEAD^
+```
 
+| 模式 | HEAD | 暂存区 | 工作区 |
+|------|------|--------|--------|
+| `--soft` | 回退 | 保留 | 保留 |
+| `--mixed` | 回退 | 回退 | 保留 |
+| `--hard` | 回退 | 回退 | 回退（丢失） |
+
+```bash
 # 修改提交信息
 git commit --amend
 ```

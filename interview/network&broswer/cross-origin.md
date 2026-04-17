@@ -177,3 +177,22 @@ window.addEventListener('message', (event) => {
    - 性能考虑
    - 兼容性需求
    - 实现复杂度 
+
+#### 8. 高频疏漏补充（跨域追问）
+
+##### 8.1 什么情况下会触发预检请求（OPTIONS）
+- 方法不是 GET/HEAD/POST（如 PUT/DELETE/PATCH）。
+- 或者请求头包含自定义头。
+- 或者 `Content-Type` 不是简单值（如 `application/json` 通常会触发）。
+
+##### 8.2 CORS 常见配置坑
+1. `Access-Control-Allow-Origin: *` 不能和 `Allow-Credentials: true` 同时使用。
+2. 预检通过不代表正式请求一定成功，还要看业务鉴权。
+3. 前端 `withCredentials`、后端 CORS、Cookie SameSite 要一起对齐。
+
+##### 8.3 为什么说“跨域是浏览器限制，不是服务端限制”
+服务端到服务端请求天然不受同源策略限制；同源策略是浏览器安全模型。  
+所以很多场景用 BFF/代理层可以从架构上规避前端跨域问题。
+
+##### 8.4 面试快答建议
+先说原理（同源策略），再说主方案（CORS），最后补替代方案和边界（代理、WebSocket、postMessage）。

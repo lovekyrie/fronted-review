@@ -25,6 +25,24 @@ features:
     link: /algorithm&data-structure/sort
   - title: 前端工程化
     details: Webpack、Babel、构建工具与性能优化。
-    link: /engineering/webpack/loader
+    link: /engineering/webpack-vs-vite
+  - title: 业务场景题
+    details: 大文件上传、海量渲染、权限体系、系统设计高频题。
+    link: /scenarios/index
+  - title: 前沿与进阶
+    details: SSR/SSG、微前端、移动端适配与 CSS 进阶。
+    link: /advanced/ssr-ssg
+  - title: 项目复盘与 HR
+    details: STAR 项目复盘模板与高频 HR 问题回答框架。
+    link: /project-review
+  - title: 14 天冲刺路线图
+    details: 按天拆解输入、输出、演练与自测，快速进入面试状态。
+    link: /sprint-14-days
+  - title: 高频 50 题速记
+    details: 覆盖技术面、场景面、项目面与 HR 面的 1 分钟回答模板。
+    link: /high-frequency-50
+  - title: 每日口述题单（14天）
+    details: 每天 10 题，按 60 秒回答节奏训练面试表达与结构。
+    link: /daily-oral-sets-14
 ---
 

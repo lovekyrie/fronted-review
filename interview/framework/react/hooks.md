@@ -304,3 +304,33 @@ function useFetch(url) {
    - 使用useMemo
    - 合理使用依赖数组
    - 避免不必要的渲染 
+
+#### 6. 高频疏漏补充（面试常追问）
+
+##### 6.1 useEffect 执行时机与清理顺序
+- 首次渲染后执行 effect。
+- 依赖变化时：先执行上一次 effect 的 cleanup，再执行新的 effect。
+- 组件卸载时执行最后一次 cleanup。
+
+```javascript
+useEffect(() => {
+  const timer = setInterval(() => console.log('tick'), 1000);
+  return () => clearInterval(timer); // 依赖变化和卸载都会执行
+}, []);
+```
+
+##### 6.2 闭包陷阱（stale closure）
+当 effect/callback 捕获了旧状态，容易出现“值不更新”的问题。
+
+常见解法：
+1. 依赖数组补全。
+2. 使用函数式更新（`setState(prev => ...)`）。
+3. 使用 `useRef` 持有最新值（在必要场景）。
+
+##### 6.3 useMemo / useCallback 不是越多越好
+- 它们本身也有维护成本和比较成本。
+- 只有当“子组件确实依赖引用稳定”或“计算确实昂贵”时才使用。
+
+##### 6.4 React 18 严格模式下 effect 执行两次（开发环境）
+开发环境会模拟 mount -> unmount -> remount，帮助发现副作用不安全代码。  
+面试里可以强调：这是开发期行为，不是生产环境 bug。

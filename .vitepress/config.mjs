@@ -17,9 +17,16 @@ export default defineConfig({
       { text: 'JS Core', link: '/jscore/basic/data-type' },
       { text: 'HTML & CSS', link: '/html&css/layout' },
       { text: '框架原理', link: '/framework/vue/vue3' },
+      { text: '网络与浏览器', link: '/network&broswer/http-protocol' },
       { text: '算法', link: '/algorithm&data-structure/array-operation' },
       { text: '工程化', link: '/engineering/build-tools' },
+      { text: '场景设计', link: '/scenarios/index' },
+      { text: '前沿进阶', link: '/advanced/ssr-ssg' },
       { text: '手写代码', link: '/handwrite/array-map' },
+      { text: '项目复盘', link: '/project-review' },
+      { text: '14天冲刺', link: '/sprint-14-days' },
+      { text: '50题速记', link: '/high-frequency-50' },
+      { text: '每日口述题单', link: '/daily-oral-sets-14' },
     ],
 
     // 2. 侧边栏 (Sidebar)
@@ -37,7 +44,10 @@ export default defineConfig({
             { text: 'ES6', link: '/jscore/basic/es6' },
             { text: 'Event Loop', link: '/jscore/basic/event-loop' },
             { text: '异步编程', link: '/jscore/basic/async-program' },
-            { text: '性能优化', link: '/jscore/basic/performance-optimization' },
+            { text: 'DOM/BOM 与 Web API', link: '/jscore/basic/dom-bom-webapi' },
+            { text: '事件机制', link: '/jscore/basic/event-mechanism' },
+            { text: '内存管理', link: '/jscore/basic/memory-management' },
+            { text: '其他 Web API', link: '/jscore/basic/other-web-apis' },
           ],
         },
         {
@@ -84,7 +94,7 @@ export default defineConfig({
             { text: '状态管理', link: '/framework/vue/state-management' },
             { text: '性能优化', link: '/framework/vue/performance-optimization' },
             { text: 'dom-diff', link: '/framework/vue/dom-diff' },
-            { text: '组件通信', link: '/framework/vue/component-communication' },
+            { text: '组件通信', link: '/framework/vue/components-communication' },
           ],
         },
         {
@@ -118,9 +128,9 @@ export default defineConfig({
             { text: 'bind', link: '/handwrite/bind' },
             { text: 'new', link: '/handwrite/new' },
             { text: 'instanceof', link: '/handwrite/instanceof' },
-            { text: 'typeof', link: '/handwrite/typeof' },
-            { text: 'hasOwnProperty', link: '/handwrite/hasOwnProperty' },
-            { text: 'isPrototypeOf', link: '/handwrite/isPrototypeOf' },
+            { text: '判断数据类型', link: '/handwrite/judge-data-type' },
+            { text: 'Object.assign', link: '/handwrite/object-assign' },
+            { text: 'promisify', link: '/handwrite/promisify' },
           ],
         },
       ],
@@ -163,9 +173,55 @@ export default defineConfig({
           text: '工程化',
           items: [
             { text: '构建工具', link: '/engineering/build-tools' },
+            { text: 'Webpack vs Vite 深入', link: '/engineering/webpack-vs-vite' },
+            { text: '前端规范化', link: '/engineering/frontend-standardization' },
+            { text: '自动化测试', link: '/engineering/automated-testing' },
             { text: '包管理工具', link: '/engineering/package-manage' },
             { text: 'CI/CD', link: '/engineering/CI-CD' },
             { text: 'GIT', link: '/engineering/git' },
+          ],
+        },
+      ],
+
+      '/network&broswer/': [
+        {
+          text: '网络与浏览器',
+          items: [
+            { text: 'HTTP 协议', link: '/network&broswer/http-protocol' },
+            { text: '缓存机制', link: '/network&broswer/cache-mechanism' },
+            { text: '浏览器渲染', link: '/network&broswer/broswer-render' },
+            { text: '性能优化', link: '/network&broswer/performance-optimization' },
+            { text: 'Web Vitals', link: '/network&broswer/web-vitals' },
+            { text: '异常监控与处理', link: '/network&broswer/error-monitoring' },
+            { text: '浏览器存储', link: '/network&broswer/broswer-storage' },
+            { text: '跨域', link: '/network&broswer/cross-origin' },
+            { text: 'Web 安全', link: '/network&broswer/web-safe' },
+          ],
+        },
+      ],
+
+      '/scenarios/': [
+        {
+          text: '业务场景题',
+          items: [
+            { text: '总览', link: '/scenarios/index' },
+            { text: '大文件处理', link: '/scenarios/file-upload' },
+            { text: '海量数据渲染', link: '/scenarios/massive-data-rendering' },
+            { text: '权限管理体系', link: '/scenarios/permission-system' },
+            { text: '复杂交互', link: '/scenarios/complex-interaction' },
+            { text: '系统设计题', link: '/scenarios/system-design' },
+          ],
+        },
+      ],
+
+      '/advanced/': [
+        {
+          text: '前沿与进阶',
+          items: [
+            { text: 'SSR / SSG', link: '/advanced/ssr-ssg' },
+            { text: '微前端', link: '/advanced/micro-frontend' },
+            { text: '移动端与跨端', link: '/advanced/mobile-and-cross-platform' },
+            { text: 'CSS 进阶', link: '/advanced/css-advanced' },
           ],
         },
       ],

@@ -252,3 +252,25 @@ export const store = configureStore({
    - 使用不可变更新
    - 合理使用选择器
    - 使用Redux Toolkit 
+
+#### 7. 高频疏漏补充（状态管理追问）
+
+##### 7.1 方案选型快答（useState / Context / Redux）
+- `useState/useReducer`：组件内和局部状态。
+- `Context`：跨层级透传，但频繁更新时要注意重渲染范围。
+- `Redux Toolkit`：复杂全局状态、可追踪调试、中大型团队协作更稳。
+
+##### 7.2 Redux Toolkit 为什么更推荐
+1. `createSlice` 降低样板代码。
+2. 内置 Immer，写法更直观。
+3. 官方推荐路径，生态文档完善。
+
+##### 7.3 如何避免 Context 全量重渲染
+- 拆分多个 Context（按业务域拆）。
+- provider value 做稳定化处理（`useMemo`）。
+- 高频更新状态尽量下沉或改用专用状态库。
+
+##### 7.4 状态管理落地原则
+1. 单一事实来源，避免多处重复存同一份数据。
+2. 派生数据尽量通过 selector 计算，不直接入库。
+3. 异步流程统一规范（loading/error/success）减少状态混乱。

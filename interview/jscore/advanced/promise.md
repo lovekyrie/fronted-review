@@ -113,3 +113,56 @@ Promise.resolve(1)
 **输出**：`1`
 **解析**：`.then` 或者 `.catch` 的参数期望是函数，传入非函数则会发生值穿透。
 
+## 6. 常见 API 细节（高频追问）
+
+### 6.1 then / catch / finally 的关系
+
+- `catch(fn)` 本质是 `then(undefined, fn)`。
+- `finally(fn)` 不接收上一个结果值，它只用于“收尾动作”（如关闭 loading）。
+- `finally` 会把之前的结果“透传”下去，除非 `finally` 内抛错或返回 rejected Promise。
+
+```js
+Promise.resolve('ok')
+  .finally(() => {
+    console.log('cleanup');
+  })
+  .then((res) => console.log(res)); // 'ok'
+```
+
+### 6.2 Promise executor 是同步执行
+
+```js
+console.log('A');
+new Promise((resolve) => {
+  console.log('B'); // 同步执行
+  resolve();
+}).then(() => console.log('C'));
+console.log('D');
+// 输出：A B D C
+```
+
+## 7. 面试常见陷阱题
+
+### 7.1 错误不会被 catch 到的场景
+
+异步回调里抛错，不一定会被外层 Promise 的 `catch` 捕获，需要把异步操作 Promise 化。
+
+### 7.2 Promise 链中漏写 return
+
+```js
+Promise.resolve(1)
+  .then((n) => {
+    Promise.resolve(n + 1); // 漏了 return
+  })
+  .then((n) => console.log(n)); // undefined
+```
+
+## 8. 如何回答“手写 Promise”更稳
+
+面试中不一定要求完整实现 A+，但至少要说清：
+
+1. 状态机（`pending` 只允许一次流转）。
+2. 回调队列（处理异步 resolve 时的 then 注册）。
+3. then 返回新 Promise（支持链式调用）。
+4. 错误穿透与异常捕获（`try/catch` 包裹执行逻辑）。
+

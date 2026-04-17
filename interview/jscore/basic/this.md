@@ -220,3 +220,43 @@ const user = new User('John');
 user.fetchUserData();
 user.setupEventListeners();
 ``` 
+
+### 进阶补充：this 绑定优先级与易错点
+
+#### 绑定优先级（面试高频）
+
+当同一个函数可能触发多种绑定方式时，优先级如下：
+
+1. `new` 绑定
+2. 显式绑定（`call/apply/bind`）
+3. 隐式绑定（对象调用）
+4. 默认绑定（独立调用）
+
+```js
+function foo() {
+  console.log(this.name);
+}
+
+const obj = { name: 'obj' };
+const bar = foo.bind(obj);
+const baz = new bar();
+
+console.log(baz.name); // undefined（new 绑定优先，this 指向新对象）
+```
+
+#### 显式绑定失效场景
+
+- `bind` 返回的新函数被 `new` 调用时，`bind` 绑定的 `this` 会被忽略。
+- 箭头函数无法通过 `call/apply/bind` 改变 `this`。
+
+```js
+const obj = { name: 'obj' };
+const arrow = () => console.log(this?.name);
+arrow.call(obj); // 仍然是定义时外层 this，不会变成 obj
+```
+
+#### 实战建议（补充）
+
+1. 作为回调传递的方法，优先在定义处解决 `this`（箭头函数或提前 `bind`）。
+2. 对外暴露 API 时避免依赖隐式绑定，减少调用方误用概率。
+3. 面试回答建议按“规则 -> 例子 -> 反例（易错点）”结构讲，更容易拿分。

@@ -204,3 +204,25 @@ async function networkFirst(request) {
    - 分片存储
    - 定期清理
    - 优先级管理 
+
+#### 8. 高频疏漏补充（存储追问）
+
+##### 8.1 存储选型快答
+1. Cookie：体积小、可随请求携带，适合会话标识（可配 HttpOnly）。
+2. localStorage：持久化简单 KV，适合用户偏好、非敏感缓存。
+3. sessionStorage：会话级缓存，标签页关闭即清除。
+4. IndexedDB：结构化大数据、离线场景首选。
+
+##### 8.2 安全边界（高频）
+- 任何可被 JS 读取的存储（localStorage/sessionStorage）都可能受 XSS 影响。
+- 认证体系里更推荐后端协同使用 HttpOnly + Secure + SameSite Cookie。
+- 前端本地存储更适合放“低敏信息”和“可丢失缓存”。
+
+##### 8.3 容量与性能考虑
+- localStorage 同步 API，频繁读写会阻塞主线程。
+- IndexedDB 异步、容量更大，适合离线数据和大对象缓存。
+- 可以做“内存缓存 + 持久化缓存”两级策略。
+
+##### 8.4 多标签页同步
+- `storage` 事件可同步 localStorage 变更（同源不同标签页）。
+- 更复杂实时同步可用 `BroadcastChannel`。

@@ -241,3 +241,37 @@ const user = ref({ name: 'John' }); // Ref<{ name: string }>
    - 更好的性能
    - 更好的类型支持
    - 更灵活的API 
+
+#### 7. 高频疏漏补充（面试常追问）
+
+##### 7.1 ref 与 reactive 怎么选
+- 基本类型优先 `ref`。
+- 对象类型两者都可，但团队通常会统一风格。
+- 在模板中 `ref` 会自动解包；在 JS 逻辑中要用 `.value`。
+
+##### 7.2 watch 与 watchEffect 区别
+- `watch`：显式指定依赖源，拿得到 `newValue/oldValue`，更可控。
+- `watchEffect`：自动收集依赖，立即执行，适合快速副作用绑定。
+
+```javascript
+watch(
+  () => state.count,
+  (newVal, oldVal) => {
+    console.log(newVal, oldVal);
+  }
+);
+```
+
+##### 7.3 setup 中 this 为什么不能用
+`setup` 执行时组件实例还没创建完成，所以 `this` 为 `undefined`。  
+建议面试时直接说：组合式 API 通过显式导入与返回值组织逻辑，不依赖 `this`。
+
+##### 7.4 生命周期映射（Vue2 -> Vue3）
+- `beforeCreate/created` -> `setup`
+- `mounted` -> `onMounted`
+- `beforeDestroy/destroyed` -> `onBeforeUnmount/onUnmounted`
+
+##### 7.5 常见响应式坑点
+1. 解构 reactive 对象会丢失响应性（可用 `toRefs`）。
+2. 深层对象替换时注意引用变化与 watch 配置。
+3. 组合函数要负责副作用清理（事件监听、定时器）。

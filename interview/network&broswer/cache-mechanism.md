@@ -133,3 +133,28 @@ Cache-Control: private, no-cache
    - 缓存击穿
    - 缓存雪崩
    - 缓存更新 
+
+#### 7. 高频补充：Cache-Control 易混指令
+
+- `no-store`：完全不缓存（最严格）。
+- `no-cache`：可以缓存，但使用前必须向服务器再验证。
+- `max-age=0`：通常等价于“立刻过期，需要再验证”。
+- `immutable`：资源在过期前保证不变（常配合带 hash 的静态资源）。
+
+```http
+Cache-Control: public, max-age=31536000, immutable
+```
+
+#### 8. 高频补充：前端发布缓存策略（强烈建议掌握）
+
+1. **HTML**：`no-cache`（保证拿到最新入口）。
+2. **JS/CSS/图片**：文件名带 content hash + 长缓存（`max-age=31536000, immutable`）。
+3. **接口数据**：按业务敏感度决定 `no-store` / `private, no-cache`。
+
+#### 9. 高频补充：浏览器缓存位置
+
+- Memory Cache：读取最快，生命周期短。
+- Disk Cache：可跨进程/重启持久化。
+- Service Worker Cache：可编程缓存，适合离线与精细化策略。
+
+> 面试可补一句：浏览器到底命中哪层缓存由实现策略决定，前端主要通过响应头影响缓存行为。

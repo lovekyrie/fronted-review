@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npx skills:*)",
+      "mcp__fetch__fetch",
+      "Skill(update-config)",
+      "Bash(npx eslint:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | { read -r f; if ! git ls-files --cached \"$f\" 2>/dev/null | grep -q \"^${f}$\"; then npx eslint --fix \"$f\" 2>/dev/null || true; fi; }",
+            "timeout": 60,
+            "statusMessage": "Running eslint on new file"
+          }
+        ]
+      }
+    ]
+  }
+}

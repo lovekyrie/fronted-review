@@ -1,0 +1,705 @@
+---
+title: Week 8 高级前端题库
+description: 面向高级前端面试的 30 题高频问答与项目表达
+---
+
+# Week 8 高级前端题库
+
+Week 8 的重点不是继续扩知识点，而是把前 7 周的内容组织成能在高级前端面试里稳定表达的答案。
+
+高级面试通常不满足于“定义解释”，更看重你能不能把机制、工程取舍、风险边界和真实项目串起来。建议每题都按这个顺序回答：
+
+```text
+先给结论 -> 讲清链路 -> 说明取舍 -> 补充风险 -> 落到项目
+```
+
+## 一、工程化与构建
+
+### 1. Vite 为什么开发阶段通常比 webpack 快？
+
+**问题**：Vite 为什么启动快、热更新快？它是不是完全不打包？
+
+**答题主线**：
+
+Vite 开发阶段利用浏览器原生 ESM，启动时不需要把整棵应用依赖图提前打成 bundle，而是浏览器请求哪个模块，开发服务器就转换并返回哪个模块。第三方依赖会通过预构建提前处理，把 CommonJS / UMD 转成更适合 ESM 消费的形式，同时减少大量小模块请求。生产阶段 Vite 仍然会打包，通常基于 Rollup 完成代码分割、压缩、hash、tree-shaking 等优化。
+
+**展开方向**：
+
+- 原生 ESM 按需加载
+- 依赖预构建
+- HMR 模块边界
+- dev 和 build 两条链路
+- Vite 与 webpack 的控制力差异
+
+**项目表达**：
+
+如果项目开发阶段启动慢，我会先区分是源码模块过多、第三方依赖预构建慢，还是插件转换慢。Vite 的优势在开发反馈，但生产构建仍要关注拆包、缓存和 source map。
+
+**关联文档**：[Week 1 构建工具](../engineering/week1-build-tools)、[Week 1 模块化](../jscore/advanced/week1-modules)
+
+### 2. tree-shaking 为什么依赖 ESM？
+
+**问题**：tree-shaking 的原理是什么？为什么 CommonJS 场景经常效果不好？
+
+**答题主线**：
+
+tree-shaking 的目标是移除没有被使用的导出。它依赖构建阶段能静态分析模块的导入导出关系。ESM 的 `import` / `export` 是语法级静态声明，构建器不需要执行代码就能知道模块导出了什么、调用方使用了什么。CommonJS 的 `require()` 是运行时函数调用，可以出现在条件分支里，所以静态分析难度更高。
+
+**展开方向**：
+
+- ESM 静态结构
+- CommonJS 运行时加载
+- 副作用代码
+- `sideEffects` 标记
+- 导入方式对产物体积的影响
+
+**项目表达**：
+
+如果发现包体积异常，我会结合 bundle analyzer 看是否有 CommonJS 依赖、错误的整体导入、模块副作用或 `sideEffects` 配置问题，而不是只说“开启 tree-shaking”。
+
+**关联文档**：[Week 1 模块化](../jscore/advanced/week1-modules)、[Week 1 构建工具](../engineering/week1-build-tools)
+
+### 3. 生产构建为什么要做代码分割和长缓存？
+
+**问题**：前端生产构建里，hash、chunk、缓存策略怎么设计？
+
+**答题主线**：
+
+代码分割的目标是把首屏不需要的代码延后加载，降低首屏下载和解析成本。长缓存的目标是让内容不变的静态资源长期命中浏览器缓存。通常会给 JS/CSS 文件加 content hash，并把 HTML 设置成不强缓存或短缓存，因为 HTML 负责引用最新资源。稳定的 vendor chunk 可以提高缓存命中，但拆得过细会增加请求和调度成本。
+
+**展开方向**：
+
+- 路由级动态导入
+- vendor 拆包
+- content hash
+- HTML 与静态资源缓存差异
+- source map 发布策略
+
+**项目表达**：
+
+我会把缓存策略和发布策略一起设计：HTML 保持可快速更新，静态资源用 hash 长缓存，回滚时保证旧 HTML 引用的旧资源仍然可访问。
+
+**关联文档**：[Week 1 构建工具](../engineering/week1-build-tools)、[Week 6 性能优化](../network&broswer/week6-performance-optimization)
+
+### 4. Babel、TypeScript、bundler 的边界是什么？
+
+**问题**：Babel、tsc、webpack/Vite 分别负责什么？
+
+**答题主线**：
+
+Babel 主要负责语法转换和插件化 AST 变换，TypeScript 编译器负责类型检查和类型擦除，bundler 负责从入口出发组织模块依赖图并生成部署产物。polyfill 解决的是运行时 API 缺失，不是语法转换本身。真实工程里它们经常一起出现，但边界不同。
+
+**展开方向**：
+
+- 语法转换 vs 模块打包
+- 类型检查 vs 类型擦除
+- runtime polyfill
+- loader / plugin 边界
+- 构建速度与类型检查拆分
+
+**项目表达**：
+
+大型项目里我会把类型检查和转译链路分开考虑，例如开发阶段用快速转译保证反馈速度，在 CI 里做完整类型检查和构建校验。
+
+**关联文档**：[Week 1 构建工具](../engineering/week1-build-tools)、[Week 5 TypeScript 基础](../jscore/advanced/week5-typescript-basic)
+
+## 二、部署与交付
+
+### 5. 一条完整的前端 CI/CD 链路应该包含什么？
+
+**问题**：你怎么理解前端 CI/CD？只会写 GitHub Actions 算不算？
+
+**答题主线**：
+
+完整链路通常是：提交代码、触发工作流、安装依赖、质量校验、构建产物、打镜像或上传制品、部署到目标环境、验证与回滚。CI 的重点是尽早发现变更问题，CD 的重点是稳定交付可验证的产物。没有质量门禁、验证和回滚的自动部署不算完整 CI/CD。
+
+**展开方向**：
+
+- PR 阶段和主干阶段的任务差异
+- 类型检查、测试、构建校验
+- Docker 镜像作为交付单元
+- 部署后验证
+- 回滚策略
+
+**项目表达**：
+
+我会把 PR 阶段用于质量门禁，把主干分支用于构建和部署，并要求部署后有健康检查或冒烟验证，避免“自动把错误发布到生产”。
+
+**关联文档**：[Week 2 CI/CD](../engineering/week2-ci-cd)、[Week 2 Deployment](../engineering/week2-deployment)
+
+### 6. Docker 在前端部署里解决什么问题？
+
+**问题**：前端不就是静态文件吗，为什么还要 Docker？
+
+**答题主线**：
+
+前端最终可能是静态文件，但 Docker 可以把构建产物和运行环境固化成统一交付单元。常见做法是多阶段构建：Node 环境负责安装依赖和构建，Nginx 镜像负责托管静态资源。这样运行镜像更小，线上环境更稳定，也更容易回滚到某个镜像版本。
+
+**展开方向**：
+
+- 多阶段构建
+- 构建环境和运行环境分离
+- 镜像 tag 策略
+- GHCR / Docker Registry
+- 容器重启和健康检查
+
+**项目表达**：
+
+我会避免在生产服务器上临时构建，而是让 CI 生成镜像，服务器只拉取和运行镜像，这样本地、CI、线上部署内容更一致。
+
+**关联文档**：[Week 2 Deployment](../engineering/week2-deployment)、[Week 2 CI/CD](../engineering/week2-ci-cd)
+
+### 7. 前端上线后如何快速排障和回滚？
+
+**问题**：线上发布出问题，你怎么定位和回滚？
+
+**答题主线**：
+
+先判断问题范围：是全站不可用、部分路由异常、静态资源 404、接口异常，还是浏览器兼容问题。再看部署记录、镜像版本、Nginx 日志、浏览器控制台、网络请求和监控指标。回滚要依赖可追溯产物，比如镜像 tag 或静态资源版本，而不是临时手动改服务器文件。
+
+**展开方向**：
+
+- 部署日志
+- 静态资源 404
+- Nginx 路由 fallback
+- source map 辅助定位
+- 镜像回滚
+
+**项目表达**：
+
+我会要求每次发布有版本号、产物记录和回滚入口。如果是前端资源问题，优先检查 HTML 引用的资源是否存在、缓存是否污染、Nginx fallback 是否正确。
+
+**关联文档**：[Week 2 Deployment](../engineering/week2-deployment)、[Week 6 性能优化](../network&broswer/week6-performance-optimization)
+
+### 8. 环境变量在前端构建和部署中有什么风险？
+
+**问题**：前端环境变量怎么管理？哪些信息不能放进去？
+
+**答题主线**：
+
+前端环境变量在构建后通常会被打进静态产物，浏览器可见，所以不能放密钥、数据库密码、私有 token。它适合放公开的环境标识、接口 base URL、开关配置等。还要区分构建时变量和运行时配置，静态站点如果需要运行时切环境，通常要引入外部配置文件或服务端注入。
+
+**展开方向**：
+
+- 构建时注入
+- 运行时配置
+- secret 泄露
+- 多环境发布
+- CI secrets 管理
+
+**项目表达**：
+
+我会把敏感信息放在服务端或 CI secret 中，只把浏览器允许公开的信息注入前端。多环境部署时，要避免为每个环境重新构建导致产物不可复用的问题。
+
+**关联文档**：[Week 2 Deployment](../engineering/week2-deployment)、[Week 6 安全专题](../network&broswer/week6-security)
+
+## 三、Vue 原理
+
+### 9. Vue 3 响应式为什么选择 Proxy？
+
+**问题**：Vue 2 和 Vue 3 响应式有什么差异？
+
+**答题主线**：
+
+Vue 2 基于 `Object.defineProperty` 劫持已有属性，新增属性、删除属性、数组索引和集合类型都需要额外处理。Vue 3 基于 `Proxy` 代理整个对象，可以拦截 `get`、`set`、`deleteProperty`、`ownKeys` 等操作，对数组、Map、Set 的语义更完整。它不只是性能变化，更重要的是响应式覆盖范围更完整。
+
+**展开方向**：
+
+- `track` / `trigger`
+- `WeakMap -> Map -> Set`
+- `ReactiveEffect`
+- `Vue.set` 历史原因
+- 深层响应式和浅层响应式
+
+**项目表达**：
+
+对于大型数据或第三方实例，我不会默认深度代理，而会考虑 `shallowRef`、`shallowReactive` 或 `markRaw`，避免不必要的代理成本和对象语义变化。
+
+**关联文档**：[Week 3 响应式原理](../framework/vue/week3-reactivity)
+
+### 10. Vue 中 computed 和 watch 的本质区别是什么？
+
+**问题**：computed、watch、watchEffect 怎么选？
+
+**答题主线**：
+
+`computed` 用来描述由已有状态派生出的值，内部是懒执行 effect，通过 `dirty` 标记实现缓存和失效。`watch` 用来监听明确数据源并执行副作用，可以拿到新旧值。`watchEffect` 自动收集同步执行期间读取到的依赖，适合依赖来源分散但副作用直接的场景。
+
+**展开方向**：
+
+- computed 懒执行
+- getter 纯净性
+- watch cleanup
+- `flush: post`
+- 异步请求取消
+
+**项目表达**：
+
+我会把派生数据放在 computed，把请求、埋点、缓存写入、DOM 访问这类副作用放在 watch。对于搜索请求，会在 watch 中使用 cleanup 取消过期请求。
+
+**关联文档**：[Week 3 响应式原理](../framework/vue/week3-reactivity)
+
+### 11. Vue 3 的渲染机制为什么强调编译优化？
+
+**问题**：Vue 3 的 patch flag、静态提升、block tree 有什么用？
+
+**答题主线**：
+
+Vue 模板可以在编译期被静态分析，编译器能提前知道哪些节点静态、哪些属性动态。静态提升减少重复创建和比较，patch flag 告诉运行时具体哪里会变，block tree 把动态节点收集起来，让更新路径从整棵树收敛到动态节点列表。Vue 3 的优势不是不用虚拟 DOM，而是带着编译器提示做更少的运行时 diff。
+
+**展开方向**：
+
+- render function
+- vnode
+- component render effect
+- scheduler
+- keyed children diff
+
+**项目表达**：
+
+当页面存在大量静态结构和少量动态内容时，Vue 的编译优化收益明显。手动使用 `v-memo` 前，我会先确认是否真的有大列表或局部更新瓶颈。
+
+**关联文档**：[Week 3 渲染机制](../framework/vue/week3-rendering-mechanism)
+
+### 12. Vue 列表 diff 为什么需要稳定 key？
+
+**问题**：为什么不建议用 index 作为 key？
+
+**答题主线**：
+
+key 用来标识同级节点的稳定身份，帮助 Vue 判断节点能否复用、是否需要移动、新增或删除。index 在插入、删除、排序时不能稳定代表业务项，会导致 DOM 或组件实例被错误复用。Vue 处理乱序列表时会通过 key 建立映射，并用最长递增子序列减少 DOM 移动次数。
+
+**展开方向**：
+
+- 头尾同步
+- key 到新索引映射
+- 节点复用
+- 最长递增子序列
+- 组件状态错位
+
+**项目表达**：
+
+业务列表我会优先使用数据库 id、业务唯一 id 作为 key。只有纯静态、不会重排和插入删除的展示列表，index 才相对可接受。
+
+**关联文档**：[Week 3 渲染机制](../framework/vue/week3-rendering-mechanism)
+
+## 四、React 机制
+
+### 13. Hooks 为什么不能写在条件里？
+
+**问题**：React 为什么要求 Hook 只能在顶层调用？
+
+**答题主线**：
+
+Hooks 状态挂在函数组件对应的 Fiber 上，一个组件内多个 Hook 按调用顺序形成链表。React 不是通过变量名识别 Hook，而是通过每次 render 的调用顺序匹配上一次的 Hook 节点。条件调用会破坏顺序，导致状态错位。
+
+**展开方向**：
+
+- Fiber.memoizedState
+- Hook 链表
+- render 快照
+- state update queue
+- 自定义 Hook 规则
+
+**项目表达**：
+
+如果逻辑需要条件执行，我会把条件放进 Hook 内部，而不是条件调用 Hook。例如 Effect 里根据开关决定是否订阅，并保证 cleanup 完整。
+
+**关联文档**：[Week 4 Hooks](../framework/react/week4-hooks)
+
+### 14. React setState 后为什么读到旧值？
+
+**问题**：为什么 `setCount(count + 1)` 后 `count` 没变？
+
+**答题主线**：
+
+React 的 state 是一次 render 的快照，`setState` 做的是把更新放进队列并调度下一次 render，不会修改当前闭包里的局部变量。如果新状态依赖旧状态，应该使用函数式更新，让更新基于队列中的上一步状态计算。
+
+**展开方向**：
+
+- render snapshot
+- stale closure
+- update queue
+- 自动批处理
+- 函数式更新
+
+**项目表达**：
+
+连续点击、定时器、Promise 回调里如果要基于旧状态更新，我会优先写 `setState(prev => next)`，避免闭包捕获旧值造成更新丢失。
+
+**关联文档**：[Week 4 Hooks](../framework/react/week4-hooks)
+
+### 15. useEffect 的正确心智模型是什么？
+
+**问题**：useEffect 是生命周期替代品吗？
+
+**答题主线**：
+
+`useEffect` 更准确的定位是提交后同步外部系统，而不是生命周期的一一替代。render 阶段应该保持纯净，Effect 在 commit 后执行，用于请求、订阅、定时器、DOM API、第三方 SDK 等副作用。cleanup 会在卸载或下一次 effect 执行前运行。
+
+**展开方向**：
+
+- render / commit
+- dependency array
+- stale closure
+- cleanup
+- Strict Mode 双执行
+
+**项目表达**：
+
+我会避免用 Effect 派生内部状态。能在 render 中计算的值直接计算，昂贵计算用 memo，真正要同步外部系统时才用 Effect。
+
+**关联文档**：[Week 4 Hooks](../framework/react/week4-hooks)
+
+### 16. React 并发渲染解决什么问题？
+
+**问题**：React 并发是不是多线程？`useTransition` 有什么用？
+
+**答题主线**：
+
+React 并发不是多线程，而是基于 Fiber 的协作式调度。它让 render 阶段可以被中断、重试、丢弃，并根据优先级先处理用户输入等紧急更新。`startTransition` / `useTransition` 可以把非紧急更新标记为低优先级，让输入响应优先于大列表过滤、tab 切换等重更新。
+
+**展开方向**：
+
+- Fiber 工作单元
+- render 可中断
+- commit 不可中断
+- lanes 优先级
+- Suspense 配合 transition
+
+**项目表达**：
+
+搜索大列表时，我会让输入框值保持高优先级更新，把结果列表过滤放进 transition，保证输入不卡顿，同时配合虚拟列表减少实际渲染成本。
+
+**关联文档**：[Week 4 并发机制](../framework/react/week4-concurrency)
+
+## 五、TypeScript 设计
+
+### 17. TypeScript 的价值边界是什么？
+
+**问题**：TypeScript 能不能保证线上没有类型问题？
+
+**答题主线**：
+
+TypeScript 主要工作在编译阶段，它能帮助开发期发现参数、返回值、对象结构、状态分支等问题，但不能替代运行时校验。后端返回、URL 参数、localStorage、第三方输入都仍然是不可信数据，需要运行时解析或守卫。
+
+**展开方向**：
+
+- `unknown` 优于 `any`
+- 类型缩小
+- 自定义类型守卫
+- 运行时 schema
+- 编译期和运行时边界
+
+**项目表达**：
+
+接口返回我会先按 `unknown` 处理，通过类型守卫或 schema 校验后再进入业务模型，避免把不可信数据直接断言成业务类型。
+
+**关联文档**：[Week 5 TypeScript 基础](../jscore/advanced/week5-typescript-basic)
+
+### 18. 泛型设计的重点是什么？
+
+**问题**：泛型是不是只是把类型写成 `<T>`？
+
+**答题主线**：
+
+泛型的价值是在保持约束的同时保留调用方传入的信息。好的泛型 API 不只是“接受任何类型”，而是通过 `extends`、`keyof`、索引访问类型、条件类型等能力表达输入和输出之间的关系。泛型设计的目标是让调用方少写类型，编译器多推断。
+
+**展开方向**：
+
+- 泛型约束
+- `keyof`
+- `T[K]`
+- 默认泛型参数
+- 条件类型
+
+**项目表达**：
+
+封装表格、表单、请求函数时，我会让字段名、返回值和组件 props 建立类型关系，避免业务字段改名后调用方仍然静默通过。
+
+**关联文档**：[Week 5 类型设计](../jscore/advanced/week5-typescript-design)
+
+### 19. 如何用 TypeScript 表达业务状态机？
+
+**问题**：接口请求状态、表单状态怎么建模更稳？
+
+**答题主线**：
+
+用判别联合比多个松散 boolean 更适合表达互斥状态。例如请求状态可以是 `idle`、`loading`、`success`、`error`，不同状态携带不同字段。渲染时通过判别字段缩小类型，并用 `never` 做穷尽检查，防止新增状态后漏处理。
+
+**展开方向**：
+
+- discriminated union
+- exhaustive check
+- `never`
+- 状态互斥
+- UI 分支建模
+
+**项目表达**：
+
+我不会用 `loading + data + error` 三个字段随意组合所有状态，而会用判别联合约束合法状态，避免出现“既 loading 又 success”这类不一致数据。
+
+**关联文档**：[Week 5 TypeScript 基础](../jscore/advanced/week5-typescript-basic)、[Week 5 类型设计](../jscore/advanced/week5-typescript-design)
+
+### 20. 组件 API 的类型设计要注意什么？
+
+**问题**：如何设计一个类型友好的组件 props？
+
+**答题主线**：
+
+组件 API 类型设计要表达约束，而不是把所有字段都设成可选。互斥 props 可以用联合类型表达，受控和非受控模式要明确边界，事件回调参数要从业务模型推导。好的组件类型能让非法组合在编译期报错。
+
+**展开方向**：
+
+- 互斥 props
+- 受控 / 非受控
+- 泛型组件
+- 事件类型推导
+- 默认值与可选属性
+
+**项目表达**：
+
+设计通用表格或表单组件时，我会让列配置和数据类型绑定，让 `dataIndex` 只能选择真实字段，并让 render 回调拿到正确字段类型。
+
+**关联文档**：[Week 5 类型设计](../jscore/advanced/week5-typescript-design)
+
+## 六、性能与安全
+
+### 21. Web Vitals 如何对应具体优化动作？
+
+**问题**：LCP、INP、CLS 分别代表什么？怎么优化？
+
+**答题主线**：
+
+LCP 关注最大内容元素加载速度，常见优化是减少首屏资源阻塞、优化图片、SSR/预渲染、缓存关键资源。INP 关注交互响应，常见优化是拆长任务、减少主线程阻塞、降低重渲染成本。CLS 关注布局稳定性，常见优化是给图片和广告位预留尺寸，避免动态插入内容推页面。
+
+**展开方向**：
+
+- 首屏关键路径
+- 长任务
+- 图片优化
+- 字体加载
+- 布局抖动
+
+**项目表达**：
+
+我会先通过 Lighthouse、Performance 面板和真实用户监控判断瓶颈属于加载、渲染还是交互，再对应优化，而不是笼统说压缩资源。
+
+**关联文档**：[Week 6 性能优化](../network&broswer/week6-performance-optimization)
+
+### 22. 前端缓存策略怎么设计？
+
+**问题**：强缓存、协商缓存和构建 hash 怎么配合？
+
+**答题主线**：
+
+静态资源可以用 content hash 配合长期强缓存，因为内容变了文件名会变。HTML 通常不做长期强缓存，因为它负责引用最新资源。接口缓存要结合业务实时性设计，可以使用 HTTP 缓存、前端内存缓存、请求去重或数据层缓存。缓存策略必须和发布、回滚一起考虑。
+
+**展开方向**：
+
+- `Cache-Control`
+- ETag
+- content hash
+- HTML 缓存
+- CDN 缓存刷新
+
+**项目表达**：
+
+我会让静态资源长缓存、HTML 短缓存或不强缓存，并确保旧版本资源在回滚窗口内仍然可访问，避免新旧 HTML 和资源不匹配。
+
+**关联文档**：[Week 6 性能优化](../network&broswer/week6-performance-optimization)、[Week 2 Deployment](../engineering/week2-deployment)
+
+### 23. XSS 的本质和防御是什么？
+
+**问题**：前端如何防 XSS？
+
+**答题主线**：
+
+XSS 的本质是攻击者把恶意脚本注入到页面并让浏览器执行。防御核心是根据上下文做输出编码，避免把不可信内容当 HTML 执行。框架默认插值会转义，但 `v-html`、`dangerouslySetInnerHTML`、富文本渲染等场景仍然需要净化。CSP 可以作为额外防线，降低脚本执行风险。
+
+**展开方向**：
+
+- 存储型 / 反射型 / DOM 型 XSS
+- HTML 上下文转义
+- URL 协议过滤
+- 富文本白名单
+- CSP
+
+**项目表达**：
+
+如果业务必须支持富文本，我会使用白名单净化库，限制标签、属性和协议，并配合 CSP，而不是直接信任后端返回的 HTML。
+
+**关联文档**：[Week 6 安全专题](../network&broswer/week6-security)
+
+### 24. CSRF 和 XSS 的区别是什么？
+
+**问题**：CSRF 为什么不一定需要读取用户信息也能攻击？
+
+**答题主线**：
+
+XSS 是让恶意脚本在目标站点上下文执行，CSRF 是利用浏览器自动携带 cookie 的能力，诱导已登录用户向目标站点发起非预期请求。CSRF 防御常见手段包括 SameSite Cookie、CSRF Token、校验 Origin / Referer、关键操作二次确认。
+
+**展开方向**：
+
+- cookie 自动携带
+- SameSite
+- CSRF Token
+- Origin 校验
+- GET 请求副作用风险
+
+**项目表达**：
+
+对于修改数据的接口，我会避免用 GET，配合 SameSite 和 CSRF Token，并让服务端校验请求来源，前端只做配合而不是独自承担防御。
+
+**关联文档**：[Week 6 安全专题](../network&broswer/week6-security)
+
+## 七、测试与质量
+
+### 25. 单测、组件测试、E2E 怎么分层？
+
+**问题**：前端测试金字塔怎么落地？
+
+**答题主线**：
+
+单测关注纯函数、工具函数、状态迁移等小单元，组件测试关注组件交互和渲染结果，E2E 测试覆盖关键用户链路。越靠底层越快、越稳定、越适合覆盖边界；越靠上层越接近真实用户，但成本和不稳定性更高。测试分层的目标是用合适成本覆盖合适风险。
+
+**展开方向**：
+
+- Vitest 单测
+- Vue / React 组件测试
+- Playwright E2E
+- 测试金字塔
+- 关键链路冒烟
+
+**项目表达**：
+
+我会把核心算法和状态逻辑放在单测，复杂组件交互用组件测试，登录、下单、发布这类核心路径用 E2E 或冒烟测试。
+
+**关联文档**：[Week 7 测试策略](../engineering/week7-testing-strategy)
+
+### 26. mock 的边界在哪里？
+
+**问题**：测试里 mock 越多越好吗？
+
+**答题主线**：
+
+mock 是为了隔离不稳定或昂贵的外部依赖，不是为了让测试永远通过。过度 mock 会让测试脱离真实行为，尤其是把被测逻辑本身也 mock 掉时，测试就失去价值。更好的做法是 mock 网络、时间、随机数、浏览器 API 等边界，保留核心业务逻辑真实执行。
+
+**展开方向**：
+
+- mock 外部依赖
+- fake timer
+- MSW
+- contract risk
+- 测试可信度
+
+**项目表达**：
+
+接口测试我会优先 mock 网络边界，并保持响应结构接近真实接口；对关键流程再补 E2E，避免单测 mock 掩盖前后端契约变化。
+
+**关联文档**：[Week 7 测试策略](../engineering/week7-testing-strategy)
+
+### 27. 覆盖率高是否等于测试质量高？
+
+**问题**：如何评价测试质量？
+
+**答题主线**：
+
+覆盖率只能说明代码被执行过，不代表断言有效，也不代表覆盖了真实风险。高质量测试应该关注关键业务路径、边界条件、失败场景和回归风险。覆盖率可以作为底线指标，但不能替代测试设计。
+
+**展开方向**：
+
+- statement / branch coverage
+- 关键路径覆盖
+- 断言质量
+- flaky test
+- CI 质量门禁
+
+**项目表达**：
+
+我会把覆盖率作为趋势监控，而不是唯一目标。核心模块要求更高覆盖和更强断言，低风险展示代码不盲目追求 100%。
+
+**关联文档**：[Week 7 测试策略](../engineering/week7-testing-strategy)
+
+## 八、架构与项目题
+
+### 28. 一个复杂前端项目如何设计状态边界？
+
+**问题**：什么状态放组件内，什么状态放全局？
+
+**答题主线**：
+
+状态边界要看共享范围、生命周期和一致性要求。组件局部交互状态放组件内，跨页面或跨业务模块共享的状态才考虑全局。服务端数据不一定应该进入全局 store，可以交给数据请求层缓存。派生状态尽量计算得到，避免多处保存导致不一致。
+
+**展开方向**：
+
+- local state
+- global state
+- server state
+- derived state
+- URL state
+
+**项目表达**：
+
+我会先按状态来源分类：UI 临时状态、URL 可分享状态、服务端缓存状态、全局用户状态。不同状态用不同工具管理，而不是所有东西都塞进一个 store。
+
+**关联文档**：[Week 4 Hooks](../framework/react/week4-hooks)、[Week 3 响应式原理](../framework/vue/week3-reactivity)
+
+### 29. 如何设计一个可观测的前端线上体系？
+
+**问题**：高级前端如何讲监控和排障？
+
+**答题主线**：
+
+前端可观测性至少包括错误监控、性能监控、资源加载监控、接口监控和用户行为上下文。错误要能关联版本、路由、用户环境、source map 和发布记录。性能要结合 Web Vitals 和真实用户数据，而不是只看本地 Lighthouse。
+
+**展开方向**：
+
+- JS error
+- unhandled rejection
+- resource error
+- Web Vitals
+- sourcemap 安全
+- release 关联
+
+**项目表达**：
+
+我会让每次发布带上版本号，错误上报携带 release、路由、浏览器、用户操作上下文，并把告警和回滚流程连起来。
+
+**关联文档**：[Week 2 Deployment](../engineering/week2-deployment)、[Week 6 性能优化](../network&broswer/week6-performance-optimization)
+
+### 30. 项目复盘题应该怎么回答？
+
+**问题**：介绍一个你主导的复杂前端项目，你怎么讲？
+
+**答题主线**：
+
+不要只讲业务页面和功能点，要讲清背景、目标、约束、方案、取舍、结果和复盘。高级前端项目表达应该自然带出工程化、性能、稳定性、测试、监控、协作这些维度。重点不是把所有技术都堆进去，而是说明为什么这些技术选择能解决当时的问题。
+
+**展开方向**：
+
+- 项目背景
+- 技术约束
+- 架构分层
+- 性能指标
+- 发布与回滚
+- 质量保障
+
+**项目表达**：
+
+可以按这个结构准备：业务目标是什么，原来痛点是什么，我负责哪部分，做了哪些关键决策，遇到什么风险，怎么验证结果，最后沉淀了什么工程能力。
+
+**关联文档**：[高级前端 8 周路线图](./senior-frontend-roadmap)、[Week 2 CI/CD](../engineering/week2-ci-cd)、[Week 7 测试策略](../engineering/week7-testing-strategy)
+
+## 最终查漏补缺清单
+
+面试前可以用下面几个问题自检：
+
+1. 每个主题能不能用一条机制链路讲清楚，而不是只背定义？
+2. 每个方案能不能说出适用场景、代价和失败风险？
+3. 能不能把构建、部署、测试、性能、安全自然串进项目题？
+4. 对 Vue 和 React 的回答是否能讲到调度和更新机制？
+5. 对 TypeScript 的回答是否能从“会写类型”升级到“会设计 API”？
+6. 对性能问题是否能从指标定位到具体优化动作？
+7. 对测试问题是否能说明分层边界和质量取舍？
+8. 是否准备了至少 3 个真实项目故事，用同一套结构稳定表达？

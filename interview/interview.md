@@ -6,6 +6,13 @@ description: 系统化的前端面试知识体系与复习路径
 
 # 🚀 前端面试复习指南
 
+## 🎯 高级前端专项入口
+
+- [高级前端 8 周路线图](./plan/senior-frontend-roadmap)
+- [Week 1 按小时执行清单](./plan/week1-build-hourly)
+
+如果目标是高级前端面试，建议优先按照上面的专项路线推进，再把下面的知识图谱作为查漏补缺索引使用。
+
 ## 🗓️ 核心知识图谱
 
 ### 1. JavaScript 核心 (重中之重)
@@ -21,8 +28,8 @@ description: 系统化的前端面试知识体系与复习路径
   - [ES6+ 新特性](./jscore/basic/es6)：let/const、解构、Proxy、Map/Set、Module
 
 - **进阶概念**
-  - [TypeScript 基础](./jscore/advanced/typescript)：泛型、高级类型、装饰器
-  - [函数式编程](./jscore/advanced/functional)：纯函数、柯里化、高阶函数
+  - [TypeScript 基础](./jscore/advanced/week5-typescript-basic)：泛型、高级类型、类型设计与判别联合
+  - [函数式编程](./jscore/advanced/functional-programming)：纯函数、柯里化、高阶函数
   - [设计模式](./jscore/advanced/design-pattern)：单例、观察者、发布订阅、代理模式
 
 ### 2. HTML & CSS (基石)
@@ -44,67 +51,63 @@ description: 系统化的前端面试知识体系与复习路径
 
 - **Vue.js**
   - [Vue 3 核心](./framework/vue/vue3)：Composition API、Teleport、Suspense
-  - [响应式原理](./framework/vue/reactivity)：Object.defineProperty vs Proxy
-  - [虚拟 DOM](./framework/vue/vdom)：Diff 算法 (双端/最长递增子序列)、PatchFlag
-  - [生态系统](./framework/vue/ecosystem)：Vue Router (Hash/History)、Pinia/Vuex 状态管理
+  - [响应式原理](./framework/vue/week3-reactivity)：Object.defineProperty vs Proxy
+  - [虚拟 DOM](./framework/vue/dom-diff)：Diff 算法、PatchFlag、更新过程
+  - [生态系统](./framework/vue/router)：Vue Router、状态管理与生态配合
 
 - **React**
-  - [核心原理](./framework/react/core)：Fiber 架构、Reconciliation、合成事件
-  - [Hooks](./framework/react/hooks)：useState、useEffect 原理、自定义 Hooks
-  - [状态管理](./framework/react/state)：Redux (Thunk/Saga)、Zustand、Context API
-  - [性能优化](./framework/react/performance)：useMemo/useCallback、React.memo
+  - [核心原理](./framework/react/basics)：Fiber、Reconciliation、组件模型
+  - [Hooks](./framework/react/week4-hooks)：useState、useEffect 原理、自定义 Hooks
+  - [状态管理](./framework/react/state-management)：Redux (Thunk/Saga)、Zustand、Context API
+  - [性能优化](./framework/react/performance-optimization)：useMemo/useCallback、React.memo
 
 ### 4. 浏览器与网络 (区分度高)
 > 考察频率：⭐⭐⭐⭐ | 难度系数：⭐⭐⭐⭐
 
 - **网络协议**
-  - [HTTP 体系](./network/http)：HTTP/1.1 vs 2.0 vs 3.0、HTTPS 加密流程 (TLS/SSL)
-  - [TCP/IP](./network/tcp)：三次握手/四次挥手、UDP 区别
-  - [缓存机制](./network/cache)：强缓存 (Cache-Control)、协商缓存 (Etag/Last-Modified)
+  - [HTTP 体系](./network&broswer/http-protocol)：HTTP/1.1 vs 2.0 vs 3.0、HTTPS 加密流程
+  - [缓存机制](./network&broswer/cache-mechanism)：强缓存、协商缓存、缓存命中策略
+  - [浏览器存储](./network&broswer/broswer-storage)：Cookie、LocalStorage、SessionStorage、IndexedDB
 
 - **浏览器原理**
-  - [渲染流程](./browser/render)：DOM/CSSOM -> Render Tree -> Layout -> Paint -> Composite
-  - [跨域解决方案](./browser/cors)：CORS、JSONP、Nginx 反向代理
-  - [Web 安全](./browser/security)：XSS、CSRF、ClickJacking 防御
-  - [性能指标](./browser/performance)：FCP、LCP、CLS、TTI 及优化手段
+  - [渲染流程](./network&broswer/broswer-render)：DOM/CSSOM -> Render Tree -> Layout -> Paint -> Composite
+  - [跨域解决方案](./network&broswer/cross-origin)：CORS、JSONP、Nginx 反向代理
+  - [Web 安全](./network&broswer/web-safe)：XSS、CSRF、ClickJacking 防御
+  - [性能指标](./network&broswer/week6-performance-optimization)：FCP、LCP、CLS、TTI 及优化手段
 
 ### 5. 前端工程化 (实战必备)
 > 考察频率：⭐⭐⭐⭐ | 难度系数：⭐⭐⭐⭐
 
 - **构建工具**
-  - [Webpack](./engineering/webpack)：Loader vs Plugin、HMR 原理、性能优化 (Tree Shaking/Code Splitting)
-  - [Vite](./engineering/vite)：ESM 开发服务器原理、Rollup 打包
+  - [构建工具总览](./engineering/week1-build-tools)：Webpack、Vite、Babel、Tree Shaking、Code Splitting
   
 - **研发流程**
-  - [包管理](./engineering/package)：npm vs yarn vs pnpm (软硬链接)
-  - [规范化](./engineering/lint)：ESLint、Prettier、Git Hooks (Husky)
-  - [CI/CD](./engineering/cicd)：GitHub Actions、Docker 部署、Nginx 配置
+  - [包管理](./engineering/package-manage)：npm vs yarn vs pnpm (软硬链接)
+  - [Git 协作](./engineering/git)：分支策略、提交规范、协作流程
+  - [CI/CD](./engineering/week2-ci-cd)：GitHub Actions、Docker 部署、Nginx 配置
 
 ### 6. 算法与数据结构 (大厂敲门砖)
 > 考察频率：⭐⭐⭐ | 难度系数：⭐⭐⭐⭐⭐
 
-- [数据结构](./algorithm/structure)：数组、链表、树 (二叉树/Trie)、栈/队列
-- [核心算法](./algorithm/core)：排序 (快排/归并)、二分查找、双指针、滑动窗口、动态规划
-- [手写代码](./algorithm/handwrite)：防抖节流、深拷贝、EventEmitter、Promise.all
+- [数据结构](./algorithm&data-structure/array)：数组、链表、树、栈、队列
+- [核心算法](./algorithm&data-structure/sort)：排序、二分查找、双指针、滑动窗口、动态规划
+- [手写代码](./handwrite/debounce)：防抖节流、深拷贝、EventEmitter、Promise
 
 ## 📚 复习策略
 
-### 第一阶段：夯实基础 (2周)
-- **重点**：JS Core、HTML/CSS
-- **目标**：能手写常见 API，理解底层原理 (如闭包、原型链)。
-- **行动**：通读本知识库基础章节，完成 LeetCode 简单题 Top 20。
+### 高级前端建议顺序
 
-### 第二阶段：框架深潜 (2周)
-- **重点**：Vue/React 原理、源码阅读
-- **目标**：不仅会用，更懂"为什么"。能解释 Diff 算法，理解 Hooks 陷阱。
-- **行动**：阅读框架源码解析文章，尝试实现简易版 Vue/React。
+1. 工程化与构建链路
+2. 部署与交付链路
+3. Vue / React 原理
+4. TypeScript 进阶
+5. 浏览器、性能、安全
+6. 测试与质量保障
+7. 架构题与模拟面试
 
-### 第三阶段：全栈与工程化 (1周)
-- **重点**：浏览器原理、网络、Webpack、部署
-- **目标**：建立完整的"输入 URL 到页面展示"的全链路知识体系。
-- **行动**：配置一个完整的 Webpack 项目，尝试 Docker 部署。
+### 使用方式
 
-### 第四阶段：模拟与冲刺 (1周)
-- **重点**：算法突击、项目复盘、模拟面试
-- **目标**：流畅表达项目难点，算法题能给出最优解。
-- **行动**：整理项目亮点 (STAR 法则)，进行模拟面试，查漏补缺。
+- 先按 [高级前端 8 周路线图](./plan/senior-frontend-roadmap) 推进
+- 再按 [Week 1 按小时执行清单](./plan/week1-build-hourly) 开始落地
+- 每学完一周，都把新增理解回填到对应专题文档
+- 算法和手写代码保持手感即可，不再作为主投入方向

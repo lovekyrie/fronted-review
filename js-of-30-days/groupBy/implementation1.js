@@ -9,11 +9,8 @@ Array.prototype.groupBy = function (fn) {
     const id = fn(obj)
     if (!merged[id]) {
       merged[id] = []
-      merged[id].push(obj)
     }
-    else {
-      merged[id].push(obj)
-    }
+    merged[id].push(obj)
   })
 
   return merged

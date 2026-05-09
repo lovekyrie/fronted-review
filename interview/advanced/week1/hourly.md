@@ -30,7 +30,7 @@ description: 第 1 周构建链路专项的按小时执行计划
 
 ### 00:00-00:20
 
-通读 [build-tools.md](../engineering/week1-build-tools) 和 [modules.md](../jscore/advanced/week1-modules)，把你已经会说的点与说不深的点分开。
+通读 [build-tools.md](../week1/build-tools) 和 [modules.md](../week1/modules)，把你已经会说的点与说不深的点分开。
 
 ### 00:20-00:50
 
@@ -105,7 +105,7 @@ description: 第 1 周构建链路专项的按小时执行计划
 
 ### 01:25-01:45
 
-补写到 [modules.md](../jscore/advanced/week1-modules) 的提纲草稿，至少列出 5 个小节标题。
+补写到 [modules.md](../week1/modules) 的提纲草稿，至少列出 5 个小节标题。
 
 ### 01:45-02:00
 
@@ -259,7 +259,7 @@ description: 第 1 周构建链路专项的按小时执行计划
 
 ### 00:00-00:30
 
-重新审视 [build-tools.md](../engineering/week1-build-tools) 的问题，列出必须重写的部分。
+重新审视 [build-tools.md](../week1/build-tools) 的问题，列出必须重写的部分。
 
 ### 00:30-01:20
 
@@ -273,7 +273,7 @@ description: 第 1 周构建链路专项的按小时执行计划
 
 ### 01:20-01:45
 
-同步补 [modules.md](../jscore/advanced/week1-modules) 中和 ESM、tree-shaking 有关的部分。
+同步补 [modules.md](../week1/modules) 中和 ESM、tree-shaking 有关的部分。
 
 ### 01:45-02:00
 

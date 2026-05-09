@@ -14,19 +14,13 @@ export default defineConfig({
     // 1. 顶部导航栏 (Tabs)
     // 对应你的文件夹结构，点击后跳转到该分类下的第一个文件
     nav: [
+      { text: '高级前端', link: '/advanced/senior-frontend-index' },
       { text: 'JS Core', link: '/jscore/basic/data-type' },
       { text: 'HTML & CSS', link: '/html&css/layout' },
       { text: '框架原理', link: '/framework/vue/vue3' },
       { text: '网络与浏览器', link: '/network&broswer/http-protocol' },
       { text: '算法', link: '/algorithm&data-structure/array-operation' },
       { text: '工程化', link: '/engineering/build-tools' },
-      { text: '场景设计', link: '/scenarios/index' },
-      { text: '前沿进阶', link: '/advanced/ssr-ssg' },
-      { text: '手写代码', link: '/handwrite/array-map' },
-      { text: '项目复盘', link: '/project-review' },
-      { text: '14天冲刺', link: '/sprint-14-days' },
-      { text: '50题速记', link: '/high-frequency-50' },
-      { text: '每日口述题单', link: '/daily-oral-sets-14' },
     ],
 
     // 2. 侧边栏 (Sidebar)
@@ -215,6 +209,87 @@ export default defineConfig({
       ],
 
       '/advanced/': [
+        {
+          text: '高级前端 8 周',
+          items: [
+            { text: '8 周索引', link: '/advanced/senior-frontend-index' },
+            { text: '路线图', link: '/advanced/senior-frontend-roadmap' },
+          ],
+        },
+        {
+          text: 'Week 1 构建链路',
+          items: [
+            { text: '概览', link: '/advanced/week1/roadmap' },
+            { text: '构建工具', link: '/advanced/week1/build-tools' },
+            { text: '模块化', link: '/advanced/week1/modules' },
+            { text: '按小时清单', link: '/advanced/week1/hourly' },
+          ],
+        },
+        {
+          text: 'Week 2 部署交付',
+          items: [
+            { text: '概览', link: '/advanced/week2/roadmap' },
+            { text: 'CI/CD', link: '/advanced/week2/ci-cd' },
+            { text: '部署', link: '/advanced/week2/deployment' },
+          ],
+        },
+        {
+          text: 'Week 3 Vue 原理',
+          items: [
+            { text: '概览', link: '/advanced/week3/roadmap' },
+            { text: '响应式原理', link: '/advanced/week3/reactivity' },
+            { text: '渲染机制', link: '/advanced/week3/rendering-mechanism' },
+          ],
+        },
+        {
+          text: 'Week 4 React 机制',
+          items: [
+            { text: '概览', link: '/advanced/week4/roadmap' },
+            { text: 'Hooks', link: '/advanced/week4/hooks' },
+            { text: '并发机制', link: '/advanced/week4/concurrency' },
+          ],
+        },
+        {
+          text: 'Week 5 TypeScript',
+          items: [
+            { text: '概览', link: '/advanced/week5/roadmap' },
+            { text: '基础', link: '/advanced/week5/typescript-basic' },
+            { text: '类型设计', link: '/advanced/week5/typescript-design' },
+          ],
+        },
+        {
+          text: 'Week 6 性能安全',
+          items: [
+            { text: '概览', link: '/advanced/week6/roadmap' },
+            { text: '性能优化', link: '/advanced/week6/performance-optimization' },
+            { text: '安全专题', link: '/advanced/week6/security' },
+          ],
+        },
+        {
+          text: 'Week 7 测试保障',
+          items: [
+            { text: '概览', link: '/advanced/week7/roadmap' },
+            { text: '测试策略', link: '/advanced/week7/testing-strategy' },
+          ],
+        },
+        {
+          text: 'Week 8 题库',
+          items: [
+            { text: '概览', link: '/advanced/week8/roadmap' },
+            { text: '高级前端题库', link: '/advanced/week8/question-bank' },
+          ],
+        },
+        {
+          text: '冲刺与题库',
+          items: [
+            { text: '14 天冲刺', link: '/sprint-14-days' },
+            { text: '50 题速记', link: '/high-frequency-50' },
+            { text: '每日口述题单', link: '/daily-oral-sets-14' },
+            { text: '项目复盘', link: '/project-review' },
+            { text: '手写代码', link: '/handwrite/array-map' },
+            { text: 'HR 面试问题', link: '/hr-questions' },
+          ],
+        },
         {
           text: '前沿与进阶',
           items: [

@@ -1,3 +1,8 @@
+---
+title: 作用域、闭包与内存管理
+description: JavaScript 作用域链、变量提升、闭包原理、模块模式与内存泄漏场景
+---
+
 ### 作用域 (Scope)
 作用域是指程序源代码中定义变量的区域，它规定了如何查找变量，也就是确定当前执行代码对变量的访问权限。
 
@@ -234,3 +239,316 @@ outer();
 3. **禁用 `var`**：避免变量提升和全局污染带来的 bug。
 4. **警惕闭包内存泄漏**：如果闭包引用了大的 DOM 元素或对象，确保在不需要时手动置为 null 或移除事件监听。
 5. **巧用 IIFE**：虽然模块化（ES Modules）已经普及，但在旧环境或特定场景下，IIFE 仍是隔离作用域的好帮手。
+
+---
+
+## 高频追问与深层原理
+
+### 模块模式（Module Pattern）与数据私有化
+
+模块模式利用闭包实现数据私有化，是 JavaScript 经典设计模式。
+
+#### 基础模块模式
+
+```js
+const Counter = (function() {
+  // 私有状态
+  let count = 0
+
+  // 私有方法
+  function validate(value) {
+    return typeof value === 'number' && value > 0
+  }
+
+  // 公共接口
+  return {
+    increment() {
+      if (validate(count + 1)) {
+        count++
+      }
+      return count
+    },
+    decrement() {
+      if (validate(count - 1)) {
+        count--
+      }
+      return count
+    },
+    getCount() {
+      return count
+    }
+  }
+})()
+
+Counter.increment() // 1
+Counter.increment() // 2
+Counter.getCount()  // 2
+Counter.count       // undefined - 私有变量无法直接访问
+```
+
+#### 揭示模块模式（Revealing Module Pattern）
+
+```js
+const RevealingCounter = (function() {
+  let _count = 0
+
+  function _increment() {
+    _count++
+    return _count
+  }
+
+  function _decrement() {
+    _count--
+    return _count
+  }
+
+  function _getCount() {
+    return _count
+  }
+
+  // 揭示公共接口
+  return {
+    increment: _increment,
+    decrement: _decrement,
+    getCount: _getCount
+  }
+})()
+```
+
+#### 模块模式 vs ES6 模块
+
+| 维度 | 模块模式 | ES6 模块 |
+|------|----------|----------|
+| 语法 | 函数闭包 | import/export |
+| 静态分析 | 无法 | 可以（tree-shaking） |
+| 运行时 | 每次调用创建新实例 | 单例 |
+| 状态 | 可以多实例 | 全局单例 |
+| 适用 | 复杂状态、工厂函数 | 标准模块化代码 |
+
+---
+
+### 闭包与 GC 的关系：内存泄漏场景
+
+#### 为什么闭包会导致内存泄漏？
+
+正常情况下，函数执行完毕后，作用域内的变量会被 GC 回收。但如果形成了闭包，外部函数作用域中的变量被内部函数引用，**GC 无法回收这些变量**。
+
+#### 内存泄漏场景1：循环引用
+
+```js
+function createLeak() {
+  const largeData = new Array(100000)
+
+  // 虽然不再使用 largeData，但闭包引用了它
+  const leak = function() {
+    return largeData
+  }
+
+  // leak 存在，largeData 就无法被 GC
+  return leak
+}
+
+const fn = createLeak()
+// 即使 fn 不再需要，largeData 仍占据内存
+fn = null // 必须手动置 null 才能释放
+```
+
+#### 内存泄漏场景2：DOM 事件监听
+
+```js
+class Listener {
+  constructor() {
+    this.element = document.getElementById('btn')
+    this.data = new Array(100000)
+
+    // 闭包引用了 this.data
+    this.element.addEventListener('click', () => {
+      console.log(this.data) // 闭包保持 data 存活
+    })
+  }
+
+  // 错误：没有清理
+  destroy() {
+    // 只是移除监听，但没有解除对 this.data 的引用
+    this.element.removeEventListener('click', this.handler)
+  }
+}
+```
+
+**正确做法**：
+
+```js
+class Listener {
+  constructor() {
+    this.element = document.getElementById('btn')
+    this.data = new Array(100000)
+
+    // 保存引用，以便移除
+    this.handler = () => {
+      console.log(this.data)
+    }
+
+    this.element.addEventListener('click', this.handler)
+  }
+
+  destroy() {
+    this.element.removeEventListener('click', this.handler)
+    this.element = null
+    this.data = null
+    this.handler = null
+  }
+}
+```
+
+#### 内存泄漏场景3：setTimeout + 闭包
+
+```js
+function process() {
+  const largeData = new Array(100000)
+
+  // 如果这个定时器从未被清理，largeData 永远无法释放
+  setTimeout(function() {
+    console.log(largeData) // 闭包保持 data 存活
+  }, 60000) // 1分钟后才执行
+
+  // 如果需要立即清理
+  const timeoutId = setTimeout(...)
+  clearTimeout(timeoutId)
+}
+```
+
+---
+
+### TDZ 深度追问：var vs function 提升优先级
+
+#### 提升的规则
+
+```js
+// 代码实际执行顺序
+console.log(foo) // function foo() { return 2 }
+console.log(bar) // undefined
+
+var foo = 1
+function bar() { return 2 }
+```
+
+**提升后的实际结构**：
+
+```js
+// 1. 函数声明提升（完整提升）
+function bar() { return 2 }
+
+// 2. var 变量声明提升（初始化不提升）
+var foo
+
+// 3. 执行阶段
+console.log(foo) // undefined - foo 已声明但未赋值
+console.log(bar) // function - bar 已是完整函数
+
+foo = 1
+```
+
+#### function 声明覆盖 var 声明
+
+```js
+var foo = 1
+
+function foo() { return 2 }
+
+// 结果：foo 是函数 2（function 声明会覆盖 var 声明）
+console.log(typeof foo) // "function"
+console.log(foo()) // 2
+```
+
+#### 条件 function 声明的行为
+
+```js
+// 旧版浏览器可能有问题
+if (true) {
+  function test() { return 1 }
+} else {
+  function test() { return 2 }
+}
+
+// 不同浏览器行为不同：
+// Chrome: test = 2（最后定义的函数生效）
+// Firefox: test = 1（else 中的函数不提升）
+```
+
+---
+
+### try-catch 中的变量作用域
+
+try-catch 中的变量是块级作用域：
+
+```js
+try {
+  JSON.parse('{ invalid json }')
+} catch (e) {
+  // e 只在 catch 块内有效
+  console.log(e) // SyntaxError: Unexpected token
+}
+
+// e 在这里不存在
+console.log(e) // ReferenceError: e is not defined
+```
+
+#### try-catch 的性能考量
+
+V8 会对 try-catch 进行优化，但要注意：
+
+```js
+// 错误：try-catch 内部返回函数会阻止 V8 优化
+function badExample() {
+  try {
+    return JSON.parse(data)
+  } catch (e) {
+    return null
+  }
+}
+
+// 正确：提取到外部函数
+function parseJSON(data) {
+  try {
+    return JSON.parse(data)
+  } catch (e) {
+    return null
+  }
+}
+
+// V8 可以优化 parseJSON
+function process() {
+  return parseJSON(data)
+}
+```
+
+---
+
+## 面试回答模板
+
+**问题**：闭包的原理和应用场景？
+
+**高分回答**：
+
+> 闭包是函数和其词法环境的组合。当内部函数引用了外部函数的变量，即使外部函数已经执行完毕，那些变量也不会被垃圾回收。
+>
+> **常见应用场景**：
+> 1. **数据私有化**：模块模式只暴露必要接口
+> 2. **函数工厂**：柯里化生成特定参数的函数
+> 3. **回调函数**：保持对上下文的引用
+>
+> **潜在风险**：闭包会导致内存泄漏，因为被引用的变量无法被 GC 回收。常见场景是 DOM 事件监听器、定时器、或循环中的大对象。解决方案是手动置 null 或移除监听器。
+>
+> **追问**：var 和 let 在循环中的行为差异？
+> - var 是函数作用域，循环变量是共享的
+> - let 是块级作用域，每次循环都是新的变量
+> - 这就是为什么循环中的 setTimeout 应该用 let 或 IIFE
+
+---
+
+## 相关链接
+
+- [MDN 闭包](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures)
+- [MDN 作用域](https://developer.mozilla.org/zh-CN/docs/Glossary/Scope)
+- [V8 闭包优化](https://v8.dev/blog/closures)
+- [Module Pattern 详解](https://addyosmani.com/resources/essentialjsdesignpatterns/ detail/#modulepatternjavascript

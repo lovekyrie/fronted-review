@@ -1,3 +1,8 @@
+---
+title: ES6 新特性深度剖析
+description: ES6 变量声明、Promise 静态方法、async/await 本质、Iterator/Generator 应用、ESM vs CJS 差异
+---
+
 ### ES6 新特性
 ES6（ECMAScript 2015）引入了许多新的语言特性，使JavaScript更加强大和易用。
 
@@ -302,3 +307,354 @@ Object.is(+0, -0);   // false
 5. **善用 Map/Set**：处理频繁增删键值对或去重场景，性能优于 Object/Array。
 6. **模板字符串**：拼接字符串时首选。
 7. **模块化**：坚持使用 `import/export`，避免全局污染。
+
+---
+
+## 高频追问与深层原理
+
+### Promise 静态方法的实现细节
+
+#### Promise.all：任一失败则整体失败
+
+```js
+Promise.myAll = function(promises) {
+  const results = new Array(promises.length)
+  let completed = 0
+
+  return new Promise((resolve, reject) => {
+    promises.forEach((p, i) => {
+      Promise.resolve(p)
+        .then(value => {
+          results[i] = value
+          if (++completed === promises.length) {
+            resolve(results)
+          }
+        })
+        .catch(reject) // 任一 reject 立即 reject
+    })
+  })
+}
+
+// 测试
+Promise.myAll([
+  Promise.resolve(1),
+  new Promise(r => setTimeout(() => r(2), 100)),
+  Promise.resolve(3)
+]).then(console.log) // [1, 2, 3] (等待最慢的)
+```
+
+#### Promise.allSettled：全部完成才 resolve
+
+```js
+Promise.myAllSettled = function(promises) {
+  return Promise.all(
+    promises.map(p =>
+      Promise.resolve(p)
+        .then(
+          value => ({ status: 'fulfilled', value }),
+          reason => ({ status: 'rejected', reason })
+        )
+    )
+  )
+}
+
+// 使用场景：即使部分请求失败，也想知道成功的结果
+Promise.myAllSettled([
+  fetch('/api/user'),
+  fetch('/api/config') // 即使失败，user 数据仍可用
+]).then(results => {
+  const [user, config] = results
+  if (user.status === 'fulfilled') {
+    console.log(user.value)
+  }
+})
+```
+
+#### Promise.race：谁先完成返回谁
+
+```js
+Promise.myRace = function(promises) {
+  return new Promise((resolve, reject) => {
+    promises.forEach(p => {
+      Promise.resolve(p)
+        .then(resolve)
+        .catch(reject)
+    })
+  })
+}
+
+// 应用：请求超时
+const requestWithTimeout = (url, timeout = 5000) => {
+  return Promise.myRace([
+    fetch(url),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Timeout')), timeout)
+    )
+  ])
+}
+```
+
+---
+
+### async/await 本质：Generator + 自动执行器
+
+#### async 是 Generator 的语法糖
+
+```js
+// async 函数
+async function fetchData() {
+  const result = await fetch('/api/data')
+  return result
+}
+
+// Babel 转译后大概等价于：
+function fetchData() {
+  return spawn(function* () {
+    const result = yield fetch('/api/data')
+    return result
+  })
+}
+```
+
+#### 自动执行器 spawn 的实现
+
+```js
+function spawn(gen) {
+  return new Promise((resolve, reject) => {
+    const iterator = gen()
+
+    function step(nextValue) {
+      let result
+      try {
+        result = iterator.next(nextValue)
+      } catch (e) {
+        return reject(e)
+      }
+
+      if (result.done) {
+        return resolve(result.value)
+      }
+
+      // 递归调用，保持 Promise 链
+      Promise.resolve(result.value)
+        .then(step)
+        .catch(err => iterator.throw(err))
+    }
+
+    step()
+  })
+}
+```
+
+#### async/await 的常见陷阱
+
+```js
+// 陷阱1：并行 vs 串行
+async function loadData() {
+  const a = await fetchA() // 必须等 a 完成
+  const b = await fetchB() // 串行，总耗时 = a + b
+}
+
+// 正确并行：
+async function loadData() {
+  const [a, b] = await Promise.all([fetchA(), fetchB()])
+}
+
+// 陷阱2：循环中的 await
+async function processItems(items) {
+  const results = []
+  for (const item of items) {
+    results.push(await process(item)) // 串行
+  }
+  return results
+}
+
+// 正确并行：
+async function processItems(items) {
+  return Promise.all(items.map(process))
+}
+```
+
+---
+
+### Iterator / Generator 的实际业务应用
+
+#### 1. 实现无限序列
+
+```js
+function* fibonacci() {
+  let [a, b] = [0, 1]
+  while (true) {
+    yield a
+    [a, b] = [b, a + b]
+  }
+}
+
+const fib = fibonacci()
+fib.next().value // 0
+fib.next().value // 1
+fib.next().value // 1
+fib.next().value // 2
+```
+
+#### 2. 实现惰性计算
+
+```js
+function* range(start, end) {
+  for (let i = start; i <= end; i++) {
+    yield i
+  }
+}
+
+const numbers = range(1, 1000000)
+
+// 不像 [1, 2, ..., 1000000] 占用大量内存
+// range 生成器只存储当前状态
+```
+
+#### 3. 异步迭代器（用于 async await）
+
+```js
+async function* fetchPages(url) {
+  let page = 1
+  while (true) {
+    const data = await fetch(`${url}?page=${page}`)
+    if (data.length === 0) break
+    yield data
+    page++
+  }
+}
+
+// 使用
+for await (const pageData of fetchPages('/api/list')) {
+  console.log(pageData)
+}
+```
+
+---
+
+### ES Module vs CommonJS：运行时差异
+
+#### 加载顺序不同
+
+```js
+// ESM - 提升，但依赖关系静态分析
+import { a } from './module' // 必须在文件顶部
+
+// CJS - 运行时加载
+const { a } = require('./module') // 可以在任何位置
+```
+
+#### 值拷贝 vs 引用
+
+```js
+// CJS - 输出的是值的拷贝
+// counter.js
+let count = 0
+exports.count = count
+exports.increment = () => { count++ }
+
+// main.js
+const { count, increment } = require('./counter')
+console.log(count) // 0
+increment()
+console.log(count) // 仍然是 0！
+
+// ESM - 输出的是引用（只读）
+// counter.mjs
+let count = 0
+export { count }
+export const increment = () => { count++ }
+
+// main.mjs
+import { count, increment } from './counter.mjs'
+console.log(count) // 0
+increment()
+console.log(count) // 1 - count 变化了（因为是引用）
+```
+
+#### 循环引用处理
+
+```js
+// a.js
+import { b } from './b.js'
+export const a = 'a'
+export function getA() { return a + b }
+
+// b.js
+import { a } from './a.js'
+export const b = 'b'
+export function getB() { return a + b }
+
+// ESM 允许循环引用，但可能得到未完全初始化的值
+const bModule = require('./b.js')
+const aModule = require('./a.js')
+// 两个模块都能正常导出
+```
+
+---
+
+### import() 动态导入与 Code Splitting
+
+动态 `import()` 返回 Promise，是实现 Code Splitting 的关键。
+
+#### 基本用法
+
+```js
+// 静态导入
+import { multiply } from './utils.js'
+
+// 动态导入
+const module = await import('./utils.js')
+module.multiply(2, 3)
+
+// 用于 Code Splitting
+button.addEventListener('click', async () => {
+  const { multiply } = await import('./utils.js')
+  multiply(2, 3)
+})
+```
+
+#### Vite 中的实现
+
+```js
+// Vite 会将动态 import 转换为独立的 chunk
+// 点击按钮前，./utils.js 不会下载
+
+// vite build 产物：
+// main.js           - 主bundle
+// assets/utils.[hash].js  - 懒加载chunk
+```
+
+#### React.lazy + dynamic import
+
+```jsx
+const HeavyComponent = React.lazy(() => import('./HeavyComponent'))
+
+// 只有 HeavyComponent 被渲染时，才会加载对应的 chunk
+```
+
+---
+
+## 面试回答模板
+
+**问题**：async/await 和 Promise 的关系？
+
+**高分回答**：
+
+> `async/await` 是 Promise 的语法糖，让异步代码看起来像同步代码。
+>
+> `async` 函数被调用时返回一个 Promise，函数内部的 `await` 会暂停函数执行，等待 Promise resolve 后继续。
+>
+> 底层实现上，`async` 函数被转译为 Generator + 自动执行器。每次 `await` 都会 yield 一个 Promise，自动执行器负责递归调用 `.then()` 保持 Promise 链。
+>
+> **常见陷阱**：在循环中使用 `await` 会变成串行，应该用 `Promise.all` 并行处理。
+
+---
+
+## 相关链接
+
+- [MDN Promise](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+- [MDN async/await](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function)
+- [MDN Iterator](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Iteration_protocols)
+- [ES Module 规范](https://tc39.es/ecma262/#sec-modules)

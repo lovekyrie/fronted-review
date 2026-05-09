@@ -35,7 +35,7 @@ Vite 开发阶段利用浏览器原生 ESM，启动时不需要把整棵应用�
 
 如果项目开发阶段启动慢，我会先区分是源码模块过多、第三方依赖预构建慢，还是插件转换慢。Vite 的优势在开发反馈，但生产构建仍要关注拆包、缓存和 source map。
 
-**关联文档**：[Week 1 构建工具](../engineering/week1-build-tools)、[Week 1 模块化](../jscore/advanced/week1-modules)
+**关联文档**：[Week 1 构建工具](../week1/build-tools)、[Week 1 模块化](../week1/modules)
 
 ### 2. tree-shaking 为什么依赖 ESM？
 
@@ -57,7 +57,7 @@ tree-shaking 的目标是移除没有被使用的导出。它依赖构建阶段�
 
 如果发现包体积异常，我会结合 bundle analyzer 看是否有 CommonJS 依赖、错误的整体导入、模块副作用或 `sideEffects` 配置问题，而不是只说“开启 tree-shaking”。
 
-**关联文档**：[Week 1 模块化](../jscore/advanced/week1-modules)、[Week 1 构建工具](../engineering/week1-build-tools)
+**关联文档**：[Week 1 模块化](../week1/modules)、[Week 1 构建工具](../week1/build-tools)
 
 ### 3. 生产构建为什么要做代码分割和长缓存？
 
@@ -79,7 +79,7 @@ tree-shaking 的目标是移除没有被使用的导出。它依赖构建阶段�
 
 我会把缓存策略和发布策略一起设计：HTML 保持可快速更新，静态资源用 hash 长缓存，回滚时保证旧 HTML 引用的旧资源仍然可访问。
 
-**关联文档**：[Week 1 构建工具](../engineering/week1-build-tools)、[Week 6 性能优化](../network&broswer/week6-performance-optimization)
+**关联文档**：[Week 1 构建工具](../week1/build-tools)、[Week 6 性能优化](../week6/performance-optimization)
 
 ### 4. Babel、TypeScript、bundler 的边界是什么？
 
@@ -101,7 +101,7 @@ Babel 主要负责语法转换和插件化 AST 变换，TypeScript 编译器负�
 
 大型项目里我会把类型检查和转译链路分开考虑，例如开发阶段用快速转译保证反馈速度，在 CI 里做完整类型检查和构建校验。
 
-**关联文档**：[Week 1 构建工具](../engineering/week1-build-tools)、[Week 5 TypeScript 基础](../jscore/advanced/week5-typescript-basic)
+**关联文档**：[Week 1 构建工具](../week1/build-tools)、[Week 5 TypeScript 基础](../week5/typescript-basic)
 
 ## 二、部署与交付
 
@@ -125,7 +125,7 @@ Babel 主要负责语法转换和插件化 AST 变换，TypeScript 编译器负�
 
 我会把 PR 阶段用于质量门禁，把主干分支用于构建和部署，并要求部署后有健康检查或冒烟验证，避免“自动把错误发布到生产”。
 
-**关联文档**：[Week 2 CI/CD](../engineering/week2-ci-cd)、[Week 2 Deployment](../engineering/week2-deployment)
+**关联文档**：[Week 2 CI/CD](../week2/ci-cd)、[Week 2 Deployment](../week2/deployment)
 
 ### 6. Docker 在前端部署里解决什么问题？
 
@@ -147,7 +147,7 @@ Babel 主要负责语法转换和插件化 AST 变换，TypeScript 编译器负�
 
 我会避免在生产服务器上临时构建，而是让 CI 生成镜像，服务器只拉取和运行镜像，这样本地、CI、线上部署内容更一致。
 
-**关联文档**：[Week 2 Deployment](../engineering/week2-deployment)、[Week 2 CI/CD](../engineering/week2-ci-cd)
+**关联文档**：[Week 2 Deployment](../week2/deployment)、[Week 2 CI/CD](../week2/ci-cd)
 
 ### 7. 前端上线后如何快速排障和回滚？
 
@@ -169,7 +169,7 @@ Babel 主要负责语法转换和插件化 AST 变换，TypeScript 编译器负�
 
 我会要求每次发布有版本号、产物记录和回滚入口。如果是前端资源问题，优先检查 HTML 引用的资源是否存在、缓存是否污染、Nginx fallback 是否正确。
 
-**关联文档**：[Week 2 Deployment](../engineering/week2-deployment)、[Week 6 性能优化](../network&broswer/week6-performance-optimization)
+**关联文档**：[Week 2 Deployment](../week2/deployment)、[Week 6 性能优化](../week6/performance-optimization)
 
 ### 8. 环境变量在前端构建和部署中有什么风险？
 
@@ -191,7 +191,7 @@ Babel 主要负责语法转换和插件化 AST 变换，TypeScript 编译器负�
 
 我会把敏感信息放在服务端或 CI secret 中，只把浏览器允许公开的信息注入前端。多环境部署时，要避免为每个环境重新构建导致产物不可复用的问题。
 
-**关联文档**：[Week 2 Deployment](../engineering/week2-deployment)、[Week 6 安全专题](../network&broswer/week6-security)
+**关联文档**：[Week 2 Deployment](../week2/deployment)、[Week 6 安全专题](../week6/security)
 
 ## 三、Vue 原理
 
@@ -215,7 +215,7 @@ Vue 2 基于 `Object.defineProperty` 劫持已有属性，新增属性、删除�
 
 对于大型数据或第三方实例，我不会默认深度代理，而会考虑 `shallowRef`、`shallowReactive` 或 `markRaw`，避免不必要的代理成本和对象语义变化。
 
-**关联文档**：[Week 3 响应式原理](../framework/vue/week3-reactivity)
+**关联文档**：[Week 3 响应式原理](../week3/reactivity)
 
 ### 10. Vue 中 computed 和 watch 的本质区别是什么？
 
@@ -237,7 +237,7 @@ Vue 2 基于 `Object.defineProperty` 劫持已有属性，新增属性、删除�
 
 我会把派生数据放在 computed，把请求、埋点、缓存写入、DOM 访问这类副作用放在 watch。对于搜索请求，会在 watch 中使用 cleanup 取消过期请求。
 
-**关联文档**：[Week 3 响应式原理](../framework/vue/week3-reactivity)
+**关联文档**：[Week 3 响应式原理](../week3/reactivity)
 
 ### 11. Vue 3 的渲染机制为什么强调编译优化？
 
@@ -259,7 +259,7 @@ Vue 模板可以在编译期被静态分析，编译器能提前知道哪些节�
 
 当页面存在大量静态结构和少量动态内容时，Vue 的编译优化收益明显。手动使用 `v-memo` 前，我会先确认是否真的有大列表或局部更新瓶颈。
 
-**关联文档**：[Week 3 渲染机制](../framework/vue/week3-rendering-mechanism)
+**关联文档**：[Week 3 渲染机制](../week3/rendering-mechanism)
 
 ### 12. Vue 列表 diff 为什么需要稳定 key？
 
@@ -281,7 +281,7 @@ key 用来标识同级节点的稳定身份，帮助 Vue 判断节点能否复�
 
 业务列表我会优先使用数据库 id、业务唯一 id 作为 key。只有纯静态、不会重排和插入删除的展示列表，index 才相对可接受。
 
-**关联文档**：[Week 3 渲染机制](../framework/vue/week3-rendering-mechanism)
+**关联文档**：[Week 3 渲染机制](../week3/rendering-mechanism)
 
 ## 四、React 机制
 
@@ -305,7 +305,7 @@ Hooks 状态挂在函数组件对应的 Fiber 上，一个组件内多个 Hook �
 
 如果逻辑需要条件执行，我会把条件放进 Hook 内部，而不是条件调用 Hook。例如 Effect 里根据开关决定是否订阅，并保证 cleanup 完整。
 
-**关联文档**：[Week 4 Hooks](../framework/react/week4-hooks)
+**关联文档**：[Week 4 Hooks](../week4/hooks)
 
 ### 14. React setState 后为什么读到旧值？
 
@@ -327,7 +327,7 @@ React 的 state 是一次 render 的快照，`setState` 做的是把更新放进
 
 连续点击、定时器、Promise 回调里如果要基于旧状态更新，我会优先写 `setState(prev => next)`，避免闭包捕获旧值造成更新丢失。
 
-**关联文档**：[Week 4 Hooks](../framework/react/week4-hooks)
+**关联文档**：[Week 4 Hooks](../week4/hooks)
 
 ### 15. useEffect 的正确心智模型是什么？
 
@@ -349,7 +349,7 @@ React 的 state 是一次 render 的快照，`setState` 做的是把更新放进
 
 我会避免用 Effect 派生内部状态。能在 render 中计算的值直接计算，昂贵计算用 memo，真正要同步外部系统时才用 Effect。
 
-**关联文档**：[Week 4 Hooks](../framework/react/week4-hooks)
+**关联文档**：[Week 4 Hooks](../week4/hooks)
 
 ### 16. React 并发渲染解决什么问题？
 
@@ -371,7 +371,7 @@ React 并发不是多线程，而是基于 Fiber 的协作式调度。它让 ren
 
 搜索大列表时，我会让输入框值保持高优先级更新，把结果列表过滤放进 transition，保证输入不卡顿，同时配合虚拟列表减少实际渲染成本。
 
-**关联文档**：[Week 4 并发机制](../framework/react/week4-concurrency)
+**关联文档**：[Week 4 并发机制](../week4/concurrency)
 
 ## 五、TypeScript 设计
 
@@ -395,7 +395,7 @@ TypeScript 主要工作在编译阶段，它能帮助开发期发现参数、返
 
 接口返回我会先按 `unknown` 处理，通过类型守卫或 schema 校验后再进入业务模型，避免把不可信数据直接断言成业务类型。
 
-**关联文档**：[Week 5 TypeScript 基础](../jscore/advanced/week5-typescript-basic)
+**关联文档**：[Week 5 TypeScript 基础](../week5/typescript-basic)
 
 ### 18. 泛型设计的重点是什么？
 
@@ -417,7 +417,7 @@ TypeScript 主要工作在编译阶段，它能帮助开发期发现参数、返
 
 封装表格、表单、请求函数时，我会让字段名、返回值和组件 props 建立类型关系，避免业务字段改名后调用方仍然静默通过。
 
-**关联文档**：[Week 5 类型设计](../jscore/advanced/week5-typescript-design)
+**关联文档**：[Week 5 类型设计](../week5/typescript-design)
 
 ### 19. 如何用 TypeScript 表达业务状态机？
 
@@ -439,7 +439,7 @@ TypeScript 主要工作在编译阶段，它能帮助开发期发现参数、返
 
 我不会用 `loading + data + error` 三个字段随意组合所有状态，而会用判别联合约束合法状态，避免出现“既 loading 又 success”这类不一致数据。
 
-**关联文档**：[Week 5 TypeScript 基础](../jscore/advanced/week5-typescript-basic)、[Week 5 类型设计](../jscore/advanced/week5-typescript-design)
+**关联文档**：[Week 5 TypeScript 基础](../week5/typescript-basic)、[Week 5 类型设计](../week5/typescript-design)
 
 ### 20. 组件 API 的类型设计要注意什么？
 
@@ -461,7 +461,7 @@ TypeScript 主要工作在编译阶段，它能帮助开发期发现参数、返
 
 设计通用表格或表单组件时，我会让列配置和数据类型绑定，让 `dataIndex` 只能选择真实字段，并让 render 回调拿到正确字段类型。
 
-**关联文档**：[Week 5 类型设计](../jscore/advanced/week5-typescript-design)
+**关联文档**：[Week 5 类型设计](../week5/typescript-design)
 
 ## 六、性能与安全
 
@@ -485,7 +485,7 @@ LCP 关注最大内容元素加载速度，常见优化是减少首屏资源阻�
 
 我会先通过 Lighthouse、Performance 面板和真实用户监控判断瓶颈属于加载、渲染还是交互，再对应优化，而不是笼统说压缩资源。
 
-**关联文档**：[Week 6 性能优化](../network&broswer/week6-performance-optimization)
+**关联文档**：[Week 6 性能优化](../week6/performance-optimization)
 
 ### 22. 前端缓存策略怎么设计？
 
@@ -507,7 +507,7 @@ LCP 关注最大内容元素加载速度，常见优化是减少首屏资源阻�
 
 我会让静态资源长缓存、HTML 短缓存或不强缓存，并确保旧版本资源在回滚窗口内仍然可访问，避免新旧 HTML 和资源不匹配。
 
-**关联文档**：[Week 6 性能优化](../network&broswer/week6-performance-optimization)、[Week 2 Deployment](../engineering/week2-deployment)
+**关联文档**：[Week 6 性能优化](../week6/performance-optimization)、[Week 2 Deployment](../week2/deployment)
 
 ### 23. XSS 的本质和防御是什么？
 
@@ -529,7 +529,7 @@ XSS 的本质是攻击者把恶意脚本注入到页面并让浏览器执行。�
 
 如果业务必须支持富文本，我会使用白名单净化库，限制标签、属性和协议，并配合 CSP，而不是直接信任后端返回的 HTML。
 
-**关联文档**：[Week 6 安全专题](../network&broswer/week6-security)
+**关联文档**：[Week 6 安全专题](../week6/security)
 
 ### 24. CSRF 和 XSS 的区别是什么？
 
@@ -551,7 +551,7 @@ XSS 是让恶意脚本在目标站点上下文执行，CSRF 是利用浏览器�
 
 对于修改数据的接口，我会避免用 GET，配合 SameSite 和 CSRF Token，并让服务端校验请求来源，前端只做配合而不是独自承担防御。
 
-**关联文档**：[Week 6 安全专题](../network&broswer/week6-security)
+**关联文档**：[Week 6 安全专题](../week6/security)
 
 ## 七、测试与质量
 
@@ -575,7 +575,7 @@ XSS 是让恶意脚本在目标站点上下文执行，CSRF 是利用浏览器�
 
 我会把核心算法和状态逻辑放在单测，复杂组件交互用组件测试，登录、下单、发布这类核心路径用 E2E 或冒烟测试。
 
-**关联文档**：[Week 7 测试策略](../engineering/week7-testing-strategy)
+**关联文档**：[Week 7 测试策略](../week7/testing-strategy)
 
 ### 26. mock 的边界在哪里？
 
@@ -597,7 +597,7 @@ mock 是为了隔离不稳定或昂贵的外部依赖，不是为了让测试永
 
 接口测试我会优先 mock 网络边界，并保持响应结构接近真实接口；对关键流程再补 E2E，避免单测 mock 掩盖前后端契约变化。
 
-**关联文档**：[Week 7 测试策略](../engineering/week7-testing-strategy)
+**关联文档**：[Week 7 测试策略](../week7/testing-strategy)
 
 ### 27. 覆盖率高是否等于测试质量高？
 
@@ -619,7 +619,7 @@ mock 是为了隔离不稳定或昂贵的外部依赖，不是为了让测试永
 
 我会把覆盖率作为趋势监控，而不是唯一目标。核心模块要求更高覆盖和更强断言，低风险展示代码不盲目追求 100%。
 
-**关联文档**：[Week 7 测试策略](../engineering/week7-testing-strategy)
+**关联文档**：[Week 7 测试策略](../week7/testing-strategy)
 
 ## 八、架构与项目题
 
@@ -643,7 +643,7 @@ mock 是为了隔离不稳定或昂贵的外部依赖，不是为了让测试永
 
 我会先按状态来源分类：UI 临时状态、URL 可分享状态、服务端缓存状态、全局用户状态。不同状态用不同工具管理，而不是所有东西都塞进一个 store。
 
-**关联文档**：[Week 4 Hooks](../framework/react/week4-hooks)、[Week 3 响应式原理](../framework/vue/week3-reactivity)
+**关联文档**：[Week 4 Hooks](../week4/hooks)、[Week 3 响应式原理](../week3/reactivity)
 
 ### 29. 如何设计一个可观测的前端线上体系？
 
@@ -666,7 +666,7 @@ mock 是为了隔离不稳定或昂贵的外部依赖，不是为了让测试永
 
 我会让每次发布带上版本号，错误上报携带 release、路由、浏览器、用户操作上下文，并把告警和回滚流程连起来。
 
-**关联文档**：[Week 2 Deployment](../engineering/week2-deployment)、[Week 6 性能优化](../network&broswer/week6-performance-optimization)
+**关联文档**：[Week 2 Deployment](../week2/deployment)、[Week 6 性能优化](../week6/performance-optimization)
 
 ### 30. 项目复盘题应该怎么回答？
 
@@ -689,7 +689,7 @@ mock 是为了隔离不稳定或昂贵的外部依赖，不是为了让测试永
 
 可以按这个结构准备：业务目标是什么，原来痛点是什么，我负责哪部分，做了哪些关键决策，遇到什么风险，怎么验证结果，最后沉淀了什么工程能力。
 
-**关联文档**：[高级前端 8 周路线图](./senior-frontend-roadmap)、[Week 2 CI/CD](../engineering/week2-ci-cd)、[Week 7 测试策略](../engineering/week7-testing-strategy)
+**关联文档**：[高级前端 8 周路线图](./senior-frontend-roadmap)、[Week 2 CI/CD](../week2/ci-cd)、[Week 7 测试策略](../week7/testing-strategy)
 
 ## 最终查漏补缺清单
 

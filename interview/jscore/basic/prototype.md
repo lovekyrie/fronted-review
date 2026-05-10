@@ -41,6 +41,12 @@ console.log(person.__proto__ === Person.prototype); // true
 console.log(Person.prototype.constructor === Person); // true
 ```
 
+**`Person.prototype`**：每个用 `function` 写的构造函数，都会自带一个 `prototype` 对象（你又在上面挂了 `sayHello` 等属性）。
+
+**`constructor` 是谁**：这个默认的 `prototype` 对象上，引擎会放一个 `constructor` 属性，指向创建这个原型对象的函数，也就是 `Person` 本身。所以：原型对象「记得」自己是被哪个构造函数造出来的。
+
+**等式在说什么**：`Person.prototype.constructor === Person` 就是在说：`Person` 的原型对象上的 `constructor` 仍然指向 `Person`——这是默认、未改写过原型时的正常关系。
+> 和你文档后面这段是对照的：一旦写了 Dog.prototype = Object.create(Animal.prototype)，新对象的 constructor 会跟着变成 Animal
 ### 原型链 (Prototype Chain)
 **原型链**是实现继承的核心机制。
 当访问一个对象的属性时，如果对象本身没有该属性，引擎会沿着 `__proto__` 链向上查找，直到找到该属性或到达链的末端（`null`）。

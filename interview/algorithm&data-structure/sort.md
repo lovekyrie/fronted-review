@@ -291,7 +291,7 @@ function heapify(arr, n, i) {
 #### 9. 高频疏漏补充（排序面试快答）
 
 ##### 9.1 如何 30 秒选排序算法
-1. 小规模/近乎有序：插入排序。
+1. 小规模/近乎有序：插入排序（最优 O(n)）。
 2. 追求平均性能：快速排序（注意最坏情况）。
 3. 要稳定且 `O(n log n)`：归并排序。
 4. 空间特别紧：堆排序（但不稳定）。
@@ -300,7 +300,7 @@ function heapify(arr, n, i) {
 - 稳定：冒泡、插入、归并。
 - 不稳定：选择、快速、堆。
 
-> 面试常追问：业务里排序稳定性有什么意义？  
+> **面试常追问**：业务里排序稳定性有什么意义？
 > 典型回答：多关键字排序时，先按次关键字排，再按主关键字稳定排序才能保留次关键字顺序。
 
 ##### 9.3 复杂度速答模板
@@ -310,4 +310,77 @@ function heapify(arr, n, i) {
 ##### 9.4 易错点清单
 1. 快排分区边界写错，导致死循环或漏元素。
 2. 归并时合并索引越界。
-3. 面试中只背复杂度，不会说“为什么这样选”。
+3. 面试中只背复杂度，不会说”为什么这样选”。
+
+---
+
+#### 10. V8 Tim Sort 原理（高级追问）
+
+V8 的 `Array.prototype.sort()` 使用 **Tim Sort**（结合归并 + 插入排序）。
+
+```javascript
+// Chrome/V8 源码思路（简化）
+function timSort(arr) {
+  const RUN = 32  // 小数组用插入排序
+  const minRun = minRunLength(RUN)
+
+  // 1. 对每段 RUN 进行插入排序
+  for (let i = 0; i < n; i += RUN) {
+    insertionSort(arr, i, Math.min(i + RUN - 1, n - 1))
+  }
+
+  // 2. 合并 RUNs（类似归并，但使用栈）
+  for (let size = RUN; size < n; size *= 2) {
+    for (let left = 0; left < n; left += 2 * size) {
+      const mid = left + size - 1
+      const right = Math.min(left + 2 * size - 1, n - 1)
+      merge(arr, left, mid, right)
+    }
+  }
+}
+```
+
+**为什么 V8 用 Tim Sort 而非纯快排？**
+- Tim Sort 对”部分有序”数组效率更高，最坏情况仍是 `O(n log n)`，没有快排的 `O(n^2)` 风险。
+- 真实业务数据往往部分有序，Tim Sort 更适应实际场景。
+
+##### 10.1 工程选型指南
+
+| 数据规模 | 推荐算法 | 原因 |
+|----------|----------|------|
+| n ≤ 10 | 插入排序 | 常数小，递归开销大 |
+| n ≤ 1000 | 快速排序（原地） | 平均最快 |
+| n 超大，内存有限 | 堆排序 | O(1) 空间 |
+| 追求稳定 | 归并排序 | 稳定 O(n log n) |
+| JavaScript 内置排序 | Tim Sort | V8 自适应 |
+
+##### 10.2 Top-K 问题的两种高级解法
+
+```javascript
+// 方法1：快排 partition（平均 O(n)）
+function topKQuick(arr, k) {
+  const pivot = arr[Math.floor(Math.random() * arr.length)]
+  const left = arr.filter(x => x > pivot)
+  const mid = arr.filter(x => x === pivot)
+  const right = arr.filter(x => x < pivot)
+
+  if (k <= left.length) return topKQuick(left, k)
+  if (k <= left.length + mid.length) return mid[0]
+  return topKQuick(right, k - left.length - mid.length)
+}
+
+// 方法2：维护最小堆（O(n log k)），适合流式数据
+function topKHeap(arr, k) {
+  const heap = new MinHeap()
+  for (const val of arr) {
+    if (heap.size() < k) {
+      heap.insert(val)
+    } else if (val > heap.peek()) {
+      heap.replace(val)
+    }
+  }
+  return heap.toArray()
+}
+```
+
+> **面试对比**：Top-K 用堆适合”数据流”（不知道总数），用快排 partition 适合”已知数组”。工程中如果数据量巨大（比如海量的日志数据），通常用堆 + 外排序。

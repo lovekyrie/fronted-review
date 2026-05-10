@@ -249,4 +249,109 @@ CSS动画是一种通过CSS属性变化来创建动态效果的技术。
    - 提供降级方案
    - 考虑用户偏好
    - 避免过度动画
-   - 提供暂停功能 
+   - 提供暂停功能
+
+---
+
+#### 8. Composite 阶段详解（为什么 transform/opacity 高效）
+
+### 渲染流水线与合成层
+```
+JavaScript → Style → Layout → Paint → Composite
+                                    ↑
+                              仅到这个阶段
+```
+
+**只有 `transform` / `opacity` / `filter` 会触发合成层**：
+- 不触发 Layout（重新布局）
+- 不触发 Paint（重新绘制像素）
+- 只是在 GPU 层面做仿射变换
+
+```css
+/* 高效动画（只到 Composite） */
+.high-perf {
+  transform: translateX(100px);  /* 仅合成层 */
+  opacity: 0.5;                  /* 仅合成层 */
+  filter: blur(5px);             /* GPU 处理 */
+}
+
+/* 低效动画（触发 Layout + Paint） */
+.low-perf {
+  width: 100px;                 /* 触发 Layout */
+  background-color: red;        /* 触发 Paint */
+}
+```
+
+### 合成层的创建条件
+```css
+/* 明确创建合成层 */
+.layer {
+  transform: translateZ(0);          /* 手动创建 */
+  will-change: transform;            /* 提示浏览器 */
+  backface-visibility: hidden;       /* 3D 上下文 */
+}
+
+/* 隐式创建：当一个元素被判断为"需要独立层"时自动创建 */
+```
+
+### will-change 的副作用（重要）
+```css
+/* 滥用 will-change 的问题 */
+.bad-example {
+  will-change: transform, opacity, top, left, width;
+  /* 创建了大量合成层，吃内存 */
+}
+
+/* 正确做法：仅在必要时使用，且及时移除 */
+.optimize {
+  will-change: transform;
+  /* 动画结束后：will-change: auto */
+}
+```
+
+> **面试高频追问**：为什么动画频繁时要优先用 transform？——因为 transform 的合成在 GPU，不触发主线程的重排重绘，主线程被 JS 阻塞时动画依然流畅。
+
+---
+
+#### 9. 动画帧率分析（Performance 面板使用）
+
+### 关键指标：60fps
+```javascript
+// 在 Chrome DevTools Performance 面板观察：
+// 1. 蓝条（Scripting）：JS 执行时间，应尽量短
+// 2. 紫条（Rendering）：Layout + Paint，应尽量少
+// 3. 绿条（Painting）：实际绘制
+// 4. 橙线（60fps 线）：超过即为掉帧
+```
+
+### 常见掉帧原因
+| 原因 | 解决 |
+|------|------|
+| 频繁读取 `offsetWidth`（读写交替） | 用 `getComputedStyle` 或 `requestAnimationFrame` 分离读写 |
+| 触发强制同步布局（Forced Reflow） | 批量读取/写入 DOM |
+| 过多合成层 | 用 `will-change: auto` 及时释放 |
+| 动画面积过大 | 只对需要动画的元素提升合成层 |
+
+```javascript
+// 错误的读写交替导致强制同步布局
+element.style.width = element.offsetWidth + 10 + 'px'  // 强制 reflow！
+element.style.height = element.offsetHeight + 10 + 'px'
+
+// 正确：批量读，批量写
+const width = element.offsetWidth    // 读
+const height = element.offsetHeight // 读
+requestAnimationFrame(() => {
+  element.style.width = width + 10 + 'px'   // 写
+  element.style.height = height + 10 + 'px' // 写
+})
+```
+
+---
+
+#### 10. 面试回答模板
+
+1. **基础概念**：先讲 transition 和 @keyframes 的语法区别（属性过渡 vs 关键帧控制）。
+2. **性能优化**：讲 transform/opacity 走合成层，不触发重排重绘。
+3. **will-change 陷阱**：不能滥用，会导致内存问题。
+4. **读写分离**：用 requestAnimationFrame 避免强制同步布局。
+5. **工具使用**：DevTools Performance 面板看帧率曲线定位问题。 

@@ -291,3 +291,124 @@ function maximalSquare(matrix) {
 1. 状态定义不清，导致转移方程含糊。
 2. 初始化漏掉第一行/第一列。
 3. 遍历方向错误（例如 0-1 背包容量应逆序遍历）。
+
+---
+
+#### 9. 空间压缩技巧（高级追问）
+
+**何时可以压缩空间**
+- 状态转移只依赖上一行（或上一列）时，可用滚动数组。
+- 典型例子：0-1 背包、路径 DP。
+
+```javascript
+// 二维 DP → 一维 DP（0-1 背包）
+function knapsack一维(weights, values, capacity) {
+  const dp = Array(capacity + 1).fill(0)
+
+  for (let i = 0; i < weights.length; i++) {
+    // 必须逆序！防止同一物品被多次选取
+    for (let w = capacity; w >= weights[i]; w--) {
+      dp[w] = Math.max(dp[w], values[i] + dp[w - weights[i]])
+    }
+  }
+
+  return dp[capacity]
+}
+```
+
+> **面试高频追问**：为什么 0-1 背包要逆序遍历容量？——正序会导致 dp[w - weights[i]] 被当前物品更新后的值污染，等于多次选取同一物品。
+
+**二维 → 一维的判断标准**
+- 状态 `dp[i][j]` 只用到 `dp[i-1][j]`（或 `dp[i][j-1]`）→ 可压缩。
+- 状态用到 `dp[i-1][j]` 和 `dp[i-1][j-1]` → 必须保留两行。
+
+---
+
+#### 10. "何时想到 DP"的判断标准（工程场景）
+
+| 条件 | 说明 | 典型问题 |
+|------|------|----------|
+| **最优子结构** | 大问题最优解由子问题最优构成 | 背包、编辑距离 |
+| **重叠子问题** | 递归树有重复计算 | 斐波那契、矩阵链乘 |
+| **无后效性** | 当前决策不影响未来决策 | 爬楼梯、硬币 |
+
+**反例（不能用 DP）：**
+- 博弈问题（当前决策影响对手下一步）。
+- 状态不可分割，存在循环依赖。
+
+---
+
+#### 11. 树形 DP 与区间 DP（高级变种）
+
+##### 11.1 树形 DP（树的直径 / 最大路径和）
+```javascript
+// 树的直径：任意两点最长距离
+function diameterOfTree(root) {
+  let maxDiameter = 0
+
+  function dfs(node) {
+    if (!node) return { height: 0, diameter: 0 }
+
+    const left = dfs(node.left)
+    const right = dfs(node.right)
+
+    const height = Math.max(left.height, right.height) + 1
+    const diameter = Math.max(
+      left.diameter,
+      right.diameter,
+      left.height + right.height  // 经过当前节点的最长路径
+    )
+
+    maxDiameter = Math.max(maxDiameter, diameter)
+    return { height, diameter }
+  }
+
+  dfs(root)
+  return maxDiameter
+}
+```
+
+##### 11.2 区间 DP（最优矩阵链乘）
+```javascript
+// 矩阵链乘：划分子区间，求最小乘法次数
+function matrixChainOrder(p) {
+  const n = p.length - 1
+  const dp = Array(n).fill().map(() => Array(n).fill(0))
+
+  for (let len = 2; len <= n; len++) {       // 区间长度
+    for (let i = 0; i <= n - len; i++) {
+      const j = i + len - 1
+      dp[i][j] = Infinity
+      for (let k = i; k < j; k++) {
+        dp[i][j] = Math.min(
+          dp[i][j],
+          dp[i][k] + dp[k + 1][j] + p[i] * p[k + 1] * p[j + 1]
+        )
+      }
+    }
+  }
+
+  return dp[0][n - 1]
+}
+```
+
+---
+
+#### 12. 一维/二维/三维 DP 判断标准
+
+| DP 维度 | 适用场景 | 示例问题 |
+|---------|----------|----------|
+| **一维** | 线性问题，只关心"前 i 个" | 爬楼梯、硬币找零 |
+| **二维** | 两个变量决定状态 | 路径问题、编辑距离、背包 |
+| **三维** | 额外维度（如多状态） | 股票问题（k 次交易）、打家劫舍 |
+
+```javascript
+// 三维 DP 示例：股票买卖含冷冻期
+function maxProfit(prices) {
+  const n = prices.length
+  const dp = Array(n).fill().map(() =>
+    Array(2).fill().map(() => Array(2).fill(0))
+  )
+  // dp[i][j][k] = 第i天，手上持有状态j（0/1），是否在冷冻期k（0/1）
+}
+```

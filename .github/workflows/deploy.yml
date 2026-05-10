@@ -7,7 +7,6 @@ on:
       - master
 
 env:
-  # 替换为你的镜像名称，建议全部小写
   IMAGE_NAME: fronted-review
   CONTAINER_NAME: fronted-review-nginx
 
@@ -21,6 +20,23 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          node-version: '20'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build
+        run: pnpm run docs:build
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -39,7 +55,7 @@ jobs:
             type=sha
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -70,7 +86,6 @@ jobs:
             docker rm ${{ env.CONTAINER_NAME }} || true
 
             # 运行新容器
-            # 映射端口 8082 到容器的 80 端口
             docker run -d \
               --name ${{ env.CONTAINER_NAME }} \
               --restart always \

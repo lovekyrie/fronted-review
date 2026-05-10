@@ -19,6 +19,9 @@ description: 第 6 周浏览器性能与安全
 
 - [性能优化](./performance-optimization)
 - [安全专题](./security)
+- [可观测性系统](../../network&broswer/observability-system)
+- [异常监控与处理](../../network&broswer/error-monitoring)
+- [Web Vitals](../../network&broswer/web-vitals)
 
 ## 官方文档
 

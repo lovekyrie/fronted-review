@@ -193,6 +193,30 @@ Babel 主要负责语法转换和插件化 AST 变换，TypeScript 编译器负�
 
 **关联文档**：[Week 2 Deployment](../week2/deployment)、[Week 6 安全专题](../week6/security)
 
+### 8.1 前端可观测性系统应该怎么设计？
+
+**问题**：如果让你负责前端线上治理，你会怎么搭监控体系？
+
+**答题主线**：
+
+前端可观测性至少要覆盖错误监控、性能监控、行为埋点和发布版本关联。错误监控回答“哪里坏了”，性能监控回答“哪里慢了”，埋点回答“影响了什么业务”，版本关联回答“从哪个版本开始坏”。真正的价值不在采集本身，而在告警、排障、回滚和复盘闭环。
+
+**展开方向**：
+
+- `window.onerror` / `unhandledrejection`
+- Web Vitals
+- source map 与 release 绑定
+- 采样、限流、脱敏
+- 告警分级
+
+**项目表达**：
+
+我会特别强调版本关联和发布窗口观察，因为很多线上问题不是“有没有数据”，而是“有没有办法快速定位到这次发布是否引入了问题”。
+
+**关联文档**：[错误监控与异常处理](../../network&broswer/error-monitoring)、[Web Vitals](../../network&broswer/web-vitals)、[可观测性系统](../../network&broswer/observability-system)
+
+**关联总览**：[高级前端 8 周路线图](../senior-frontend-roadmap)
+
 ## 三、Vue 原理
 
 ### 9. Vue 3 响应式为什么选择 Proxy？
@@ -689,7 +713,7 @@ mock 是为了隔离不稳定或昂贵的外部依赖，不是为了让测试永
 
 可以按这个结构准备：业务目标是什么，原来痛点是什么，我负责哪部分，做了哪些关键决策，遇到什么风险，怎么验证结果，最后沉淀了什么工程能力。
 
-**关联文档**：[高级前端 8 周路线图](./senior-frontend-roadmap)、[Week 2 CI/CD](../week2/ci-cd)、[Week 7 测试策略](../week7/testing-strategy)
+**关联文档**：[高级前端 8 周路线图](../senior-frontend-roadmap)、[Week 2 CI/CD](../week2/ci-cd)、[Week 7 测试策略](../week7/testing-strategy)
 
 ## 最终查漏补缺清单
 

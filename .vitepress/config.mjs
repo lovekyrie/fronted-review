@@ -187,6 +187,7 @@ export default defineConfig({
             { text: '性能优化', link: '/network&broswer/performance-optimization' },
             { text: 'Web Vitals', link: '/network&broswer/web-vitals' },
             { text: '异常监控与处理', link: '/network&broswer/error-monitoring' },
+            { text: '可观测性系统', link: '/network&broswer/observability-system' },
             { text: '浏览器存储', link: '/network&broswer/broswer-storage' },
             { text: '跨域', link: '/network&broswer/cross-origin' },
             { text: 'Web 安全', link: '/network&broswer/web-safe' },
@@ -280,9 +281,9 @@ export default defineConfig({
           ],
         },
         {
-          text: '冲刺与题库',
+          text: '基础与题库',
           items: [
-            { text: '14 天冲刺', link: '/sprint-14-days' },
+            { text: '基础打稳 14 天', link: '/sprint-14-days' },
             { text: '50 题速记', link: '/high-frequency-50' },
             { text: '每日口述题单', link: '/daily-oral-sets-14' },
             { text: '项目复盘', link: '/project-review' },

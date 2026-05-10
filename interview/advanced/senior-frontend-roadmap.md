@@ -47,8 +47,8 @@ description: 面向高级前端面试的 8 周系统化补强计划
 
 ### 产出
 
-- 重写 [build-tools.md](../week1/build-tools)
-- 补强 [modules.md](../week1/modules)
+- 重写 [build-tools.md](./week1/build-tools)
+- 补强 [modules.md](./week1/modules)
 - 形成 1 份 Vite 与 webpack 对照表
 - 形成 1 份 10-15 题高频追问答案
 
@@ -109,7 +109,7 @@ Vue 原理：响应式、调度、组件更新、编译优化、SSR
 
 ### 产出
 
-- 重写 [reactivity.md](../week3/reactivity)
+- 重写 [reactivity.md](./week3/reactivity)
 - 新增 `interview/framework/vue/week3-rendering-mechanism.md`
 - 为 `hand-write/vue-book/reactive-system` 补 1 份讲解文档
 
@@ -136,7 +136,7 @@ React 机制：状态更新、effect、并发能力、React 19
 
 ### 产出
 
-- 重写 [hooks.md](../week4/hooks)
+- 重写 [hooks.md](./week4/hooks)
 - 重写 [react19-features.md](../framework/react/react19-features)
 - 新增 `interview/framework/react/week4-concurrency.md`
 
@@ -165,7 +165,7 @@ TypeScript 进阶：类型系统、泛型设计、工具类型、业务建模
 
 ### 产出
 
-- 重写 [typescript-basic.md](../week5/typescript-basic)
+- 重写 [typescript-basic.md](./week5/typescript-basic)
 - 新增 `interview/jscore/advanced/week5-typescript-design.md`
 - 至少将 2 个 JS 示例改写为更严格的 TS 版本
 
@@ -190,7 +190,7 @@ TypeScript 进阶：类型系统、泛型设计、工具类型、业务建模
 
 ### 产出
 
-- 重写 [performance-optimization.md](../week6/performance-optimization)
+- 重写 [performance-optimization.md](./week6/performance-optimization)
 - 新增 `interview/network&broswer/week6-security.md`
 - 形成 1 份性能排障 checklist
 

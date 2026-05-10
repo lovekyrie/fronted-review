@@ -419,8 +419,9 @@ addEventListener('click', function() {
 ```js
 const arrayLike = { 0: 'a', 1: 'b', length: 2 }
 
-// 这里 this 会指向 window
-const result = Array.prototype.slice.call(arrayLike)
+// 这里 this 没有指向 arrayLike，arrayLike 会被当成 start 参数
+const slice = Array.prototype.slice
+const result = slice(arrayLike)
 ```
 
 **解决**：

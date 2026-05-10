@@ -1,16 +1,16 @@
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
 # install pnpm
 RUN npm install -g pnpm
 
-# copy package.json and pnpm-lock.yaml
-COPY package.json ./
+# Copy dependency manifests
+COPY package.json pnpm-lock.yaml ./
 
-# install dependencies
-RUN pnpm install --no-frozen-lockfile
+# Install dependencies
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY . .

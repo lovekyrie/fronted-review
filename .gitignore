@@ -1,6 +1,7 @@
 .vscode/
 */node_modules
 *.yaml
+!pnpm-lock.yaml
 node_modules
 .vitepress/cache/
 .vitepress/dist/

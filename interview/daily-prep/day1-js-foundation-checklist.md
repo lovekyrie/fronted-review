@@ -1,5 +1,11 @@
 # Day 1 JS 基础执行记录
 
+## 快速导航
+
+| 今日 | 主题 | 核心文件 |
+|------|------|----------|
+| Day 1 | 数据类型 / this / 原型链 | [数据类型](../jscore/basic/data-type)、[This 关键字](../jscore/basic/this)、[原型链](../jscore/basic/prototype) |
+
 ## 今日目标
 
 - 看完 `数据类型 / this / 原型链` 三块基础。

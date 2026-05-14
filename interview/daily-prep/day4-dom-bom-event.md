@@ -87,7 +87,7 @@ el.addEventListener('click', handlerB)  // 不会执行
 
 | API | 观察目标 | 典型场景 |
 |-----|---------|----------|
-| `IntersectionObserver` | 元素进入/离开视口 | 懒加载、无限滚动、广告曝光 |
+| `IntersectionObserver` | 元素进入/离开视口 | 图片懒加载、无限滚动、广告曝光 |
 | `MutationObserver` | DOM 节点变化（增删改属性/子节点） | 动态内容监控 |
 | `ResizeObserver` | 元素尺寸变化 | 自适应布局、图表响应 |
 | `PerformanceObserver` | 性能指标（LargestContentfulPaint、FirstInputDelay 等） | Web Vitals 监控 |

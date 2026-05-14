@@ -15,7 +15,7 @@
 ## 阅读卡点
 
 - `await` 后的代码是挂载为**微任务**执行，而非阻塞同步
-- `setTimeout(fn, 0)` ≠ 立即执行，受最小 4ms 阈值 + 任务队列调度影响
+- `setTimeout(fn, 0)` ≠ 立即执行：要等同步代码 + 微任务清空，且 HTML spec 规定嵌套 ≥ 5 层后 timeout 会被 clamp 到至少 4ms
 - `Promise.resolve().then` 只入微任务队列一次，嵌套会重新入队
 
 ## 速记卡 / 知识点
@@ -26,8 +26,9 @@
 
 ```text
 1. 执行栈（同步代码）
-2. 微任务队列（Promise / await / MutationObserver）
-3. 宏任务队列（setTimeout / setInterval / I/O / UI render）
+2. 微任务队列（Promise.then / await / queueMicrotask / MutationObserver）
+3. （可选）渲染管线：rAF -> Style -> Layout -> Paint
+4. 宏任务队列（setTimeout / setInterval / I/O / MessageChannel）
 ```
 
 每执行完一个宏任务，都会回头检查微任务队列是否为空，如果不为空则先执行完所有微任务，再取下一个宏任务。
@@ -38,13 +39,14 @@
 
 | 宏任务 | 微任务 |
 |--------|--------|
-| `setTimeout` | `Promise.then` |
+| `setTimeout` | `Promise.then / catch / finally` |
 | `setInterval` | `queueMicrotask` |
-| `I/O` | `MutationObserver` |
-| `UI render`（浏览器的渲染时机） | `process.nextTick`（Node） |
-| `requestAnimationFrame`（浏览器，每帧前） | |
+| `MessageChannel / postMessage` | `MutationObserver` |
+| I/O、UI 事件回调 | `process.nextTick`（Node，优先级高于 Promise） |
 
-> 注意：`requestAnimationFrame` 属于宏任务，但在浏览器中会在每帧渲染前被调用，频率和屏幕刷新率同步（通常 60fps）。
+> 注意：**`UI render` 不是宏任务**，它是浏览器在“一个宏任务 + 所有微任务”执行完后判断是否需要进行的独立阶段。
+>
+> **`requestAnimationFrame` 严格说不是宏任务也不是微任务**，它是独立的 rAF 回调队列，在每帧渲染前、样式计算之前执行，频率与屏幕刷新率同步（通常 60fps）。
 
 ### 常见执行顺序题
 
@@ -84,16 +86,32 @@ Promise 有三种状态：
 
 ### 值穿透
 
-如果 `then` 返回的不是一个 Promise，而是一个值，这个值会自动穿透到下一个 `then`：
+**值穿透是指：`then / catch` 的参数期望是函数，如果传入的不是函数（数字、字符串、`null` 等），则该一节 then 会被忽略，前一个 Promise 的值会跨过这个 then 直接传给下一个 then。**
 
 ```js
 Promise.resolve(1)
-  .then(res => res * 2)      // 返回 2
-  .then(res => res + 1)      // 返回 3
+  .then(2)              // 参数不是函数，发生值穿透
+  .then(null)           // 参数不是函数，继续穿透
+  .then(console.log)    // 输出 1，不是 2
+```
+
+实现关键（在后面手写 Promise 中体现）：
+
+```js
+onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : v => v
+onRejected = typeof onRejected === 'function' ? onRejected : e => { throw e }
+```
+
+要区分开“值穿透”和“普通的链式返回传递”。以下不是值穿透，只是 then 回调返回了一个普通值：
+
+```js
+Promise.resolve(1)
+  .then(res => res * 2)      // 回调是函数，返回 2
+  .then(res => res + 1)      // 回调是函数，返回 3
   .then(console.log)         // 打印 3
 ```
 
-但如果返回的是 Promise，则需要等待它 resolve：
+如果回调返回的是 Promise，下一个 then 会等待它 resolve：
 
 ```js
 Promise.resolve(1)
@@ -122,12 +140,14 @@ function fetchData() {
 ### 常见误解澄清
 
 1. **`await` 不是阻塞**：await 只是让出执行权，把后续代码注册为微任务，继续执行同步代码。
-2. **`setTimeout(fn, 0)` 不保证立即执行**：最小延迟是 4ms（HTML spec），且受任务队列影响。
+2. **`setTimeout(fn, 0)` 不保证立即执行**：要等同步代码 + 所有微任务执行完才有机会运行；且 HTML spec 规定嵌套 ≥ 5 层的 `setTimeout` 会被 clamp 到至少 4ms，所以深度嵌套会越变越慢。
 3. **`Promise.resolve().then` 的嵌套**：每次 `.then` 都会产生一个新的微任务，不是在同一个微任务里连续执行。
 
 ## 手写 / 流程图
 
 ### 手写 Promise 核心骨架：状态、then 链、值穿透
+
+> 注：下面是面试可接受的“核心骨架”，未实现 Promises/A+ 中的 `resolvePromise`（thenable 解析）。如果 `onFulfilled` 返回的是 Promise / thenable，严格实现需要调用 `x.then(resolve, reject)` 跟随其状态，还要检查循环引用。被追问时需补充说明。
 
 ```js
 class MyPromise {
@@ -263,15 +283,17 @@ class MyPromise {
 >
 > 举具体例子：发送多个请求，**知道每个都成功才能继续**用 `all`；**不管成功失败都要知道结果**（比如页面加载多个组件，部分组件失败不影响其他组件展示），用 `allSettled`。
 
-### 3. 什么是"值穿透"，什么时候会发生？
+### 3. 什么是“值穿透”，什么时候会发生？
 
 回答模板：
 
-> 值穿透发生在 `then` 的回调返回的不是一个 Promise ，而是一个普通值的时候。这个值会自动穿透到下一个 `then`，被下一个 `then` 的回调接收。
+> 值穿透是 Promise 链中一个很容易误会的点。它指的是：`then` 和 `catch` 的参数期望是函数，如果传入的不是函数——比如传了一个数字、字符串、`null`，该一节 then 会被忽略，前一个 Promise 的值会直接跨过这个 then，传给下一个 then。
 >
-> 例如：`Promise.resolve(1).then(res => res * 2)` 返回 `2`，下一个 `.then(res => console.log(res))` 收到的 `res` 是 `2` 而不是 Promise。
+> 标准例子是 `Promise.resolve(1).then(2).then(null).then(console.log)`，输出是 `1`，不是 `2`，因为 `2` 和 `null` 都不是函数，发生了值穿透。
 >
-> 但要注意：如果 `then` 回调返回的是 Promise，则不会穿透，需要等这个 Promise resolve。
+> 实现上其实就一行代码：`then` 中如果 `onFulfilled` 不是函数，就默认赋为 `v => v`，如果 `onRejected` 不是函数，就默认赋为 `e => { throw e }`。
+>
+> 注意要和“链式返回传递”区分开：`then(res => res * 2)` 这种是回调返回了一个普通值，不叫值穿透，只是正常的链式传递。
 
 ## 5 分钟录音顺序
 

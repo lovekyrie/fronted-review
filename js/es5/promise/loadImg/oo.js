@@ -1,4 +1,4 @@
-const { loadImg, urlIds } = require('./index')
+import { loadImg, urlIds } from './index.js'
 
 // 面向对象
 function loadImgOneByOne(index) {

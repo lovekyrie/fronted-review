@@ -1,4 +1,4 @@
-// 模拟实现第一版extend
+// 浅合并：后续 source 覆盖 target 同名属性
 function extend() {
   let name, copy, options
   let i = 1

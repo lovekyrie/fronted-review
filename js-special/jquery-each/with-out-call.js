@@ -1,4 +1,4 @@
-// call 是否绑定this的区别
+// 对比：callback.call 绑定 this 有额外开销
 function each(obj, callback) {
   let i = 0
   const length = obj.length

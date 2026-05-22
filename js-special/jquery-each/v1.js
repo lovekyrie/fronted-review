@@ -1,5 +1,5 @@
-// 第一版
-const isArrayLike = require('../type-judgment/type-below')
+// 模拟 $.each v1：类数组走下标，对象走 for-in
+import isArrayLike from '../type-judgment/type-below.js'
 
 function each(obj, callback) {
   let length; let i = 0

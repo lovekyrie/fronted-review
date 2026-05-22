@@ -1,3 +1,4 @@
+// 无限柯里化：连续传参累加，空参调用 () 时返回结果
 function sum(a) {
   return function (b) {
     if (b)

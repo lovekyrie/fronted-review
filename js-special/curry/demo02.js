@@ -3,6 +3,7 @@
  * @param {*} func
  * @returns
  */
+// ES6 通用柯里化：参数够 fn.length 则执行，否则继续返回收集函数
 function curry(func) {
   return function curried(...args1) {
     if (args1.length >= func.length) {

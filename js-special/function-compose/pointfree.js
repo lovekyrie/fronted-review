@@ -1,12 +1,12 @@
-const compose = require('./underscore-mock')
-// 要求输入：'kevin',返回'HELLO,KEVIN'
-// 非pointfree方式，因为直接使用了name
+import compose from './underscore-mock.js'
+// 目标：'kevin' → 'HELLO,KEVIN'
+
+// 非 Point-Free：数据 name 贯穿业务逻辑
 var greet = function (name) {
   return (`hello ${name}`).toLowerCase()
 }
 
-// ponitfree
-// 先定义基本运算，这些可以封装起来复用
+// Point-Free：只组合纯函数，不直接操作外部数据名
 function toUpperCase(x) {
   return x.toUpperCase()
 }

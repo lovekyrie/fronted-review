@@ -1,4 +1,4 @@
-// 1 递归
+// 递归扁平：遇数组 concat 子结果
 console.time('recusion')
 const arr = [1, [2, [3, 4]]]
 function flatten(array) {

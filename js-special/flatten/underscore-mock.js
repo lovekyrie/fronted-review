@@ -42,4 +42,4 @@ function flatten(input, shallow, strict, output) {
 console.log(flatten(arr, false, false))
 console.timeEnd('underscore')
 
-module.exports = flatten
+export default flatten

@@ -1,4 +1,6 @@
-//dom事件，兼容浏览器写法 常见写法：
+// DOM 兼容：标准 addEventListener vs IE attachEvent
+
+// 每次调用都检测环境
 function addEvent(type, el, fn) {
   if (window.addEventListener) {
     el.addEventListener(type, fn, false);
@@ -7,7 +9,7 @@ function addEvent(type, el, fn) {
   }
 }
 
-//利用惰性函数，改写
+// 惰性：首次检测后替换 addEvent 自身
 function addEvent(type, el, fn) {
   if (window.addEventListener) {
     addEvent = function (type, el, fn) {
@@ -20,7 +22,7 @@ function addEvent(type, el, fn) {
   }
 }
 
-//利用闭包改写
+// IIFE 闭包：启动时分支一次，返回固定实现
 var addEvent = (function () {
   if (window.addEventListener) {
     return function (type, el, fn) {

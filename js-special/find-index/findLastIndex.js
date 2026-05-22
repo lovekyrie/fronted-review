@@ -1,3 +1,4 @@
+// 从尾向前找第一个满足条件的下标
 function findLastIndex(array, predicate, context) {
   for (let i = array.length - 1; i >= 0; i--) {
     if (predicate.call(context, array[i], i, array)) {
@@ -11,4 +12,4 @@ console.log(findLastIndex([1, 2, 3, 4], (item, index, array) => {
     return true
 }))
 
-module.exports = findLastIndex
+export default findLastIndex

@@ -5,6 +5,7 @@ function add(a, b) {
   return a + b
 }
 
+// bind 固定参数且绑定 this；每次 addOther() 都会新建绑定函数
 const addOne = add.bind(this, 1)
 
 function addOther() {

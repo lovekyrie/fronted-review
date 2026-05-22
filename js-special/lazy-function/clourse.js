@@ -1,4 +1,4 @@
-// 必报避免变量污染
+// 闭包版惰性：避免污染全局，但每次调用仍要 if (t)
 const foo = (function () {
   let t
   return function () {

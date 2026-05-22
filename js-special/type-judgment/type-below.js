@@ -1,5 +1,5 @@
-// jquery方法实现
-const type = require('./type-upon')
+// 类数组检测：供 jquery-each 区分数组与 plain object
+import type from './type-upon.js'
 
 function isWindow(obj) {
   return obj != null && obj.window === obj
@@ -28,4 +28,4 @@ function isArrayLike(obj) {
 
 console.log(isArrayLike([1, 2, 3]))
 
-module.exports = isArrayLike
+export default isArrayLike

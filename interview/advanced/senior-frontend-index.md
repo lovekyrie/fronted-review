@@ -17,6 +17,7 @@ description: 高级前端面试备战的 8 周计划汇总索引
 | [Week 6](./week6/roadmap) | 浏览器/性能/安全 | [性能优化](./week6/performance-optimization)、[安全专题](./week6/security) |
 | [Week 7](./week7/roadmap) | 测试与质量保障 | [测试策略](./week7/testing-strategy) |
 | [Week 8](./week8/roadmap) | 架构题与模拟面试 | [题库](./week8/question-bank) |
+| [Week 9 可选](../ai-agent/) | AI Agent 工程化 | [Tool 与 MCP](../ai-agent/tool-and-mcp)、[RAG](../ai-agent/rag)、[评估与观测](../ai-agent/observability-evaluation) |
 
 ## 周优先级
 
@@ -28,6 +29,8 @@ description: 高级前端面试备战的 8 周计划汇总索引
 6. 浏览器、性能、安全
 7. 测试与质量保障
 8. 架构题与模拟面试
+
+可选扩展：完成 8 周主线后，用 [AI Agent 工程专题](../ai-agent/) 补齐 `Tool -> MCP -> Prompt/Parser -> Memory -> RAG -> SSE -> LangGraph/多 Agent -> 评估观测` 这条能力线。
 
 ## 执行原则
 
@@ -42,3 +45,4 @@ description: 高级前端面试备战的 8 周计划汇总索引
 - [主路线图](./senior-frontend-roadmap)
 - [按小时执行清单](./week1/hourly)
 - [高级前端题库](./week8/question-bank)
+- [AI Agent 工程专题](../ai-agent/)

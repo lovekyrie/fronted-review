@@ -1,6 +1,6 @@
-const memoize = require('./underscore-mock')
+import memoize from './underscore-mock.js'
 
-// 利用memoize缓存结果
+// 同一 n 只算一次，count 会远小于未缓存版本
 let count = 0
 let fibonacci = function (n) {
   count++

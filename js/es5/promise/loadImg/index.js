@@ -16,4 +16,4 @@ function loadImg(urlId) {
   })
 }
 
-module.exports = { loadImg, urlIds }
+export { loadImg, urlIds }

@@ -1,4 +1,4 @@
-// 惰性函数
+// 惰性函数：首次执行时重写 foo，之后走轻量分支
 let foo = function () {
   const t = new Date()
   foo = function () {

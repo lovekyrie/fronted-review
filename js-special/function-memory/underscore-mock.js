@@ -1,4 +1,4 @@
-// underscore版本的memoize
+// Underscore 风格 memoize：可自定义 hasher 生成缓存 key
 function memoize(func, hasher) {
   const memoize = function (key) {
     const cache = memoize.cache
@@ -29,4 +29,4 @@ var memoizeAdd = memoize(add, function () {
 console.log(memoizeAdd(1, 2, 3)) // 6
 console.log(memoizeAdd(1, 2, 4)) // 6
 
-module.exports = memoize
+export default memoize

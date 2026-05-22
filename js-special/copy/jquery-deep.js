@@ -1,6 +1,6 @@
-// 模拟jquery.extend实现
+// 模拟 jQuery.extend：可选深拷贝、plainObject 判断、循环引用跳过
 
-const type1 = require('../type-judgment/type-upon')
+import type1 from '../type-judgment/type-upon.js'
 
 const class2Type = {}
 const toString = class2Type.toString

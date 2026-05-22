@@ -1,4 +1,4 @@
-// 利用递归实现深拷贝 使用递归性能受限，因为会一直叠加栈
+// 递归深拷贝：未处理循环引用、Date、RegExp 等
 function deepCopy(obj) {
   if (typeof obj !== 'object') {
     return false

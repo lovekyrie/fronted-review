@@ -1,5 +1,5 @@
 // 模拟实现Set
-const forOf = require('./iterator');
+import forOf from './iterator.js'
 
 (function (global) {
   // 为例防止用indexOf判断存在时，NaN!==NaN

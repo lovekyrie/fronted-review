@@ -1,4 +1,4 @@
-// 比较正负0
+// === 认为 +0 与 -0 相等，用 1/x 区分符号
 function equal(a, b) {
   if (a === b)
     return a !== 0 || 1 / a === 1 / b

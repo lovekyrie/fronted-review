@@ -1,10 +1,7 @@
-// 函数柯里化第一版
+// 柯里化 v1：一次性预填部分参数，返回的函数再收集剩余参数
 function curry(fn) {
-  // 得到传给curry的参数
-  const args = [].slice.call(arguments, 1)
+  const args = [].slice.call(arguments, 1) // curry 时传入的已固定参数
   return function () {
-    // 得到调用curry后所传参数
-    console.log(arguments)
     const newArgs = args.concat([].slice.call(arguments))
     return fn.apply(this, newArgs)
   }

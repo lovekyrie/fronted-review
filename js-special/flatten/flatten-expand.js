@@ -1,6 +1,6 @@
-// underscore函数的扩展实现
-const flatten = require('./underscore-mock')
-// 1. _.flatten
+// 基于 flatten 派生 union / difference 等（示意）
+import flatten from './underscore-mock.js'
+// _.flatten
 _.flatten = function (array, shallow) {
   return flatten(array, shallow, false)
 }

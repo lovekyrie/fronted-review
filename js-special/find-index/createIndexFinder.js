@@ -1,3 +1,4 @@
+// 工厂：dir=1 正向 findIndex，dir=-1 反向 findLastIndex
 function createIndexFinder(dir) {
   return function (array, predicate, context) {
     const length = array.length

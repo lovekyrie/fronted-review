@@ -1,5 +1,5 @@
-// 定义：程序调用自身的变成技巧成为递归
-// 以阶乘为例
+// 递归：函数调用自身，需明确终止条件
+// 下方 factorial 误用 fibonacci 函数名，仅为草稿对比
 function factorial(n) {
   if (n == 1)
     return n

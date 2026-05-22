@@ -1,4 +1,4 @@
-// underscore防抖实现
+// 防抖：高频触发只执行最后一次；支持 leading + cancel
 let count = 1
 const container = document.getElementById('container')
 function getUserAction() {
@@ -14,7 +14,7 @@ document.getElementById('button').addEventListener('click', () => {
 function debounce(fn, wait, immediate) {
   let timeout, result
 
-  return function () {
+  const debounced = function () {
     const context = this
     const args = arguments
 
@@ -22,7 +22,7 @@ function debounce(fn, wait, immediate) {
       clearTimeout(timeout)
     }
     if (immediate) {
-      // 立即执行，如果执行过，则不执行
+      // leading：冷却期内不重复触发
       const callNow = !timeout
       timeout = setTimeout(() => {
         timeout = null
@@ -39,10 +39,10 @@ function debounce(fn, wait, immediate) {
     return result
   }
 
-  debounce.cancel = function () {
+  debounced.cancel = function () {
     clearTimeout(timeout)
-    timeout = nul
+    timeout = null
   }
 
-  return debounce
+  return debounced
 }

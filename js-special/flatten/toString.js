@@ -1,4 +1,4 @@
-// 2. 如果数组的元素都是数字，可以考虑
+// 仅适用于全数字：toString 去括号再 split（有精度/类型风险）
 console.time('toString')
 const arr = [1, [2, [3, 4]]]
 function flatten(array) {

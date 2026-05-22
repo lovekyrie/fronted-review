@@ -33,6 +33,8 @@ description: 面向高级前端面试的 8 周系统化补强计划
 7. 测试与质量保障
 8. 架构题与模拟面试
 
+可选扩展：Week 9 增加 AI Agent 工程化能力线，不改变原 8 周主线节奏。
+
 ## Week 1
 
 ### 主题
@@ -255,6 +257,37 @@ TypeScript 进阶：类型系统、泛型设计、工具类型、业务建模
 ### 官方文档
 
 - 本周不新增主题文档，回看前 7 周官方文档和仓库沉淀内容
+
+## Week 9 可选
+
+### 主题
+
+AI Agent 工程化：Tool、MCP、Prompt、Parser、Memory、RAG、SSE、LangGraph、多 Agent、评估观测
+
+### 目标
+
+- 讲清 Agent 从用户输入到工具执行、检索增强、流式交互和评估复盘的完整链路
+- 能区分 Tool calling、MCP、RAG、Memory、Runtime、LangGraph 和多 Agent 的职责边界
+- 从前端工程师视角说明 Agent UI、SSE 事件、人工确认、引用展示、错误恢复和任务回放
+- 能回答 Agent 面试题，不停留在“会调用大模型接口”
+
+### 产出
+
+- 学习 [AI Agent 工程专题](../ai-agent/)
+- 整理 1 份 Tool/MCP 与 RAG 的工程链路口述稿
+- 设计 1 套 Agent SSE 事件协议草案
+- 准备 10-15 题 AI Agent 高频问答
+
+### 学习入口
+
+- [AI Agent 学习路线](../ai-agent/)
+- [Tool 与 MCP](../ai-agent/tool-and-mcp)
+- [Prompt / Parser / Memory](../ai-agent/prompt-parser-memory)
+- [RAG 工程链路](../ai-agent/rag)
+- [Agent Runtime](../ai-agent/agent-runtime)
+- [LangGraph 与多 Agent](../ai-agent/langgraph-multi-agent)
+- [评估与观测](../ai-agent/observability-evaluation)
+- [AI Agent 高频面试题](../ai-agent/interview-questions)
 
 ## 每周复盘模板
 

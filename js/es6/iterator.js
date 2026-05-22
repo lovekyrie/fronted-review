@@ -168,4 +168,4 @@ for (const [key, value] of valuesMap1) {
   console.log(`${key}:${value}`)
 }
 
-module.exports = forOf
+export default forOf

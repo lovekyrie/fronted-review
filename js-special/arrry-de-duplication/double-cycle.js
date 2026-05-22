@@ -1,4 +1,4 @@
-// 双重循环 兼容性好
+// 双重循环：内层发现重复则 break，兼容性好
 console.time('timer')
 const array = [1, 1, '1', '1']
 

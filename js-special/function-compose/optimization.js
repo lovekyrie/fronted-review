@@ -1,5 +1,4 @@
-// 优化
-// const { toUpperCase, hello } = require("./try");
+// 二元 compose，配合 ES Module 拆分原子函数
 import { hello, toUpperCase } from './try'
 
 function compose(f, g) {

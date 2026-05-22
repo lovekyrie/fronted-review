@@ -1,7 +1,7 @@
-// 需求：输入 'kevin daisy kelly'，返回 'K.D.K'
+// Point-Free 实战：'kevin daisy kelly' → 'K.D.K'（curry + compose + map）
 
-const curry = require('../curry/v2')
-const compose = require('./underscore-mock')
+import curry from '../curry/v2.js'
+import compose from './underscore-mock.js'
 
 function head(str) {
   return str.slice(0, 1)

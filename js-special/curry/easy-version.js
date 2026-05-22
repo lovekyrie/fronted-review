@@ -1,6 +1,6 @@
-// 递归版本
+// 递归柯里化草稿（逻辑不完整，仅供对比 v2 思路）
 function curry(fn, args) {
-  const length = args.length
+  const length = fn.length // 应为原函数形参个数
   args = args || []
 
   return function () {

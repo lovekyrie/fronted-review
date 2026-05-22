@@ -1,4 +1,4 @@
-// 节流的两种实现方式
+// 节流：规定时间窗口内最多执行一次
 let count = 1
 const container = document.getElementById('container')
 function getUserAction() {
@@ -6,7 +6,7 @@ function getUserAction() {
 }
 
 container.onmousemove = throttle2(getUserAction, 3000)
-// 第一版方式 时间戳
+// 时间戳版：立刻执行，停止触发后不再执行
 function throttle1(fn, wait) {
   let context, args
   let previous = 0
@@ -22,7 +22,7 @@ function throttle1(fn, wait) {
   }
 }
 
-// 第二版方式 定时器
+// 定时器版：首次延迟 wait，结束后再补一次
 function throttle2(fn, wait) {
   let context, args, timeout
 

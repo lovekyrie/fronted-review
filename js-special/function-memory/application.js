@@ -1,4 +1,4 @@
-// 以斐波拉契数列为例
+// 未缓存的斐波那契：重复子问题导致调用次数爆炸
 let count = 0
 function fibonacci(n) {
   count++

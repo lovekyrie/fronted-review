@@ -1,6 +1,5 @@
-// 代码实现浅拷贝
+// 浅拷贝：只复制第一层，嵌套对象仍共享引用
 function shallowCopy(obj) {
-  // 只拷贝对象
   if (typeof obj !== 'object') {
     return false
   }

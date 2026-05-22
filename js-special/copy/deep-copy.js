@@ -1,4 +1,4 @@
-// 最常见的深拷贝 JSON.parse(JSON.stringify(obj)),但是有一个问题，不能拷贝函数
+// JSON 深拷贝：简单但丢 function、undefined、循环引用等
 const arr = [
   function () {
     console.log(a)

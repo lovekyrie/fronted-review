@@ -1,3 +1,4 @@
+// 朴素写法：全局 t + 每次判断
 let t
 function foo() {
   if (t)

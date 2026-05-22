@@ -1,3 +1,4 @@
+// compose 用到的原子函数，可单独测试
 function toUpperCase(x) {
   return x.toUpperCase()
 }

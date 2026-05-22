@@ -1,4 +1,4 @@
-// 用indexOf简化 双重循环的内层循环
+// includes 去重：简洁；NaN 需另处理（includes 可识别 NaN）
 console.time('timer')
 const array = [1, 1, '-1', '-1']
 

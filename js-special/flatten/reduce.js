@@ -1,4 +1,4 @@
-// 利用reduce，会返回上一步执行结果
+// reduce + 递归：prev 累加，子数组继续 flatten
 console.time('reduce')
 const arr = [1, [2, [3, 4]]]
 function flatten(array) {

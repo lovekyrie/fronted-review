@@ -98,6 +98,67 @@ function debounce(fn, delay) {
 }
 ```
 
+### 3.4 once：只执行一次
+
+通过闭包保存 `fn`，首次调用后把 `fn` 置为 `null`，后续走 `replacer`。
+
+```javascript
+function once(fn, replacer = null) {
+    return function (...args) {
+        if (fn) {
+            const ret = fn.apply(this, args);
+            fn = null;
+            return ret;
+        }
+        if (replacer) {
+            return replacer.apply(this, args);
+        }
+    };
+}
+
+const obj = {
+    init: once(
+        () => {
+            console.log('Initializer has been called.');
+        },
+        () => {
+            throw new Error('This method should be called only once.');
+        }
+    ),
+};
+
+obj.init(); // 正常执行
+obj.init(); // 抛出 Error: This method should be called only once.
+```
+
+**为什么第二次会报错？**
+
+容易误以为：每次 `obj.init()` 都会把箭头函数再传进 `once`。实际上：
+
+1. `once(原函数, replacer)` **只在定义 `init` 时执行一次**，返回的是包装函数。
+2. 闭包里的 `fn` 是**可变引用**，第一次调用后 `fn = null`。
+3. 第二次 `obj.init()` 调用的是包装函数，`fn` 已为 `null`，走 `replacer` 分支抛错。
+
+| 调用 | 闭包中的 `fn` | 行为 |
+|------|---------------|------|
+| 第 1 次 | 原函数 | 执行原函数，然后 `fn = null` |
+| 第 2 次 | `null` | 执行 `replacer`（此处抛错） |
+
+等价理解：
+
+```javascript
+// once 内部大致等价于
+let fn = /* 传入的原函数 */;
+let replacer = /* 传入的 replacer */;
+
+obj.init = function (...args) {
+    if (fn) { /* 用完后 fn = null */ }
+    else if (replacer) { /* 第二次走这里 */ }
+};
+```
+
+> 若不传 `replacer`，第二次调用会静默返回 `undefined`，不会抛错。
+
 ## 4. 经典面试题：循环与闭包
 
 **题目**：输出什么？

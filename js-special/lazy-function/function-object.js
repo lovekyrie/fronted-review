@@ -1,4 +1,4 @@
-// 函数对象
+// 缓存挂在函数对象上，仍每次进入函数体判断
 function foo() {
   if (foo.t)
     return foo.t

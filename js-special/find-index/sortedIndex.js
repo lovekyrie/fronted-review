@@ -1,6 +1,4 @@
-// 在一个排好序的数组中找到 value 对应的位置，保证插入数组后，依然保持有序的状态。
-// exp:sortedIndex([10, 20, 30], 25); // 2
-
+// 有序数组插入位置（二分），返回 high 指针
 function sortedIndex(array, obj) {
   let low = 0
   let high = array.length
@@ -25,6 +23,7 @@ console.log(result) // 1
 一般这个时候， 还会涉及到 this 指向的问题， 所以我们再传一个 context 来让我们可以指定 this
 */
 
+// 绑定 iteratee 的 this
 function cb(func, context) {
   if (context === void 0)
     return func
@@ -33,6 +32,7 @@ function cb(func, context) {
   }
 }
 
+// 支持按 iteratee 提取比较键（如对象数组的 age）
 function sortedIndexV2(array, obj, iteratee, context) {
   iteratee = cb(iteratee, context)
 
@@ -63,4 +63,4 @@ const result = sortedIndexV2(stooges, {
 
 console.log(result)
 
-module.exports = sortedIndexV2
+export default sortedIndexV2

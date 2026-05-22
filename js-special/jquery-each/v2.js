@@ -1,5 +1,5 @@
-const isArrayLike = require('../type-judgment/type-below')
-// 第二版 增加this指向
+import isArrayLike from '../type-judgment/type-below.js'
+// v2：回调参数顺序 (value, index, collection)，return false 中断
 function each(obj, callback) {
   let length; let i = 0
   if (isArrayLike(obj)) {

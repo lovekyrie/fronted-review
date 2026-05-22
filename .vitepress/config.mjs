@@ -15,6 +15,7 @@ export default defineConfig({
     // 对应你的文件夹结构，点击后跳转到该分类下的第一个文件
     nav: [
       { text: '高级前端', link: '/advanced/senior-frontend-index' },
+      { text: 'AI Agent', link: '/ai-agent/' },
       { text: '80days', link: '/daily-prep/day1-js-foundation-checklist' },
       { text: 'JS Core', link: '/jscore/basic/data-type' },
       { text: 'HTML & CSS', link: '/html&css/layout' },
@@ -27,6 +28,47 @@ export default defineConfig({
     // 2. 侧边栏 (Sidebar)
     // 当路由匹配到 key (如 /jscore/) 时，显示对应的侧边栏
     sidebar: {
+      '/ai-agent/': [
+        {
+          text: '总览',
+          items: [
+            { text: '学习路线', link: '/ai-agent/' },
+          ],
+        },
+        {
+          text: '基础能力',
+          items: [
+            { text: 'Tool 与 MCP', link: '/ai-agent/tool-and-mcp' },
+            { text: 'Prompt / Parser / Memory', link: '/ai-agent/prompt-parser-memory' },
+          ],
+        },
+        {
+          text: 'RAG',
+          items: [
+            { text: 'RAG 工程链路', link: '/ai-agent/rag' },
+          ],
+        },
+        {
+          text: '运行时',
+          items: [
+            { text: 'Agent Runtime', link: '/ai-agent/agent-runtime' },
+          ],
+        },
+        {
+          text: '多 Agent',
+          items: [
+            { text: 'LangGraph 与多 Agent', link: '/ai-agent/langgraph-multi-agent' },
+          ],
+        },
+        {
+          text: '评估面试',
+          items: [
+            { text: '评估与观测', link: '/ai-agent/observability-evaluation' },
+            { text: '高频面试题', link: '/ai-agent/interview-questions' },
+          ],
+        },
+      ],
+
       '/daily-prep/': [
         {
           text: '总览',
@@ -442,6 +484,7 @@ export default defineConfig({
             { text: '微前端', link: '/advanced/micro-frontend' },
             { text: '移动端与跨端', link: '/advanced/mobile-and-cross-platform' },
             { text: 'CSS 进阶', link: '/advanced/css-advanced' },
+            { text: 'AI Agent 工程专题', link: '/ai-agent/' },
           ],
         },
       ],

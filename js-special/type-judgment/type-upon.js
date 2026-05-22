@@ -1,4 +1,4 @@
-// type API
+// 精确类型：结合 typeof 与 [object Xxx]
 const class2Type = {}
 'Boolean Number String Function Array Date RegExp Object Error Null Undefined'
   .split(' ')
@@ -26,4 +26,4 @@ function type1(obj) {
     : typeof obj
 }
 
-module.exports = type1
+export default type1

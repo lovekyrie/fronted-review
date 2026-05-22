@@ -1,4 +1,4 @@
-// 似曾相识的代码
+// 偏函数：固定前若干参数；与 curry 不同，不保证按 arity 分步收集
 function partial(fn) {
   const args = [].slice.call(arguments, 1)
   return function () {
@@ -7,7 +7,7 @@ function partial(fn) {
   }
 }
 
-// this指向差异
+// bind 会绑定 this；partial 仅固定参数，this 由调用方决定
 const value = 1
 
 function add(a, b) {

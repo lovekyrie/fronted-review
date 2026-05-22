@@ -1,4 +1,4 @@
-// Es6 展开运算符
+// ES6：while + 展开，每层去掉一层嵌套
 console.time('es6')
 const arr = [1, [2, [3, 4]]]
 // console.log([].concat(...arr)); //[1,2,[3,4]]

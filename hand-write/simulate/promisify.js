@@ -1,5 +1,5 @@
 // 适合err-first风格的异步操作(eg. nodejs)的promisify功能
-const fs = require('node:fs')
+import fs from 'node:fs'
 
 function promisify(asyncFunc) {
   return function (...args) {

@@ -1,3 +1,4 @@
+// 手写三层嵌套，理解「多参变多次单参」
 'use strict'
 const add = (a, b, c) => a + b + c
 

@@ -1,9 +1,9 @@
-debugger
-const findIndex = require('./findIndex')
-const findLastIndex = require('./findLastIndex')
-const sortedIndex = require('./sortedIndex')
+// indexOf / lastIndexOf 增强：fromIndex、有序二分、NaN
+import findIndex from './findIndex.js'
+import findLastIndex from './findLastIndex.js'
+import sortedIndex from './sortedIndex.js'
 
-// indexOf 第一版
+// 基础版：=== 比较
 function createIndexOfFinder(dir) {
   return function (array, item) {
     const length = array.length
@@ -47,7 +47,7 @@ exp:
    array.indexOf(2, -3); // 0
  */
 
-// 第四版 增加isNaN判断，并且优化：支持对有序的数组进行更快的二分查找
+// 完整版：fromIndex 边界、有序数组走 sortedIndex、NaN 用 findIndex
 function createIndexOfFinderV4(dir, predicate, sortedIndex) {
   return function (array, item, idx) {
     let length = array.length

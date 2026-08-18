@@ -14,7 +14,9 @@
     "lint:fix": "eslint --fix",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
-    "docs:preview": "vitepress preview"
+    "docs:preview": "vitepress preview",
+    "docs:i18n": "node scripts/i18n-sync.mjs",
+    "docs:i18n:report": "node scripts/i18n-sync.mjs --report"
   },
   "dependencies": {
     "vitepress": "^1.6.4",

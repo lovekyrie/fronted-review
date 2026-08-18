@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "WebFetch(domain:minimax-algeng-chat-tts.oss-cn-wulanchabu.aliyuncs.com)",
+      "Bash(curl:*)",
+      "Bash(screencapture -x /Users/duanyupeng/project/study/fronted-review/screenshot.jpg)",
+      "Bash(ls -la interview/engineering/week1-*.md interview/engineering/week2-*.md interview/engineering/week7-*.md interview/jscore/advanced/week1-*.md interview/jscore/advanced/week5-*.md interview/framework/vue/week3-*.md interview/framework/react/week4-*.md \"interview/network&broswer/week6-*.md\")",
+      "Bash(mkdir -p \"interview/day1-js-foundation\")",
+      "Bash(mv \"interview/day1-js-foundation-checklist.md\" \"interview/day1-js-foundation/day1-js-foundation-checklist.md\")",
+      "Bash(npm run:*)",
+      "Bash(git rm:*)"
+    ]
+  }
+}

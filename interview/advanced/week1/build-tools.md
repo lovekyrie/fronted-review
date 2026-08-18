@@ -1,291 +1,130 @@
-### 构建工具
+# 构建工具总览
 
-高级前端面试里的“构建工具”不是背配置项，而是讲清一条链路：
+高级前端面试里的「构建工具」不是背配置项，而是讲清一条链路：
 
-`源码 -> 模块解析 -> 代码转换 -> 开发服务 / 生产打包 -> 拆包缓存 -> 部署产物`
+```text
+源码 → 模块解析 → 代码转换 → 开发服务 / 生产打包 → 拆包缓存 → 部署产物 → 线上排障
+```
 
-如果只能说“Vite 快、webpack 配置多”，深度是不够的。面试官真正想看的是你是否理解它们各自解决的问题，以及这些机制怎样影响开发体验和线上表现。
+如果只能说「Vite 快、webpack 配置多」，深度不够。面试官想看的是：各自解决什么问题，机制如何影响开发体验和线上表现。
 
-#### 1. 为什么需要构建工具
+---
 
-浏览器只能直接执行一部分前端代码，而真实项目通常包含：
+## 专题文档
 
-- ESNext 语法
-- TypeScript
-- JSX / Vue SFC
+| 文档 | 内容 |
+|------|------|
+| [Webpack](./webpack.md) | 依赖图、loader/plugin、拆包缓存、**webpack Source Map 排障** |
+| [Vite](./vite.md) | ESM dev、预构建、Rollup build、**Vite Source Map 排障** |
+| [webpack vs Vite 深入对比](../../engineering/webpack-vs-vite.md) | 对照表、HMR、Rolldown、面试模板 |
+
+---
+
+## 1. 为什么需要构建工具
+
+浏览器只能直接执行一部分前端代码，真实项目通常包含：
+
+- ESNext / TypeScript / JSX / Vue SFC
 - CSS 预处理器
-- 图片、字体、SVG 等静态资源
-- 多页面或大型单页依赖图
+- 图片、字体等静态资源
+- 大型依赖图
 
-构建工具的职责就是把这些输入转换成浏览器和运行环境能稳定消费的产物。
+构建工具职责：把这些输入转换成浏览器和运行环境能稳定消费的产物。
 
-可以把它拆成四层：
+四层能力：
 
-1. **解析模块关系**：谁依赖谁，入口在哪里，哪些资源会被引用
-2. **做代码转换**：比如 TS -> JS，JSX -> JS，较新语法 -> 兼容语法
-3. **组织开发或生产产物**：开发时强调反馈速度，生产时强调稳定、体积和缓存
-4. **做优化**：代码分割、tree-shaking、压缩、hash、source map
+1. **解析模块关系** — 入口、依赖图、静态 import 分析
+2. **代码转换** — Babel、TS、PostCSS 等
+3. **组织产物** — dev 强调反馈速度，prod 强调体积和缓存
+4. **优化** — 拆包、tree-shaking、压缩、hash、source map
 
-#### 2. 一条完整的构建链路
+---
 
-##### 2.1 从模块系统开始
+## 2. 模块系统与 tree-shaking
 
-构建工具首先要理解模块。
+- **ESM**：`import` / `export`，静态结构，利于 tree-shaking
+- **CommonJS**：`require()` 可运行时动态调用，静态分析困难
 
-- `ESM`：`import` / `export`
-- `CommonJS`：`require` / `module.exports`
+tree-shaking 失效常见原因：CJS 依赖、副作用过多、`sideEffects` 配置不当。
 
-这一步不是语法 trivia，而是后续优化的基础。比如 `tree-shaking` 依赖 ESM 的静态结构，因为构建阶段必须提前知道“导入了什么、导出了什么”。
+---
 
-##### 2.2 再做代码转换
+## 3. Babel 与 bundler 的边界
 
-常见转换器包括：
+| 角色 | 职责 |
+|------|------|
+| Babel | 代码 → 代码（AST 变换） |
+| webpack / Vite | 模块图 → 可开发/可部署产物 |
+| polyfill | 补运行时 API |
 
-- Babel：语法转译、插件化 AST 变换
-- TypeScript 编译器：类型擦除、部分语法转换
-- PostCSS / Sass：CSS 处理
+---
 
-这里要明确边界：
+## 4. 开发态 vs 生产态（核心差异）
 
-- **Babel 负责变换代码**
-- **bundler 负责组织模块和产物**
-- **polyfill 负责补运行时缺失能力**
+| | webpack dev | Vite dev |
+|--|-------------|----------|
+| 思路 | 先 bundling 再 serve | 浏览器 ESM 按需请求 |
+| 启动 | 大项目往往慢 | 通常秒级 |
+| HMR | chunk 级 | 模块级 |
 
-它们经常一起出现，但不是一回事。
+**生产态**：两者都要打包、压缩、hash、source map — 详见各专题文档。
 
-##### 2.3 开发态和生产态是两条不同链路
+---
 
-这是 Vite 与 webpack 在体验上差异很大的根源。
+## 5. 生产构建共通要点
 
-- 开发态目标：快启动、快刷新、快定位问题
-- 生产态目标：小体积、好缓存、可部署、可排障
-
-所以“一个工具怎么做 dev”和“一个工具怎么做 build”必须分开理解。
-
-#### 3. webpack 在做什么
-
-webpack 的核心思路是：**从入口出发建立依赖图，再把这张图组织成浏览器可运行的产物。**
-
-##### 3.1 核心抽象
+### 代码分割
 
 ```js
-// webpack.config.js
-module.exports = {
-  entry: './src/index.js',
-  output: {
-    filename: '[name].[contenthash].js',
-  },
-}
+const Page = () => import('./Page.vue')
 ```
 
-- `entry`：构建起点
-- `dependency graph`：从入口递归收集所有依赖
-- `loader`：把“非 JS 或需要转换的资源”转成 webpack 能继续处理的模块
-- `plugin`：介入构建生命周期，做更广义的扩展
+### 长缓存
 
-##### 3.2 loader 和 plugin 的边界
+- 文件名 `contenthash`
+- vendor 与 runtime 分离
+- 业务小改动不导致全量 hash 失效
 
-很多人会背“loader 处理文件，plugin 扩展功能”，但高级面试里最好再往下说一层。
+### Source Map（线上排障）
 
-- `loader` 作用在单个模块转换阶段，更像“翻译器”
-- `plugin` 作用在整个构建流程，更像“调度器”或“钩子扩展”
+**完整流程（webpack / Vite 通用）**：
 
-例如：
-
-- `babel-loader` 把 JS 转成另一份 JS
-- `css-loader` 解析 CSS 依赖
-- `HtmlWebpackPlugin` 在构建完成后注入 HTML
-
-##### 3.3 webpack 为什么适合复杂生产构建
-
-因为它对“依赖图如何被组织成最终产物”控制力很强：
-
-- chunk 拆分策略可细配
-- 插件生态成熟
-- 对历史包袱和复杂项目兼容性强
-
-代价也很明显：
-
-- 配置复杂
-- 开发态全量打包成本高
-- 冷启动和大项目增量反馈通常不如 Vite 直接
-
-#### 4. Vite 在做什么
-
-Vite 的关键不是“完全不打包”，而是：**开发阶段尽量不提前打包，生产阶段再交给 bundler 做优化。**
-
-##### 4.1 为什么 Vite 开发阶段通常更快
-
-Vite 开发态利用浏览器原生 ESM：
-
-- 浏览器请求哪个模块，服务端就按需返回哪个模块
-- 不必在启动时先把整棵应用树打成 bundle
-- 改一个文件，只需要更新受影响的模块边界
-
-这让它在中大型项目里通常拥有更快的：
-
-- 启动速度
-- 首次页面可用速度
-- HMR 响应速度
-
-##### 4.2 依赖预构建在解决什么问题
-
-Vite 并不是“完全不预处理”。它会对第三方依赖做 `pre-bundling`，常见由 `esbuild` 参与，目标主要有两个：
-
-1. **把 CommonJS / UMD 等依赖转成更适合 ESM 开发服务消费的形式**
-2. **把大量零碎依赖合并，减少浏览器发起的模块请求数**
-
-所以依赖预构建不是和“快”矛盾，而是为了让开发态的 ESM 路径更稳定、更快。
-
-##### 4.3 Vite 的 build 阶段
-
-Vite 的生产构建仍然是 bundling 思路，只是通常交给 Rollup 体系来完成：
-
-```js
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  build: {
-    sourcemap: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['vue'],
-        },
-      },
-    },
-  },
-})
+```text
+1. 构建：hidden source map（生成 .map，不在 JS 里暴露 URL）
+2. 部署：Nginx 只 serve js/css/html，.map 不公开
+3. CI：把 .map 上传到 Sentry，绑定 release 版本
+4. 运行时：SDK 上报 stack（产物文件:行:列 + release）
+5. 平台：用 .map 反解到 src/xxx.vue:行:列
+6. 开发：checkout 对应 tag，本地打开源文件修复
 ```
 
-这意味着：
+配置对照：
 
-- `dev` 快，不代表 `build` 不打包
-- Vite 不是 webpack 的“轻量替代品”这么简单
-- 它本质上是“开发态与生产态分治”的工具设计
+| 工具 | 生产推荐 |
+|------|----------|
+| webpack | `devtool: 'hidden-source-map'` |
+| Vite | `build.sourcemap: 'hidden'` |
 
-#### 5. Vite 与 webpack 的差异
+细节、Nginx 示例、手动还原命令见 [webpack.md §6](./webpack.md#6-线上-source-map-排障webpack) 与 [vite.md §6](./vite.md#6-线上-source-map-排障vite)。
 
-##### 5.1 开发态
+---
 
-- webpack dev server 通常基于 bundling 思路先组织构建结果
-- Vite dev server 基于原生 ESM 按需提供模块
+## 6. 高频面试题（速查）
 
-##### 5.2 生产态
+1. **Vite dev 为什么快？** — ESM 按需 + esbuild 预构建，非启动全量 bundle  
+2. **tree-shaking 为何依赖 ESM？** — 需静态分析 import/export  
+3. **Babel vs bundler？** — 转码 vs 组织模块产物  
+4. **动态 import 为何拆包？** — 提供异步边界，依赖图可切 chunk  
+5. **为何抽 runtime chunk？** — 避免小改动导致缓存大面积失效  
+6. **生产 source map 策略？** — hidden + 上传监控，不公开 .map  
 
-- 两者最终都会生成部署产物
-- 生产阶段都要面对拆包、压缩、hash、source map、静态资源处理等问题
+---
 
-##### 5.3 控制力与体验的取舍
+## 7. 回答模板
 
-- webpack：更强控制力，更成熟生态，更重配置
-- Vite：更现代默认体验，更快开发反馈，但复杂构建场景仍要理解其底层 Rollup 能力
+1. 先说构建工具解决什么问题（四层能力）  
+2. 分 dev / build 讲机制差异（webpack bundling vs Vite ESM）  
+3. 再说生产优化：拆包、缓存、tree-shaking  
+4. 结合项目讲一次线上排障：hidden map + Sentry + release 对齐  
 
-一个更好的回答方式不是“谁更先进”，而是：
-
-- 项目复杂度多高
-- 团队对构建链路的定制度需求多大
-- 研发效率和历史兼容哪个更重要
-
-#### 6. 生产构建里真正重要的点
-
-##### 6.1 代码分割
-
-拆包不是为了“看起来专业”，而是为了把首屏不需要的代码延后加载。
-
-典型入口：
-
-- 路由级动态导入
-- 重型组件按需加载
-- 第三方大依赖单独拆出
-
-```js
-const UserPage = () => import('./UserPage.vue')
-```
-
-##### 6.2 tree-shaking
-
-tree-shaking 的核心前提是：构建阶段能静态分析导入导出关系。
-
-所以它对 ESM 更友好，因为 ESM 的依赖关系在语法层就是静态声明的。
-
-常见失效原因：
-
-- 依赖仍是 CommonJS 形态
-- 副作用代码太多
-- `sideEffects` 标记不合理
-- 导入方式破坏了静态分析收益
-
-##### 6.3 长缓存
-
-线上性能优化很大一部分来自“缓存命中”，不是每次重新下载所有资源。
-
-常见策略：
-
-- 文件名带 `contenthash`
-- 业务 chunk 和 vendor chunk 分离
-- runtime 单独抽离，避免小改动导致大面积 hash 变化
-
-```js
-module.exports = {
-  output: {
-    filename: '[name].[contenthash].js',
-  },
-  optimization: {
-    runtimeChunk: 'single',
-    splitChunks: {
-      chunks: 'all',
-    },
-  },
-}
-```
-
-##### 6.4 source map
-
-source map 对定位线上问题很关键，但不能无脑公开暴露：
-
-- 对外暴露可能泄漏源码结构
-- 上传到错误监控平台通常更稳妥
-- 需要区分开发、测试、生产环境策略
-
-##### 6.5 环境变量
-
-环境变量注入是构建链路的一部分，不是后端密钥管理的替代品。
-
-例如在 Vite 中：
-
-- 只有符合前缀约定的变量才会暴露到客户端
-- 所有进入前端 bundle 的变量都不应被视为秘密
-
-#### 7. 高频面试题
-
-##### 7.1 为什么 Vite 开发阶段通常比 webpack 快
-
-因为它尽量利用浏览器原生 ESM 做按需加载，避免在启动时先对整棵应用做 bundling；同时通过依赖预构建解决第三方包兼容和请求碎片化问题，所以冷启动和 HMR 往往更快。
-
-##### 7.2 tree-shaking 为什么依赖 ESM
-
-因为构建器需要在编译阶段静态知道导入和导出的边界。ESM 的依赖声明是静态结构，而 CommonJS 的 `require()` 可以出现在运行时路径里，静态分析难度更高。
-
-##### 7.3 Babel 和 webpack / Vite 的边界是什么
-
-Babel 负责“把一段代码变成另一段代码”，webpack / Vite 负责“把一组模块组织成可开发或可部署的产物”。两者经常协作，但职责不同。
-
-##### 7.4 动态 `import()` 为什么常常意味着拆包
-
-因为它天然提供了异步边界，构建器可以把这段依赖图切成独立 chunk，在真正访问到这段逻辑时再加载。
-
-##### 7.5 为什么生产环境要关心 runtime chunk
-
-因为 runtime 记录模块映射关系。如果业务代码稍微变化就把 runtime 和大 chunk 混在一起，缓存会更容易整体失效。把 runtime 抽离能提高长缓存收益。
-
-#### 8. 回答这类题的正确姿势
-
-如果被问构建工具，不要只从“API 层”回答。更稳的表达顺序是：
-
-1. 先说它解决什么问题
-2. 再说 dev 和 build 的机制差异
-3. 再说优化点和工程取舍
-4. 最后结合真实项目讲一次缓存、拆包或排障经验
-
-这样答案会明显比“列配置项”和“背名词解释”更像高级前端。
+这样比「列配置项」更像高级前端。

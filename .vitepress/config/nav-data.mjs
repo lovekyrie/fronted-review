@@ -1,7 +1,7 @@
 export const navData = [
   { zh: '高级前端', en: 'Senior Frontend', link: '/advanced/senior-frontend-index' },
   { zh: 'AI Agent', en: 'AI Agent', link: '/ai-agent/' },
-  { zh: '80 天复习', en: '80 Days', link: '/daily-prep/' },
+  { zh: '80 天复习', en: '80 Days', link: '/daily-prep/80-day' },
   { zh: 'JS Core', en: 'JS Core', link: '/jscore/basic/data-type' },
   { zh: 'HTML & CSS', en: 'HTML & CSS', link: '/html&css/layout' },
   { zh: '框架原理', en: 'Frameworks', link: '/framework/vue/vue3' },
@@ -63,7 +63,7 @@ export const sidebarData = {
       zh: '总览',
       en: 'Overview',
       items: [
-        { zh: '80 天总览', en: '80-Day Overview', link: '/daily-prep/' },
+        { zh: '80 天总览', en: '80-Day Overview', link: '/daily-prep/80-day' },
         { zh: '每日模板', en: 'Daily Template', link: '/daily-prep/_template' },
       ],
     },

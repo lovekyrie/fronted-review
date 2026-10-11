@@ -196,3 +196,24 @@ window.addEventListener('message', (event) => {
 
 ##### 8.4 面试快答建议
 先说原理（同源策略），再说主方案（CORS），最后补替代方案和边界（代理、WebSocket、postMessage）。
+
+## 每日练习参考
+
+### Day 6：CORS 跨域
+
+**简单请求**（不触发预检）：
+- 方法：GET / HEAD / POST
+- Content-Type：`text/plain` / `multipart/form-data` / `application/x-www-form-urlencoded`
+- 无自定义头
+
+**预检请求 (OPTIONS)** 触发条件：非简单方法（PUT / DELETE）、自定义头、`Content-Type: application/json`。
+
+服务器关键响应头：
+
+```text
+Access-Control-Allow-Origin: https://example.com
+Access-Control-Allow-Methods: GET, POST, PUT
+Access-Control-Allow-Headers: Content-Type, Authorization
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 86400
+```

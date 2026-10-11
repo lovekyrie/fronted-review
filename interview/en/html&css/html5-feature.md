@@ -241,3 +241,13 @@ if (navigator.geolocation) {
    - SVG is suited for icons and charts
    - Canvas has better performance
    - SVG can scale without losing quality
+
+## Daily practice reference
+
+### Day 9: HTML5 features cheat sheet
+
+- `<canvas>` / `<svg>`: drawing.
+- `<video>` / `<audio>`: media.
+- `<input type="date/email/range">`: richer forms.
+- `localStorage / sessionStorage`: local storage.
+- `Geolocation / Drag & Drop / Web Worker`: device capabilities.

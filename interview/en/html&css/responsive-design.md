@@ -205,3 +205,23 @@ Responsive design is a method that lets a page adapt to different devices and sc
    - Choose the right format
    - Consider loading performance
    - Use lazy loading
+
+## Daily practice reference
+
+### Day 8: Mobile adaptation options
+
+| Option | Mechanism | Fit for |
+|------|------|----------|
+| `rem` + dynamic `html font-size` | proportional scale | campaign pages that scale as a whole |
+| `vw / vh` | viewport percentage | preferred on modern mobile |
+| `px` + media queries | breakpoint adaptation | multi-end responsive on PC |
+| `safe-area-inset-*` | safe area | notch / home indicator |
+
+### Day 8: The 1px problem
+
+Essence: when dpr > 1, 1 CSS px maps to multiple physical pixels, so borders look thicker.
+
+Fixes:
+- `transform: scaleY(0.5)` + a pseudo-element (most common).
+- `border-image` / SVG.
+- `@media (-webkit-min-device-pixel-ratio: 2)` conditional adaptation.

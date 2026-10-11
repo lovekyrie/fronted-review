@@ -385,3 +385,102 @@ If you are asked about performance, do not recite “assets, network, render” 
 4. finally walk one real chain with gains and trade-offs
 
 That upgrades the answer from “knows some tricks” to “can systematically govern performance”.
+
+## Daily practice reference
+
+### Day 59: LCP optimization
+
+LCP elements are usually: `<img>` / `<video>` / background images / large text blocks.
+
+| Optimization direction | Measures |
+|----------|------|
+| Reduce resource load time | `<link rel="preload">` for the critical image / use a CDN / WebP/AVIF formats |
+| Reduce render blocking | Inline critical CSS / `async` / `defer` non-critical JS |
+| Reduce server time | SSR / Edge rendering / TTFB optimization |
+| Priority | `fetchpriority="high"` on the LCP image |
+
+### Day 59: INP optimization
+
+| Problem | Measures |
+|------|------|
+| Long tasks blocking the main thread | Split tasks (`yield to main thread`) / Web Worker |
+| Slow event handling | Reduce handler complexity / debounce / use `startTransition` |
+| Lots of DOM work | Virtual lists / `content-visibility` |
+
+### Day 59: CLS optimization
+
+| Problem | Measures |
+|------|------|
+| Images without dimensions | Always set `width / height` or `aspect-ratio` |
+| Font-swap jump | `font-display: optional` or `size-adjust` |
+| Dynamically injected content | Reserve space / `min-height` / skeleton screens |
+
+### Day 60: 4 layers of first-paint optimization
+
+| Layer | Optimization direction | Key measures |
+|----|----------|----------|
+| **Network layer** | Fewer requests + faster transfer | HTTP/2 / CDN / gzip / Brotli / domain consolidation |
+| **Resource layer** | Smaller size + load first | Tree Shaking / Code Splitting / preload / WebP |
+| **Rendering layer** | Less blocking + show sooner | SSR / skeleton screens / inline critical CSS / defer JS |
+| **Runtime** | Less main-thread blocking | Virtual lists / Web Worker / lazy loading / load on demand |
+
+### Day 60: Critical rendering path
+
+```text
+HTML → discover CSS → block rendering → CSSOM ready
+HTML → discover JS → block parsing (without async/defer) → JS executes
+             ↓
+       Both ready → Render Tree → Layout → Paint → first paint visible
+```
+
+Key: **CSS blocks rendering; JS blocks parsing**.
+
+### Day 60: preload / preconnect / prefetch
+
+| Directive | Role | Timing | Fit for |
+|------|------|------|------|
+| `preload` | Load resources required by the **current page** early | Immediately on the current page | Critical fonts, LCP images, critical JS |
+| `preconnect` | Establish TCP + TLS connections early | Current page | API domains, CDN domains |
+| `prefetch` | Preload **next-page** resources when idle | Low priority | JS chunks of the next-page route |
+| `dns-prefetch` | DNS lookup only | Current page | Third-party domains |
+
+### Day 60: SSR vs skeleton screen vs Loading
+
+| Approach | First-paint speed | Implementation cost | SEO | Fit for |
+|------|----------|----------|-----|------|
+| SSR | Fastest | High | ✅ | Content pages |
+| Skeleton screen | Medium | Low | ❌ | SPA |
+| Loading spinner | Slowest perceived | Lowest | ❌ | Back office |
+
+### Day 60: SPA first-paint waterfall + optimization points
+
+```text
+Time →
+├── DNS + TCP + TLS ──────── [preconnect can save this]
+├── HTML download ──────────── [SSR emits content directly]
+├── CSS download + parse ────── [inline critical CSS / preload]
+├── JS download ────────────── [Code Split / defer / preload]
+├── JS execute ────────────── [Tree Shaking to shrink size]
+├── API request ──────────── [merge APIs / preconnect / server prefetch]
+├── Data render ──────────── [skeleton placeholder / virtual list]
+└── Image load ──────────── [WebP / lazy loading / fetchpriority]
+```
+
+### Day 60: Critical-resource loading example
+
+```html
+<!-- Preconnect the API domain -->
+<link rel="preconnect" href="https://api.example.com" />
+
+<!-- Preload the critical font -->
+<link rel="preload" href="/fonts/main.woff2" as="font" type="font/woff2" crossorigin />
+
+<!-- Preload the LCP image -->
+<link rel="preload" href="/hero.webp" as="image" fetchpriority="high" />
+
+<!-- Prefetch the next page -->
+<link rel="prefetch" href="/about.chunk.js" />
+
+<!-- Defer non-critical JS -->
+<script src="/analytics.js" defer></script>
+```

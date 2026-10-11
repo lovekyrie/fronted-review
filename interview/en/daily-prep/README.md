@@ -1,12 +1,12 @@
 # Senior frontend 80-day Daily Prep
 
-Daily execution list split from `sprint-14-days` + `advanced/senior-frontend-roadmap`. One `dayN-<slug>.md` per day, four stages: **input → output → drill → recap**.
+Daily task cards split from `sprint-14-days` + `advanced/senior-frontend-roadmap`. Each day follows **goals → topic reading → practice and self-check → recap**. Topic pages hold the explanations; day pages assign the work.
 
 ## How to use
 
 - Daily budget: **2–3 hours**
 - Stack emphasis: **Vue primary / React secondary**
-- Every day must have a **visible output**: cheat sheet / flow / handwritten snippet / recording
+- Every day must have a **visible output**: flow diagram / handwritten snippet / test / recording
 - Every 7 days: a mock or stage recap to close gaps
 - Template: [`_template.md`](./_template)
 
@@ -24,7 +24,21 @@ Daily execution list split from `sprint-14-days` + `advanced/senior-frontend-roa
 | 8. Testing | Day 64–70 | Layering / Vitest / Playwright | [`advanced/week7`](../advanced/week7/roadmap) |
 | 9. Architecture & mocks | Day 71–80 | Scenarios / micro-frontends / monitoring / mocks | [`advanced/week8`](../advanced/week8/roadmap) |
 
-## Daily index
+## Browse by topic
+
+| Topic | Topic pages | Days |
+|-------|-------------|------|
+| JS and browser basics | [JS Core](../jscore/basic/data-type), [Browser](../network&broswer/broswer-render) | Day 1–14 |
+| Build pipeline | [Modules](../advanced/week1/modules), [Build tools](../advanced/week1/build-tools) | Day 15–21 |
+| Deploy and ship | [CI/CD](../advanced/week2/ci-cd), [Deployment](../advanced/week2/deployment) | Day 22–28 |
+| Vue internals | [Reactivity](../advanced/week3/reactivity), [Rendering](../advanced/week3/rendering-mechanism) | Day 29–42 |
+| React mechanics | [Hooks](../advanced/week4/hooks), [Concurrency](../advanced/week4/concurrency) | Day 43–49 |
+| TypeScript | [Basics](../advanced/week5/typescript-basic), [Type design](../advanced/week5/typescript-design) | Day 50–56 |
+| Performance and security | [Performance](../advanced/week6/performance-optimization), [Security](../advanced/week6/security) | Day 57–63 |
+| Testing | [Testing strategy](../advanced/week7/testing-strategy) | Day 64–70 |
+| Scenarios and mocks | [Scenarios](../scenarios/), [Question bank](../advanced/week8/question-bank) | Day 71–80 |
+
+## Browse by day
 
 ### Stage 1: Foundations
 

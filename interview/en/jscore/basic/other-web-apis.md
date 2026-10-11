@@ -53,3 +53,16 @@ window.addEventListener('visibilitychange', () => {
 - `sendBeacon` is async and non-blocking. Good for small payloads, not large ones.
 - `IntersectionObserver` is cheaper than listening to scroll.
 - Keep `MutationObserver` scoped; a wide tree plus frequent callbacks is expensive.
+
+## Daily practice reference
+
+### Day 4: sendBeacon
+
+Used to send data reliably on page unload, without the request being cancelled because the page closed:
+
+```js
+// send data on unload without blocking page close
+navigator.sendBeacon('/analytics', JSON.stringify({ event: 'pageview' }))
+```
+
+Typical uses: analytics beacons, leave-rate stats.

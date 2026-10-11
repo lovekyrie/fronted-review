@@ -226,3 +226,16 @@ async function networkFirst(request) {
 ##### 8.4 Multi-tab Sync
 - The `storage` event can sync localStorage changes (same origin, different tabs).
 - For more complex real-time sync, use `BroadcastChannel`.
+
+## Daily practice reference
+
+### Day 6: Browser storage comparison
+
+| Dimension | Cookie | localStorage | sessionStorage | IndexedDB |
+|------|--------|-------------|----------------|-----------|
+| Size | ~4KB | ~5MB | ~5MB | no hard cap |
+| Lifetime | can expire | persistent | session | persistent |
+| Sent with requests | yes | no | no | no |
+| Fit for | identity/tracking | user prefs | temporary state | large structured data |
+
+Cookie security: `HttpOnly` (no JS read), `Secure` (HTTPS only), `SameSite` (Lax / Strict / None+Secure).

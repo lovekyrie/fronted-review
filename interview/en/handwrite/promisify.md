@@ -42,3 +42,28 @@ generateCommit()
    We only need that callback to settle the Promise.
    Proxy wraps the whole fs module and intercepts get, so we do not have to wrap every method by hand. */
 ```
+
+## Daily practice reference
+
+### Day 12: promisify in three steps
+
+```text
+1. Return a new function
+2. Inside it, new Promise
+3. Call the original function with an error-first callback: (err, data) => err ? reject : resolve
+```
+
+### Day 12: promisify
+
+```js
+function promisify(fn) {
+  return function (...args) {
+    return new Promise((resolve, reject) => {
+      fn.call(this, ...args, (err, data) => {
+        if (err) reject(err)
+        else resolve(data)
+      })
+    })
+  }
+}
+```

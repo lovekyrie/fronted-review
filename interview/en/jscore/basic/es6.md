@@ -312,170 +312,9 @@ Object.is(+0, -0);   // false
 
 ## High-frequency follow-ups and deeper principles
 
-### Promise static methods in detail
+### Promise and async/await
 
-#### Promise.all: fail the whole group if any one fails
-
-```js
-Promise.myAll = function(promises) {
-  const results = new Array(promises.length)
-  let completed = 0
-
-  return new Promise((resolve, reject) => {
-    promises.forEach((p, i) => {
-      Promise.resolve(p)
-        .then(value => {
-          results[i] = value
-          if (++completed === promises.length) {
-            resolve(results)
-          }
-        })
-        .catch(reject) // reject immediately if any promise rejects
-    })
-  })
-}
-
-// Test
-Promise.myAll([
-  Promise.resolve(1),
-  new Promise(r => setTimeout(() => r(2), 100)),
-  Promise.resolve(3)
-]).then(console.log) // [1, 2, 3] (waits for the slowest)
-```
-
-#### Promise.allSettled: resolve only after every one settles
-
-```js
-Promise.myAllSettled = function(promises) {
-  return Promise.all(
-    promises.map(p =>
-      Promise.resolve(p)
-        .then(
-          value => ({ status: 'fulfilled', value }),
-          reason => ({ status: 'rejected', reason })
-        )
-    )
-  )
-}
-
-// Use case: still want successful results even if some requests fail
-Promise.myAllSettled([
-  fetch('/api/user'),
-  fetch('/api/config') // even if this fails, user data is still usable
-]).then(results => {
-  const [user, config] = results
-  if (user.status === 'fulfilled') {
-    console.log(user.value)
-  }
-})
-```
-
-#### Promise.race: whichever settles first wins
-
-```js
-Promise.myRace = function(promises) {
-  return new Promise((resolve, reject) => {
-    promises.forEach(p => {
-      Promise.resolve(p)
-        .then(resolve)
-        .catch(reject)
-    })
-  })
-}
-
-// Use case: request timeout
-const requestWithTimeout = (url, timeout = 5000) => {
-  return Promise.myRace([
-    fetch(url),
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Timeout')), timeout)
-    )
-  ])
-}
-```
-
----
-
-### What async/await really is: Generator + auto-executor
-
-#### async is syntactic sugar over Generator
-
-```js
-// async function
-async function fetchData() {
-  const result = await fetch('/api/data')
-  return result
-}
-
-// Roughly equivalent after Babel transpile:
-function fetchData() {
-  return spawn(function* () {
-    const result = yield fetch('/api/data')
-    return result
-  })
-}
-```
-
-#### Implementing the auto-executor `spawn`
-
-```js
-function spawn(gen) {
-  return new Promise((resolve, reject) => {
-    const iterator = gen()
-
-    function step(nextValue) {
-      let result
-      try {
-        result = iterator.next(nextValue)
-      } catch (e) {
-        return reject(e)
-      }
-
-      if (result.done) {
-        return resolve(result.value)
-      }
-
-      // Recurse to keep the Promise chain
-      Promise.resolve(result.value)
-        .then(step)
-        .catch(err => iterator.throw(err))
-    }
-
-    step()
-  })
-}
-```
-
-#### Common async/await pitfalls
-
-```js
-// Pitfall 1: parallel vs serial
-async function loadData() {
-  const a = await fetchA() // must wait for a
-  const b = await fetchB() // serial; total time = a + b
-}
-
-// Correct parallel version:
-async function loadData() {
-  const [a, b] = await Promise.all([fetchA(), fetchB()])
-}
-
-// Pitfall 2: await in a loop
-async function processItems(items) {
-  const results = []
-  for (const item of items) {
-    results.push(await process(item)) // serial
-  }
-  return results
-}
-
-// Correct parallel version:
-async function processItems(items) {
-  return Promise.all(items.map(process))
-}
-```
-
----
+For Promise combinators and failure behavior, see [Promise](../advanced/promise). For the `spawn` auto-runner and serial/parallel `await`, see [async/await](../advanced/async-await).
 
 ### Real-world Iterator / Generator uses
 
@@ -648,7 +487,7 @@ const HeavyComponent = React.lazy(() => import('./HeavyComponent'))
 >
 > Under the hood, `async` functions compile to a Generator plus an auto-executor. Each `await` yields a Promise; the executor recursively calls `.then()` to keep the Promise chain going.
 >
-> **Common pitfall**: `await` in a loop becomes serial. Use `Promise.all` to run in parallel.
+> For dependent and independent tasks, see [serial and parallel `await`](../advanced/async-await#4-common-pitfall-serial-vs-parallel).
 
 ---
 
@@ -658,3 +497,25 @@ const HeavyComponent = React.lazy(() => import('./HeavyComponent'))
 - [MDN async/await](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function)
 - [MDN Iterator](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Iteration_protocols)
 - [ES Module specification](https://tc39.es/ecma262/#sec-modules)
+
+## Daily practice reference
+
+### Day 2: Must-know ES6 points
+
+- `let / const` + block scope + TDZ.
+- Arrow functions: no independent `this / arguments / prototype`, cannot `new`.
+- Destructuring + default values.
+- `Promise`: states are irreversible `pending -> fulfilled / rejected`.
+- `class`: syntactic sugar over prototype inheritance; methods live on `prototype` by default and are non-enumerable.
+- ES Modules: static analysis, live bindings, `import` is hoisted, strict mode by default.
+- `Set / Map / WeakMap / WeakSet`: deduping, keys of any type, weak refs to avoid leaks.
+
+### Day 2: ESM vs CommonJS
+
+| Dimension | CommonJS | ES Module |
+|------|----------|-----------|
+| Load timing | runtime | compile-time static analysis |
+| Export | copy of the value | live binding (a reference) |
+| Top-level `this` | `module.exports` | `undefined` |
+| Async | synchronous | top-level `await` supported |
+| Tree-shaking | unfriendly | friendly |

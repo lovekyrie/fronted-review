@@ -376,3 +376,85 @@ div {
 ```
 
 > **面试追问**：一个 `position: absolute` 的元素，它的 containing block 是谁？——距离最近的 `position: relative/absolute/fixed` 的祖先元素，如果没有则是 ICB（初始包含块）。
+
+## 每日练习参考
+
+### Day 8：BFC（块格式化上下文）
+
+触发条件：
+
+- `overflow` 不为 `visible`（如 `hidden / auto`）
+- `display: flow-root`（最干净的方式）
+- `float` 不为 `none`
+- `position: absolute / fixed`
+- `display: inline-block / flex / grid`
+
+应用场景：
+
+- 清除浮动（父容器 `display: flow-root`）。
+- 阻止 margin 折叠。
+- 自适应两栏布局（BFC 不与浮动元素重叠）。
+
+### Day 8：Flex 布局
+
+```text
+主轴 (main axis)   →   justify-content  控制主轴对齐
+交叉轴 (cross axis) →   align-items      控制交叉轴对齐
+```
+
+常用属性：
+
+- `flex: 1` = `flex-grow: 1; flex-shrink: 1; flex-basis: 0%`
+- `gap`：替代 margin 做间距，更简洁。
+- `order`：调整子项排列顺序。
+
+### Day 8：Grid 布局
+
+```css
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+```
+
+- `fr` 单位：按比例分配剩余空间。
+- `grid-template-areas`：命名区域，适合复杂页面布局。
+- `minmax(200px, 1fr)`：响应式列宽。
+
+### Day 8：三栏布局对比
+
+```css
+/* 方案 1：Flex（推荐） */
+.container { display: flex; }
+.left { width: 200px; }
+.center { flex: 1; }
+.right { width: 200px; }
+
+/* 方案 2：Grid */
+.container {
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+}
+
+/* 方案 3：浮动 + BFC */
+.left { float: left; width: 200px; }
+.right { float: right; width: 200px; }
+.center { overflow: hidden; /* BFC 不与浮动重叠 */ }
+```
+
+### Day 8：水平垂直居中（4 种）
+
+```css
+/* 1. Flex */
+.parent { display: flex; justify-content: center; align-items: center; }
+
+/* 2. Grid */
+.parent { display: grid; place-items: center; }
+
+/* 3. 绝对定位 + transform */
+.child { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+/* 4. 绝对定位 + margin: auto */
+.child { position: absolute; inset: 0; margin: auto; width: 100px; height: 100px; }
+```

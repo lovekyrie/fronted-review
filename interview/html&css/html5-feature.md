@@ -240,4 +240,14 @@ if (navigator.geolocation) {
    - Canvas适合游戏和动画
    - SVG适合图标和图表
    - Canvas性能更好
-   - SVG可缩放不失真 
+   - SVG可缩放不失真
+
+## 每日练习参考
+
+### Day 9：HTML5 新特性速记
+
+- `<canvas>` / `<svg>`：绘图。
+- `<video>` / `<audio>`：多媒体。
+- `<input type="date/email/range">`：表单增强。
+- `localStorage / sessionStorage`：本地存储。
+- `Geolocation / Drag & Drop / Web Worker`：设备能力。

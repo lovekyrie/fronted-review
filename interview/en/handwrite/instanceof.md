@@ -15,3 +15,21 @@ function selfInstanceof(left, right) {
   }
 }
 ```
+
+## Daily practice reference
+
+### Day 11: myInstanceof
+
+```js
+function myInstanceof(obj, Ctor) {
+  if (obj == null || typeof obj !== 'object' && typeof obj !== 'function') {
+    return false
+  }
+  let proto = Object.getPrototypeOf(obj)
+  while (proto !== null) {
+    if (proto === Ctor.prototype) return true
+    proto = Object.getPrototypeOf(proto)
+  }
+  return false
+}
+```

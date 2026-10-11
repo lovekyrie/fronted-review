@@ -176,3 +176,5 @@ module.exports = {
 4. **When to pick**: new / small / Vue 3 apps → Vite; large legacy / heavy custom → Webpack.
 
 > **Bonus**: mention esbuild dep pre-bundling, and that Rolldown is becoming Vite’s production core.
+
+## Daily practice reference

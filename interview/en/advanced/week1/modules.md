@@ -269,3 +269,76 @@ When asked about modularization, do not only recite names along a historical tim
 4. finally: module boundary design in real engineering
 
 That upgrades the answer from "knows the terms" to "understands the engineering meaning".
+
+## Daily practice reference
+
+### Day 15: Module-spec comparison
+
+| Dimension | ESM | CommonJS | UMD |
+|------|-----|----------|-----|
+| Syntax | `import / export` | `require / module.exports` | IIFE wrapper |
+| Load timing | Compile-time static analysis | Runtime dynamic execution | Runtime |
+| Value binding | live binding (reference) | value copy | depends on the inner implementation |
+| Circular deps | Can see the latest value | Gets a snapshot at that moment of execution | — |
+| tree-shaking | ✅ supported | ❌ not supported | ❌ |
+| Native in browser | ✅ `<script type="module">` | ❌ needs bundling | ❌ needs bundling |
+
+### Day 15: ESM core traits
+
+- **Static structure**: `import / export` must be at the top level, not inside `if`. That lets bundlers analyze the dependency graph at compile time.
+- **live binding**: what you import is a binding (reference); after the exporting module mutates the value, importers see the latest value.
+- **Strict mode**: ESM is strict by default; no `"use strict"` needed.
+- **Async loading**: dynamic `import()` returns a Promise.
+
+### Day 15: CJS core traits
+
+- **Dynamic execution**: `require()` can appear anywhere and supports conditional imports.
+- **Value copy**: `module.exports` exports a copy of the value; later mutations do not affect importers.
+- **Synchronous loading**: fits Node.js on the server, not browsers.
+- **Cache**: the first `require` caches the result; later calls return the cache.
+
+### Day 15: Interop in Node.js
+
+- `.mjs` files are forced ESM; `.cjs` files are forced CJS.
+- `"type": "module"` in `package.json` makes `.js` default to ESM.
+- ESM can `import` CJS modules (taking `module.exports` as the default export).
+- CJS cannot `require` ESM modules directly (needs dynamic `import()`).
+
+### Day 15: ESM live binding demo
+
+```js
+// counter.mjs
+export let count = 0
+export function increment() { count++ }
+
+// main.mjs
+import { count, increment } from './counter.mjs'
+console.log(count)   // 0
+increment()
+console.log(count)   // 1  ← live binding, you see the latest value
+
+// With CJS, the second console.log would still be 0 (value copy)
+```
+
+### Day 15: Circular-dependency behavior comparison
+
+```js
+// === CJS circular dependency ===
+// a.js
+exports.loaded = false
+const b = require('./b.js')  // runs b.js
+console.log('b.loaded:', b.loaded)  // true
+exports.loaded = true
+
+// b.js
+const a = require('./a.js')  // gets a's partial exports (loaded = false)
+console.log('a.loaded:', a.loaded)  // false ← value-copy snapshot
+exports.loaded = true
+
+// === ESM circular dependency ===
+// a.mjs
+import { loaded as bLoaded } from './b.mjs'
+export let loaded = false
+console.log('b.loaded:', bLoaded)  // true (live binding)
+loaded = true
+```

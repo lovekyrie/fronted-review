@@ -434,3 +434,174 @@ React 19 的很多能力也要放在并发和异步 UI 的背景下理解。
 9. 对外部 store，要用 `useSyncExternalStore` 这类协议保证并发安全
 
 这样回答能把 Fiber、scheduler、lanes、transition、Suspense 和 Effect 约束串成一条完整链路。
+
+## 每日练习参考
+
+### Day 43：Fiber 架构
+
+- Fiber 是 React 的工作单元，每个组件对应一个 Fiber 节点。
+- Fiber 树是链表结构：`child` / `sibling` / `return`（parent）。
+- 核心价值：让 render 阶段可以**中断 / 恢复 / 复用**。
+
+### Day 43：React 更新两阶段
+
+| 阶段 | 作用 | 可中断 | 涉及 |
+|------|------|--------|------|
+| **Render** | 遍历 Fiber 树，调用组件函数，计算新 VNode，diff 标记变更（effectTag） | ✅ 可中断 | `beginWork` / `completeWork` |
+| **Commit** | 把变更同步到真实 DOM | ❌ 不可中断 | `BeforeMutation` / `Mutation` / `Layout` |
+
+Commit 三个子阶段：
+- **BeforeMutation**：`getSnapshotBeforeUpdate`、调度 `useEffect`。
+- **Mutation**：实际 DOM 操作（增删改）。
+- **Layout**：`useLayoutEffect` / `componentDidMount` / `componentDidUpdate`。
+
+### Day 43：自动批处理（React 18）
+
+| 场景 | React 17 | React 18 |
+|------|----------|----------|
+| 事件处理函数 | ✅ 批处理 | ✅ 批处理 |
+| Promise.then | ❌ 不批处理 | ✅ 批处理 |
+| setTimeout | ❌ 不批处理 | ✅ 批处理 |
+| 原生事件 | ❌ 不批处理 | ✅ 批处理 |
+
+React 18 用 `createRoot` 启用，所有场景自动批处理。`flushSync` 可以跳出批处理。
+
+### Day 43：Lanes 优先级模型
+
+```text
+SyncLane（同步）> InputContinuousLane（连续输入）> DefaultLane（默认）> IdleLane（空闲）
+```
+
+- 每个更新带一个 lane，调度器根据 lane 决定执行优先级。
+- `startTransition` 把更新标记为低优先级（TransitionLane），可被高优先级中断。
+
+### Day 43：React 更新完整链路
+
+```text
+setState(newValue)
+  → 创建 Update 对象，挂到 Fiber.updateQueue
+  → scheduleUpdateOnFiber(fiber, lane)
+  → ensureRootIsScheduled → 根据 lane 选择调度方式
+    → Sync: 微任务调度
+    → Concurrent: MessageChannel / scheduler
+  → Render 阶段:
+    → workLoopSync / workLoopConcurrent
+    → beginWork: 调用组件函数，diff children，标记 effectTag
+    → completeWork: 收集 effect 链表
+  → Commit 阶段:
+    → BeforeMutation: 调度 useEffect
+    → Mutation: DOM 操作
+    → Layout: useLayoutEffect 同步执行
+```
+
+### Day 43：批处理对比
+
+```jsx
+function handleClick() {
+  setCount(1)  // 不立即 re-render
+  setFlag(true) // 不立即 re-render
+  // 事件结束后统一 re-render 一次
+}
+
+// React 17 中 setTimeout 不批处理：
+setTimeout(() => {
+  setCount(1)  // re-render
+  setFlag(true) // re-render  → 共 2 次
+}, 0)
+
+// React 18 自动批处理：只 1 次 re-render
+```
+
+### Day 47：并发渲染核心概念
+
+- **不是多线程**，是单线程下的**可中断调度**。
+- 高优先级更新（用户输入）可以中断低优先级更新（列表渲染）。
+- 中断后低优先级更新不会丢失，会在空闲时恢复。
+
+### Day 47：useTransition
+
+```jsx
+const [isPending, startTransition] = useTransition()
+
+function handleChange(e) {
+  // 紧急更新：输入框立即响应
+  setInput(e.target.value)
+  // 非紧急更新：结果列表可以延后
+  startTransition(() => {
+    setSearchResults(filterData(e.target.value))
+  })
+}
+```
+
+- `startTransition` 内的 setState 被标记为 TransitionLane（低优先级）。
+- `isPending` 为 true 时可以显示加载指示器。
+- 如果用户继续输入，之前的 transition 渲染会被中断。
+
+### Day 47：useDeferredValue
+
+```jsx
+const deferredQuery = useDeferredValue(query)
+// deferredQuery 会"延后"更新，保证当前帧优先处理紧急更新
+```
+
+- 和 `useTransition` 的区别：`useTransition` 在**触发方**标记低优先级，`useDeferredValue` 在**消费方**延迟使用值。
+- 适合无法控制 setState 触发方的场景（如 props 传入的值）。
+
+### Day 47：选型指南
+
+| 场景 | 选择 |
+|------|------|
+| 你控制 setState | `useTransition` |
+| 值来自 props/外部 | `useDeferredValue` |
+| 需要 loading 状态 | `useTransition`（有 `isPending`） |
+
+### Day 47：Suspense 协同
+
+```jsx
+<Suspense fallback={<Loading />}>
+  <SearchResults query={deferredQuery} />
+</Suspense>
+```
+
+- Transition + Suspense：低优先级渲染触发 suspend 时，显示旧 UI 而不是 fallback。
+- 用户体验更好：输入框流畅，旧结果保持可见直到新结果就绪。
+
+### Day 47：搜索框完整示例
+
+```jsx
+function SearchPage() {
+  const [input, setInput] = useState('')
+  const [isPending, startTransition] = useTransition()
+  const [results, setResults] = useState([])
+
+  function handleChange(e) {
+    setInput(e.target.value)  // 紧急：输入框立即响应
+    startTransition(() => {
+      // 非紧急：大量数据过滤
+      setResults(hugeList.filter(item => item.includes(e.target.value)))
+    })
+  }
+
+  return (
+    <>
+      <input value={input} onChange={handleChange} />
+      {isPending && <Spinner />}
+      <ul>
+        {results.map(r => <li key={r}>{r}</li>)}
+      </ul>
+    </>
+  )
+}
+```
+
+### Day 47：并发调度流程
+
+```text
+用户输入 'a'
+  → SyncLane: setInput('a') → 立即 render 输入框
+  → TransitionLane: setResults(filter) → 开始 render 列表
+用户继续输入 'ab'（列表还在渲染中）
+  → SyncLane: setInput('ab') → 中断列表 render → 立即 render 输入框
+  → TransitionLane: setResults(filter('ab')) → 丢弃之前的 render，重新开始
+最终：输入框始终流畅，列表只渲染最终结果
+```

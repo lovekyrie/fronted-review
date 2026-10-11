@@ -61,3 +61,114 @@ function scheduleLargeTask<T>(tasks: T[], run: (task: T) => void) {
 2. Combine: virtual list cuts DOM, time slicing cuts long tasks.
 3. Edges: variable height, fast scroll, recycling, stable keys.
 4. Metrics: FPS, long-task count, first paint.
+
+## Daily practice reference
+
+### Day 72: Core idea
+
+```text
+10,000 rows, only ~20 DOM nodes in the viewport.
+On scroll, swap viewport content and use padding/transform to keep the scroll height.
+```
+
+### Day 72: Fixed-height math
+
+| Variable | Formula |
+|------|------|
+| Total height | `totalHeight = itemCount * itemHeight` |
+| Start index | `startIndex = Math.floor(scrollTop / itemHeight)` |
+| End index | `endIndex = startIndex + Math.ceil(containerHeight / itemHeight)` |
+| Offset | `offset = startIndex * itemHeight` |
+
+### Day 72: Three tiers
+
+| Tier | Traits | Complexity |
+|----|------|--------|
+| **Fixed height** | Every row has a fixed height; compute directly | Low |
+| **Dynamic height** | Estimate first, measure real height after render, cache it | Medium |
+| **Dynamic + buffer** | Extra buffer rows above/below to cut blank flashes | High |
+
+### Day 72: Buffer strategy
+
+```text
+buffer = 5 rows
+Actual render range = [startIndex - buffer, endIndex + buffer]
+→ Fast scrolling does not blank the viewport
+```
+
+### Day 72: Fixed-height core
+
+```vue
+<template>
+  <div class="viewport" :style="{ height: containerHeight + 'px', overflow: 'auto' }" @scroll="onScroll">
+    <div class="spacer" :style="{ height: totalHeight + 'px' }">
+      <div class="visible" :style="{ transform: `translateY(${offset}px)` }">
+        <div v-for="item in visibleItems" :key="item.id" :style="{ height: itemHeight + 'px' }">
+          {{ item.text }}
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+
+const props = defineProps<{ items: any[]; itemHeight: number; containerHeight: number }>()
+const scrollTop = ref(0)
+const buffer = 5
+
+const totalHeight = computed(() => props.items.length * props.itemHeight)
+const startIndex = computed(() => Math.max(0, Math.floor(scrollTop.value / props.itemHeight) - buffer))
+const endIndex = computed(() => Math.min(
+  props.items.length,
+  Math.ceil((scrollTop.value + props.containerHeight) / props.itemHeight) + buffer
+))
+const offset = computed(() => startIndex.value * props.itemHeight)
+const visibleItems = computed(() => props.items.slice(startIndex.value, endIndex.value))
+
+function onScroll(e: Event) {
+  scrollTop.value = (e.target as HTMLElement).scrollTop
+}
+</script>
+```
+
+### Day 72: Dynamic-height idea
+
+```ts
+// estimated height
+const estimatedHeight = 50
+const positions = items.map((_, i) => ({
+  index: i,
+  top: i * estimatedHeight,
+  bottom: (i + 1) * estimatedHeight,
+  height: estimatedHeight,
+}))
+
+// measure real height after render, update positions
+function updatePositions(nodes: HTMLElement[]) {
+  nodes.forEach((node, i) => {
+    const realHeight = node.getBoundingClientRect().height
+    const diff = realHeight - positions[startIndex + i].height
+    positions[startIndex + i].height = realHeight
+    positions[startIndex + i].bottom += diff
+    // shift all later items down by diff
+    for (let j = startIndex + i + 1; j < positions.length; j++) {
+      positions[j].top += diff
+      positions[j].bottom += diff
+    }
+  })
+}
+
+// binary-search startIndex
+function findStartIndex(scrollTop: number): number {
+  let low = 0, high = positions.length - 1
+  while (low <= high) {
+    const mid = (low + high) >> 1
+    if (positions[mid].bottom <= scrollTop) low = mid + 1
+    else if (positions[mid].top > scrollTop) high = mid - 1
+    else return mid
+  }
+  return low
+}
+```

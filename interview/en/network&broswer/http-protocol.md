@@ -264,3 +264,36 @@ Key chain:
 - Authentication: verifies the server identity via the certificate chain.
 
 > In interviews, add one more sentence: HTTPS does not prevent business-logic vulnerabilities; it protects the transport path.
+
+## Daily practice reference
+
+### Day 6: HTTP version differences
+
+| Version | Core traits | Problem it solves |
+|------|----------|------------|
+| HTTP/1.1 | persistent connections, pipelining | fewer TCP handshakes, but still HOL blocking |
+| HTTP/2 | multiplexing, header compression (HPACK), server push | application-layer HOL blocking |
+| HTTP/3 | QUIC (UDP-based), 0-RTT connections | transport-layer HOL blocking |
+
+### Day 6: Common status codes
+
+- **200**: success. **204**: success with no content. **206**: range request.
+- **301**: permanent redirect. **302**: temporary redirect. **304**: not modified (negotiation cache hit).
+- **400**: bad request. **401**: unauthenticated. **403**: forbidden. **404**: not found.
+- **500**: internal server error. **502**: bad gateway. **504**: gateway timeout.
+
+### Day 6: From entering a URL to displaying the page
+
+```text
+1. User enters a URL
+2. DNS lookup (browser cache → OS cache → hosts → recursive query)
+3. TCP three-way handshake + TLS handshake (HTTPS)
+4. Send the HTTP request
+5. Server handles it and returns a response
+6. Browser parses HTML → build DOM Tree
+7. Parse CSS → build CSSOM
+8. DOM + CSSOM → Render Tree
+9. Layout (compute geometry)
+10. Paint (draw pixels)
+11. Composite (composite layers, display the page)
+```

@@ -1,24 +1,37 @@
-# Day 14 Basic Mock Interview 2 + Transition Point Session Log
+# Day 14 Basic Mock Interview 2 + Transition Point
 
-## Quick nav
-
-| Today | Topic | Core files |
-|------|------|----------|
-| Day 14 | Basic mock 2 | [14-day sprint](../sprint-14-days), [Top 50 questions](../high-frequency-50), [14 daily oral sets](../daily-oral-sets-14) |
-
-## Today's goals
+## Goals
 
 - Full recap of Day 1–13 weak spots
 - Do a 90-minute combined mock: 45 min JS/browser/network + 20 min HTML/CSS + 15 min handwrite + 10 min framework mental model
 - Produce a *Foundation Weak-Spot List* and *What I Still Lack Before Senior Phase*
 
-## Reading checkpoints
+## Read in order
+
+1. [14-day sprint](../sprint-14-days)
+2. [Top 50 questions](../high-frequency-50)
+3. [14 daily oral sets](../daily-oral-sets-14)
+
+## Practice and self-check
+
+**Checkpoints**
 
 - The point of the second mock is not "more questions"; it is "clear every stuck item from Day 7"
 - The bar for entering the senior phase: **foundation questions no longer stall in large patches**, not "everything memorized"
 - Question bank: `/en/high-frequency-50`
 
-## Cheat sheet / knowledge points
+**Produce or redraw from memory**
+
+- Foundation weak-spot list template
+- Combined mock list (90 minutes)
+- Mock-interview handwrite reference
+
+**Answer aloud without reading a reference answer**
+
+- 1. Mock A: event loop + microtask output
+- 2. Mock B: from entering a URL to showing the page
+
+**Mock format and scoring**
 
 ### Foundation weak-spot list template
 
@@ -58,42 +71,11 @@ Self-score: ✅ fluent / ⚠️ occasional stall / ❌ needs re-learning
 14. React update flow in one sentence
 15. Core value of componentization
 
-## Handwritten code / flowcharts
-
 ### Mock-interview handwrite reference
 
-```js
-// Combined question: a cancelable request helper
-function createCancelableRequest(url) {
-  const controller = new AbortController()
-  const promise = fetch(url, { signal: controller.signal })
-    .then(res => res.json())
+[Reference code](../scenarios/complex-interaction#day-14-practice-code)
 
-  return {
-    promise,
-    cancel: () => controller.abort()
-  }
-}
-
-// Combined question: array to tree
-function arrayToTree(items, parentId = null) {
-  return items
-    .filter(item => item.parentId === parentId)
-    .map(item => ({ ...item, children: arrayToTree(items, item.id) }))
-}
-```
-
-## Oral questions
-
-### 1. Mock A: event loop + microtask output
-
-> Recap reference: find the synchronous code first and run it in order. Code inside a `Promise` constructor is synchronous; `then` callbacks go into the microtask queue. `setTimeout` goes into the macrotask queue. After sync work finishes, drain the microtask queue, then take a macrotask. List the output step by step in that order.
-
-### 2. Mock B: from entering a URL to showing the page
-
-> Recap reference: DNS lookup → TCP three-way handshake → TLS handshake → HTTP request → server response → browser parses HTML/CSS → build DOM + CSSOM → Render Tree → Layout → Paint → Composite. Each step can expand into optimizations (DNS prefetch, HTTP/2, strong cache, async JS loading, compositing layers, etc.).
-
-## 5-minute recording order
+**Recording drill**
 
 Record in this order; do not reorganize on the fly:
 
@@ -107,7 +89,7 @@ Self-check after recording:
 - Can you fully list the steps from URL to page display?
 - Can you naturally string knowledge points together in a project scenario?
 
-## Today's review
+## Recap
 
 *What I still lack before the senior phase*:
 

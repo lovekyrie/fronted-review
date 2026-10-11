@@ -233,3 +233,24 @@ Semantic tags mean building page structure with meaningful HTML elements, so the
    - section: a thematically related content block
    - article can contain section
    - section can contain article
+
+## Daily practice reference
+
+### Day 9: Semantic tags
+
+| Tag | Meaning | Alternative |
+|------|------|----------|
+| `<header>` | page / section header | `<div class="header">` |
+| `<nav>` | navigation | `<div class="nav">` |
+| `<main>` | main content (unique on the page) | `<div class="main">` |
+| `<article>` | independent content (citable) | `<div class="article">` |
+| `<section>` | thematic section | `<div class="section">` |
+| `<aside>` | sidebar / complementary content | `<div class="sidebar">` |
+| `<footer>` | page / section footer | `<div class="footer">` |
+| `<figure>` / `<figcaption>` | illustration + caption | `<div>` + `<p>` |
+
+Three values of semantics:
+
+1. **SEO**: search engines can understand page structure.
+2. **Accessibility**: screen readers can announce page hierarchy correctly.
+3. **Maintainability**: code is more readable in team collaboration.

@@ -202,3 +202,47 @@ CLS 差通常意味着页面结构在“后补内容”。
 4. 最后补一条项目里的优化案例
 
 这样答案会从“知道指标名词”升级成“会做性能治理”。
+
+## 每日练习参考
+
+### Day 59：三大核心指标
+
+| 指标 | 全称 | 衡量 | Good | Needs Improvement | Poor |
+|------|------|------|------|-------------------|------|
+| **LCP** | Largest Contentful Paint | 最大可视元素绘制时间 | ≤ 2.5s | ≤ 4s | > 4s |
+| **INP** | Interaction to Next Paint | 最慢交互的响应延迟 | ≤ 200ms | ≤ 500ms | > 500ms |
+| **CLS** | Cumulative Layout Shift | 累计布局偏移量 | ≤ 0.1 | ≤ 0.25 | > 0.25 |
+
+### Day 59：测量手段
+
+| 工具 | 类型 | 场景 |
+|------|------|------|
+| Lighthouse | 实验室数据 | 开发阶段 |
+| CrUX | 真实用户数据 | 线上监控 |
+| `web-vitals` 库 | RUM | 自定义埋点 |
+| Performance Observer | 浏览器 API | 精细测量 |
+
+### Day 59：LCP 问题诊断树
+
+```text
+LCP > 2.5s
+  ├─ LCP 元素是图片？
+  │   ├─ 图片太大？→ 压缩 / WebP / AVIF / srcset
+  │   ├─ 加载太晚？→ preload / fetchpriority="high"
+  │   └─ CDN 慢？→ 就近节点 / HTTP/2
+  ├─ LCP 元素是文字？
+  │   ├─ CSS 阻塞？→ 内联关键 CSS
+  │   └─ 字体加载慢？→ font-display: swap / preload 字体
+  └─ TTFB 慢？
+      └─ 服务端优化 / SSR / Edge 缓存
+```
+
+### Day 59：web-vitals 埋点
+
+```js
+import { onLCP, onINP, onCLS } from 'web-vitals'
+
+onLCP(metric => sendToAnalytics('LCP', metric))
+onINP(metric => sendToAnalytics('INP', metric))
+onCLS(metric => sendToAnalytics('CLS', metric))
+```

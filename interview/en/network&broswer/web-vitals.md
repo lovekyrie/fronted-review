@@ -202,3 +202,47 @@ If asked about Web Vitals, don’t answer by reciting definitions. A more solid 
 4. Finally add one optimization case from a real project
 
 That upgrades the answer from “knows the metric names” to “can do performance governance.”
+
+## Daily practice reference
+
+### Day 59: Three core metrics
+
+| Metric | Full name | Measures | Good | Needs Improvement | Poor |
+|------|------|------|------|-------------------|------|
+| **LCP** | Largest Contentful Paint | Paint time of the largest visible element | ≤ 2.5s | ≤ 4s | > 4s |
+| **INP** | Interaction to Next Paint | Response delay of the slowest interaction | ≤ 200ms | ≤ 500ms | > 500ms |
+| **CLS** | Cumulative Layout Shift | Cumulative layout-shift amount | ≤ 0.1 | ≤ 0.25 | > 0.25 |
+
+### Day 59: Measurement approaches
+
+| Tool | Type | Scenario |
+|------|------|------|
+| Lighthouse | Lab data | Development |
+| CrUX | Real-user data | Production monitoring |
+| `web-vitals` library | RUM | Custom instrumentation |
+| Performance Observer | Browser API | Fine-grained measurement |
+
+### Day 59: LCP diagnosis tree
+
+```text
+LCP > 2.5s
+  ├─ Is the LCP element an image?
+  │   ├─ Image too large? → compress / WebP / AVIF / srcset
+  │   ├─ Loaded too late? → preload / fetchpriority="high"
+  │   └─ CDN slow? → nearby nodes / HTTP/2
+  ├─ Is the LCP element text?
+  │   ├─ CSS blocking? → inline critical CSS
+  │   └─ Fonts loading slowly? → font-display: swap / preload fonts
+  └─ TTFB slow?
+      └─ Server optimization / SSR / Edge cache
+```
+
+### Day 59: web-vitals instrumentation
+
+```js
+import { onLCP, onINP, onCLS } from 'web-vitals'
+
+onLCP(metric => sendToAnalytics('LCP', metric))
+onINP(metric => sendToAnalytics('INP', metric))
+onCLS(metric => sendToAnalytics('CLS', metric))
+```

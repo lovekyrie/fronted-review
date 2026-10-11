@@ -232,4 +232,25 @@
    - article: 独立的内容块
    - section: 主题相关的内容块
    - article可以包含section
-   - section可以包含article 
+   - section可以包含article
+
+## 每日练习参考
+
+### Day 9：语义化标签
+
+| 标签 | 语义 | 替代方案 |
+|------|------|----------|
+| `<header>` | 页头 / 区块头 | `<div class="header">` |
+| `<nav>` | 导航 | `<div class="nav">` |
+| `<main>` | 主内容（页面唯一） | `<div class="main">` |
+| `<article>` | 独立内容（可被引用） | `<div class="article">` |
+| `<section>` | 主题分区 | `<div class="section">` |
+| `<aside>` | 侧边栏 / 附属内容 | `<div class="sidebar">` |
+| `<footer>` | 页脚 / 区块脚 | `<div class="footer">` |
+| `<figure>` / `<figcaption>` | 插图 + 说明 | `<div>` + `<p>` |
+
+语义化的三个价值：
+
+1. **SEO**：搜索引擎能理解页面结构。
+2. **可访问性**：屏幕阅读器能正确朗读页面层级。
+3. **可维护性**：团队协作时代码可读性更好。

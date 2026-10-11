@@ -684,3 +684,24 @@ new bound() // {} - 新实例没有 name 属性
 - [MDN this](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/this)
 - [You Don't Know JS - this](https://github.com/getify/You-Dont-Know-JS/tree/2nd-ed/scope-closures)
 - [JavaScript 软绑定 polyfill](https://github.com/getify/You-Dont-Know-JS/blob/2nd-ed/this%20%26%20object%20prototypes/ch6.md)
+
+## 每日练习参考
+
+### Day 1：this
+
+`this` 的指向由调用方式决定，不由函数定义位置决定。
+
+常见绑定规则：
+
+1. 默认绑定：普通函数独立调用，非严格模式指向全局对象，严格模式为 `undefined`。
+2. 隐式绑定：作为对象方法调用，`this` 指向调用它的对象。
+3. 显式绑定：通过 `call / apply / bind` 指定 `this`。
+4. `new` 绑定：构造函数调用时，`this` 指向新创建的实例。
+
+优先级：
+
+```text
+new 绑定 > 显式绑定 > 隐式绑定 > 默认绑定
+```
+
+箭头函数没有自己的 `this`，它捕获定义时外层作用域的 `this`，不能通过 `call / apply / bind` 改变。

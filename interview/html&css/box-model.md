@@ -220,4 +220,12 @@ CSS盒模型描述了元素内容、内边距、边框和外边距的布局方�
    - 水平居中：margin: 0 auto
    - 垂直居中：flex布局
    - 绝对定位：transform
-   - Grid布局：place-items: center 
+   - Grid布局：place-items: center
+
+## 每日练习参考
+
+### Day 8：盒模型
+
+- **`content-box`**（默认）：`width` 只包含内容，实际占位 = width + padding + border。
+- **`border-box`**：`width` 包含 content + padding + border，更符合直觉。
+- 工程默认：`*, *::before, *::after { box-sizing: border-box; }`

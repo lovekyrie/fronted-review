@@ -23,3 +23,25 @@ const User = {
 const getCount = User.getCount.myBind(User)
 console.log(getCount())
 ```
+
+## 每日练习参考
+
+### Day 11：myBind
+
+```js
+Function.prototype.myBind = function (thisArg, ...preset) {
+  const originFn = this
+  const boundFn = function (...args) {
+    // new 调用时 this 是 boundFn 的实例，忽略绑定对象
+    return originFn.apply(
+      this instanceof boundFn ? this : thisArg,
+      [...preset, ...args]
+    )
+  }
+  // 继承原函数原型
+  if (originFn.prototype) {
+    boundFn.prototype = Object.create(originFn.prototype)
+  }
+  return boundFn
+}
+```

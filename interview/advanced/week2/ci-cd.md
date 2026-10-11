@@ -371,3 +371,68 @@ CI 关注代码集成后的质量校验和快速反馈，CD 关注通过校验�
 4. 最后补上这条链路还缺什么，以及你会怎么改
 
 这样答案就会从“知道名词”升级成“能负责真实交付流程”。
+
+## 每日练习参考
+
+### Day 22：知识补充
+
+- `on` 决定何时触发 workflow，常见有 `push`、`pull_request`、`workflow_dispatch`，要配合 `branches` 和 `paths` 减少无效执行。
+- `jobs` 默认并行执行；需要顺序依赖时用 `needs`，需要条件控制时用 `if`。
+- `steps` 是一个 job 内部的顺序执行单元，可以使用第三方 action，也可以直接执行 shell 命令。
+- `runner` 是执行环境，GitHub-hosted runner 省维护，自建 runner 适合内网部署、缓存大依赖或特殊环境。
+- `secrets` 用于保存敏感信息，但前端构建时注入到 bundle 的变量仍然会暴露给浏览器，不能把 secret 当客户端密钥。
+- `artifacts` 用来在 job 之间或构建后保存产物，例如 dist、测试报告、覆盖率报告。
+- `environment` 可以给生产/预发加审批、环境变量和保护规则，是发布治理的一部分。
+- CI 的价值不只是自动执行命令，而是把 lint、test、typecheck、build、部署验证变成稳定质量门禁。
+
+### Day 22：动手示例
+
+```yaml
+name: frontend-ci
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  push:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm test
+
+  build:
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+```
+
+```text
+PR -> lint/test/typecheck/build -> 产物/报告
+main push -> 构建制品 -> 部署预发/生产 -> smoke test -> 失败回滚或阻断
+```

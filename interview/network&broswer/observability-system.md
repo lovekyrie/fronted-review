@@ -160,3 +160,13 @@
 - [Web Vitals 核心指标](./web-vitals)
 - [性能优化](../advanced/week6/performance-optimization)
 - [安全专题](../advanced/week6/security)
+
+## 每日练习参考
+
+### Day 75：可观测性三柱
+
+| 柱 | 含义 | 前端工具 |
+|----|------|----------|
+| **Logs** | 错误日志、用户行为日志 | Sentry / 自建 SDK |
+| **Metrics** | 性能指标、业务指标 | web-vitals / PerformanceObserver |
+| **Traces** | 请求链路追踪 | 分布式 trace-id（前后端串联） |

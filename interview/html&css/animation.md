@@ -354,4 +354,60 @@ requestAnimationFrame(() => {
 2. **性能优化**：讲 transform/opacity 走合成层，不触发重排重绘。
 3. **will-change 陷阱**：不能滥用，会导致内存问题。
 4. **读写分离**：用 requestAnimationFrame 避免强制同步布局。
-5. **工具使用**：DevTools Performance 面板看帧率曲线定位问题。 
+5. **工具使用**：DevTools Performance 面板看帧率曲线定位问题。
+
+## 每日练习参考
+
+### Day 9：CSS 动画三类渲染成本
+
+| 属性类型 | 触发阶段 | 成本 | 示例 |
+|----------|----------|------|------|
+| 几何属性 | Layout + Paint + Composite | 最高 | `width / height / top / left / margin` |
+| 外观属性 | Paint + Composite | 中等 | `color / background / box-shadow` |
+| 合成属性 | 仅 Composite | 最低 | `transform / opacity` |
+
+### Day 9：CSS 动画 vs JS 动画
+
+- **CSS `transition` / `animation`**：简单状态切换，浏览器可优化到合成层，性能好。
+- **JS `requestAnimationFrame`**：复杂逻辑控制（暂停、反转、链式），帧同步。
+- **Web Animations API**：结合两者优点，API 简洁，浏览器原生支持。
+
+### Day 9：触发 Layout 的动画 vs 仅 Composite 的动画
+
+```css
+/* ❌ 触发 Layout（每帧都重排） */
+@keyframes move-bad {
+  from { top: 0; }
+  to { top: 100px; }
+}
+.box-bad {
+  position: relative;
+  animation: move-bad 1s infinite;
+}
+
+/* ✅ 仅 Composite（GPU 合成，高性能） */
+@keyframes move-good {
+  from { transform: translateY(0); }
+  to { transform: translateY(100px); }
+}
+.box-good {
+  animation: move-good 1s infinite;
+  will-change: transform;
+}
+```
+
+### Day 9：淡入淡出动画
+
+```css
+.fade-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.fade-enter-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.fade-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+```

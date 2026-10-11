@@ -184,3 +184,129 @@ observer.observe({ entryTypes: ['layout-shift', 'paint'] });
    - Handle JavaScript blocking
    - Optimize resource loading
    - Optimize the critical rendering path
+
+## Daily practice reference
+
+### Day 5: Browser rendering pipeline
+
+```text
+HTML → DOM Tree
+             ↘
+CSS  → CSSOM    → Render Tree → Layout → Paint → Composite
+```
+
+- **Reflow**: geometry changes (`width / height / margin`) retrigger Layout; the most expensive.
+- **Repaint**: appearance changes (`color / background`) without Layout.
+- **Composite**: `transform / opacity` go through the GPU compositor layer, skip Layout and Paint, and are the cheapest.
+
+### Day 5: Full rendering-pipeline diagram
+
+```text
+╔════════╗   ╔════════╗
+║  HTML  ║   ║  CSS   ║
+╚════┬═══╝   ╚════┬═══╝
+     │ parse       │ parse
+     ▼              ▼
+╔════════╗   ╔════════╗
+║DOM Tree║   ║ CSSOM  ║
+╚════┬═══╝   ╚════┬═══╝
+     │              │
+     └──────┬──────┘
+           ▼
+   ╔═══════════╗
+   ║Render Tree║
+   ╚═════┬═════╝
+         ▼
+   Layout → Paint → Composite
+```
+
+### Day 58: 5 steps of the rendering pipeline
+
+```text
+1. Parse: HTML → DOM tree, CSS → CSSOM tree
+2. Style: DOM + CSSOM → Render Tree (does not include display:none)
+3. Layout: compute geometry for each node (position, size)
+4. Paint: generate paint commands (color, border, shadow, etc.)
+5. Composite: merge multiple layers; GPU outputs to the screen
+```
+
+### Day 58: Trigger-level comparison table
+
+| Operation type | Triggered stages | Example properties |
+|----------|----------|----------|
+| **Reflow** | Layout → Paint → Composite | `width / height / margin / padding / display / position / font-size` |
+| **Repaint** | Paint → Composite | `color / background / visibility / box-shadow / border-color` |
+| **Composite only** | Composite | `transform / opacity / will-change` |
+
+### Day 58: Conditions for compositing-layer promotion
+
+- `transform: translateZ(0)` or `translate3d()`
+- `will-change: transform / opacity`
+- `position: fixed` (some browsers)
+- `<video>` / `<canvas>` / `<iframe>`
+- CSS `filter` / `backdrop-filter`
+
+### Day 58: Common operations that trigger reflow
+
+```js
+// Reading layout information forces synchronous reflow (Layout Thrashing)
+el.offsetTop / el.offsetHeight
+el.getBoundingClientRect()
+window.getComputedStyle(el)
+el.scrollTop
+```
+
+### Day 58: Complete rendering pipeline
+
+```text
+HTML bytes → decode → Tokenize → build DOM Tree
+                                     ↓
+CSS bytes → decode → Tokenize → build CSSOM Tree
+                                     ↓
+                              Render Tree (DOM + CSSOM, excluding display:none)
+                                     ↓
+                              Layout (compute geometry)
+                                     ↓
+                              Paint (generate paint commands, by layer)
+                                     ↓
+                              Composite (GPU composites layers, output to screen)
+```
+
+### Day 58: Avoid Layout Thrashing
+
+```js
+// ❌ Alternating reads and writes; each read forces a synchronous reflow
+for (let i = 0; i < items.length; i++) {
+  items[i].style.width = container.offsetWidth + 'px'  // read → write → read → write
+}
+
+// ✅ Batch reads, then batch writes
+const width = container.offsetWidth  // read once
+for (let i = 0; i < items.length; i++) {
+  items[i].style.width = width + 'px'  // write only
+}
+```
+
+### Day 58: Animations that only trigger Composite
+
+```css
+/* ✅ Only triggers the compositing layer; smooth 60fps animation */
+.animate {
+  transform: translateX(100px);
+  opacity: 0.5;
+  will-change: transform, opacity;
+}
+
+/* ❌ Triggers reflow; poor performance */
+.animate-bad {
+  left: 100px;  /* triggers Layout */
+  width: 200px; /* triggers Layout */
+}
+```
+
+### Day 5: Conditions that create a compositor layer
+
+- `transform: translate3d()` / `will-change: transform`
+- `opacity` animations
+- `<video>` / `<canvas>` / `<iframe>`
+- `position: fixed` (some browsers)

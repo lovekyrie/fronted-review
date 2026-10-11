@@ -479,3 +479,171 @@ When asked about TypeScript, do not start with "what are the basic types". A mor
 4. finally add one piece of experience: how to avoid `any` spreading, and how to design APIs that infer better
 
 That is how the answer upgrades from "can use TypeScript" to "can use the type system to design frontend code".
+
+## Daily practice reference
+
+### Day 50: type vs interface
+
+| Dimension | `type` | `interface` |
+|------|--------|-------------|
+| Union types | ✅ `type A = B \| C` | ❌ |
+| Intersection types | ✅ `type A = B & C` | ✅ extends multiple |
+| Tuples | ✅ `type T = [string, number]` | ❌ |
+| Declaration merging | ❌ | ✅ same name merges automatically |
+| Computed properties | ✅ mapped types | ❌ |
+| extends | ❌ | ✅ `interface A extends B` |
+
+How to choose: use `interface` for object shapes (extensible); use `type` for unions, tuples, and utility types.
+
+### Day 50: Literal types + widening
+
+```ts
+let a = 'hello'        // type: string (widened)
+const b = 'hello'      // type: 'hello' (literal)
+const c = { x: 1 }     // type: { x: number } (object fields widen)
+const d = { x: 1 } as const  // type: { readonly x: 1 } (as const locks it)
+```
+
+### Day 50: Union narrowing
+
+```ts
+// typeof
+function fn(x: string | number) {
+  if (typeof x === 'string') { /* x: string */ }
+}
+
+// instanceof
+if (x instanceof Date) { /* x: Date */ }
+
+// in
+if ('name' in x) { /* x: { name: ... } */ }
+
+// discriminated union (most recommended)
+type Result = { ok: true; data: string } | { ok: false; error: string }
+function handle(r: Result) {
+  if (r.ok) { r.data }    // TypeScript narrows automatically
+  else { r.error }
+}
+```
+
+### Day 50: Intersection types
+
+```ts
+type A = { name: string }
+type B = { age: number }
+type C = A & B  // { name: string; age: number }
+
+// Note: intersecting primitive types yields never
+type D = string & number  // never
+```
+
+### Day 50: 5 demos
+
+```ts
+// 1. Literal types
+type Direction = 'up' | 'down' | 'left' | 'right'
+
+// 2. as const
+const routes = ['/', '/about', '/contact'] as const
+type Route = (typeof routes)[number]  // '/' | '/about' | '/contact'
+
+// 3. discriminated union
+type Shape =
+  | { kind: 'circle'; radius: number }
+  | { kind: 'rect'; width: number; height: number }
+
+function area(s: Shape): number {
+  switch (s.kind) {
+    case 'circle': return Math.PI * s.radius ** 2
+    case 'rect': return s.width * s.height
+  }
+}
+
+// 4. Merge with an intersection type
+type WithTimestamp<T> = T & { createdAt: Date; updatedAt: Date }
+type User = WithTimestamp<{ name: string; email: string }>
+
+// 5. exhaustive check
+function assertNever(x: never): never {
+  throw new Error('Unexpected: ' + x)
+}
+```
+
+### Day 51: Three motivations for using generics
+
+1. **Input-output correlation**: the parameter type determines the return type (`function identity<T>(x: T): T`).
+2. **Container abstraction**: generic containers such as `Array<T>`, `Promise<T>`, and `Ref<T>`.
+3. **Constrained but flexible**: `extends` limits the range, while the concrete type is decided by the caller.
+
+### Day 51: Generic constraints
+
+```ts
+// Basic constraint
+function getLength<T extends { length: number }>(x: T): number {
+  return x.length
+}
+
+// keyof constraint
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key]
+}
+
+// Multiple generics working together
+function merge<T extends object, U extends object>(a: T, b: U): T & U {
+  return { ...a, ...b }
+}
+```
+
+### Day 51: Generic defaults
+
+```ts
+type ApiResponse<T = unknown> = {
+  code: number
+  data: T
+  message: string
+}
+// You can omit the argument: ApiResponse → data: unknown
+// Or specify it: ApiResponse<User> → data: User
+```
+
+### Day 51: Inference direction
+
+```ts
+// ✅ Let TypeScript infer from arguments; no need to pass the generic manually
+function first<T>(arr: T[]): T | undefined { return arr[0] }
+const x = first([1, 2, 3])  // T is inferred as number automatically
+
+// ❌ Avoid: forcing the caller to pass the generic manually
+const y = first<number>([1, 2, 3])
+```
+
+### Day 51: Three generic utility functions
+
+```ts
+// 1. pick: pick specified keys from an object
+function pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+  const result = {} as Pick<T, K>
+  keys.forEach(key => { result[key] = obj[key] })
+  return result
+}
+
+// 2. pluck: extract a key's values from an array of objects
+function pluck<T, K extends keyof T>(arr: T[], key: K): T[K][] {
+  return arr.map(item => item[key])
+}
+
+// 3. deepMerge (simplified)
+function deepMerge<T extends object, U extends object>(target: T, source: U): T & U {
+  const result = { ...target } as T & U
+  for (const key in source) {
+    const sv = source[key]
+    const tv = (result as any)[key]
+    if (typeof sv === 'object' && sv !== null && typeof tv === 'object' && tv !== null) {
+      (result as any)[key] = deepMerge(tv, sv)
+    } else {
+      (result as any)[key] = sv
+    }
+  }
+  return result
+}
+```

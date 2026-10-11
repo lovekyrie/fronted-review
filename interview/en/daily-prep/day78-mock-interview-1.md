@@ -1,24 +1,39 @@
 # Day 78 mock interview 1 (pure tech) — execution log
 
-## Quick nav
-
-| Today | Topic | Core files |
-|------|------|----------|
-| Day 78 | Mock 1 | [High-frequency 50](../high-frequency-50), [Week 8 question bank](../advanced/week8/question-bank) |
-
-## Today's goals
+## Goals
 
 - 90-minute self-mock or with a friend: pure tech
 - Coverage: JS basics 20min + framework internals 25min + engineering 20min + scenarios 15min + handwritten 10min
 - Record the whole session; after, tag how you did on each question
 
-## Reading checkpoints
+## Read in order
+
+1. [High-frequency 50](../high-frequency-50)
+2. [Week 8 question bank](../advanced/week8/question-bank)
+
+## Practice and self-check
+
+**Checkpoints**
 
 - A mock is not “do more questions”; it is “force an answer structure”
 - On a question you do not know, practice a **structured admission**: “I have no direct production experience with X, but I know it is a Y-class problem; the usual approach is…”
 - After each answer, volunteer a follow-up so you are not only reacting
 
-## Cheat sheet / knowledge
+**Produce or redraw from memory**
+
+- Scoring rubric
+- Time split
+- When you do not know
+- Common handwritten list
+- Handwritten recap template
+
+**Answer aloud without reading a reference answer**
+
+- Question 1: What is a closure? Where is it used?
+- Question 2: Vue 3 reactivity?
+- Questions 3–N
+
+**Mock format and scoring**
 
 ### Scoring rubric
 
@@ -49,8 +64,6 @@ Example: "I have not shipped micro-frontends, but I know they mainly solve indep
       Common options are qiankun and Module Federation: qiankun is a runtime sandbox, MF shares at build time.
       I have read qiankun source and understand the Proxy sandbox."
 ```
-
-## Handwritten / flow
 
 ### Common handwritten list
 
@@ -84,25 +97,7 @@ Corrected:
 Time: X min (target under 5 min)
 ```
 
-## Spoken questions (mock log)
-
-### Question 1: What is a closure? Where is it used?
-
-> Live recap: (fill after the mock)
->
-> Corrected: A closure is a function plus a reference to its lexical environment. The inner function closes over outer variables; those variables survive after the outer function returns. Uses: module pattern, private state, factories, caches (memoize). Watch memory leaks.
-
-### Question 2: Vue 3 reactivity?
-
-> Live recap: (fill after the mock)
->
-> Corrected: Proxy instead of Object.defineProperty. reactive uses Proxy on get/set: get → track (effect → dep), set → trigger. ref wraps primitives. computed is a lazy effect + dirty flag.
-
-### Questions 3–N
-
-> (fill after the mock with the actual questions)
-
-## 5-minute recording order
+**Recording drill**
 
 Record in this order; do not reorganize on the fly:
 
@@ -110,7 +105,7 @@ Record in this order; do not reorganize on the fly:
 2. Re-tell it with the correct structure (2 min)
 3. Contrast the two takes; name the fix (1 min)
 
-## Today's recap
+## Recap
 
 Whole-session score (fill after the mock):
 

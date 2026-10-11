@@ -371,3 +371,68 @@ If you are asked about CI/CD, do not answer by definition only. A more solid str
 4. Finally add what this chain still lacks, and how you would change it
 
 That upgrades the answer from “knows the terms” to “can own a real delivery process”.
+
+## Daily practice reference
+
+### Day 22: Knowledge notes
+
+- `on` decides when a workflow runs. Common events are `push`, `pull_request`, and `workflow_dispatch`; combine them with `branches` and `paths` to reduce useless runs.
+- `jobs` run in parallel by default; use `needs` for sequential dependencies and `if` for conditions.
+- `steps` are sequential units inside a job. You can use a third-party action or run a shell command directly.
+- A `runner` is the execution environment. GitHub-hosted runners need less maintenance; self-hosted runners fit intranet deploys, large caches, or special environments.
+- `secrets` store sensitive values, but variables injected into a frontend bundle are still visible in the browser. Do not treat a secret as a client-side key.
+- `artifacts` keep outputs between jobs or after a build, such as dist, test reports, and coverage reports.
+- `environment` can add approvals, env vars, and protection rules for prod/staging. It is part of release governance.
+- CI is not just automatically running commands. It turns lint, test, typecheck, build, and deploy verification into a stable quality gate.
+
+### Day 22: Practice example
+
+```yaml
+name: frontend-ci
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  push:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm test
+
+  build:
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+```
+
+```text
+PR -> lint/test/typecheck/build -> artifacts/reports
+main push -> build artifacts -> deploy staging/prod -> smoke test -> rollback or block on failure
+```

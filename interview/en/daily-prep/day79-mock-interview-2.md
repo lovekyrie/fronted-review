@@ -1,24 +1,40 @@
 # Day 79 mock interview 2 (mixed round) — execution log
 
-## Quick nav
-
-| Today | Topic | Core files |
-|------|------|----------|
-| Day 79 | Mock 2 | [High-frequency 50](../high-frequency-50), [Week 8 question bank](../advanced/week8/question-bank) |
-
-## Today's goals
+## Goals
 
 - 90-minute mixed round: 30min tech deep-dive + 30min project + 15min architecture/scenario + 15min HR
 - Stress **structure** on project stories and architecture questions
 - Record the whole session
 
-## Reading checkpoints
+## Read in order
+
+1. [High-frequency 50](../high-frequency-50)
+2. [Week 8 question bank](../advanced/week8/question-bank)
+
+## Practice and self-check
+
+**Checkpoints**
 
 - Mixed rounds test **engineering sense**: when you explain a design, do monitoring / tests / build / deploy / perf show up
 - Project trap: features only, no decisions; “we” instead of “I”
 - Architecture trap: listing options with no trade-off
 
-## Cheat sheet / knowledge
+**Produce or redraw from memory**
+
+- Mixed-round rubric
+- Time split
+- Architecture answer structure
+- Project-story checklist
+- Architecture example: design a frontend tracking system
+
+**Answer aloud without reading a reference answer**
+
+- Question 1: Introduce your most important project (STAR)
+- Question 2: If you designed an XX system, how would you do it?
+- Question 3: Three core HR questions
+- Questions 4–N
+
+**Mock format and scoring**
 
 ### Mixed-round rubric
 
@@ -58,8 +74,6 @@ HR (15min): why you left / plan / salary / reverse questions
 □ Have an "if I did it again" reflection ready
 ```
 
-## Handwritten / flow
-
 ### Architecture example: design a frontend tracking system
 
 ```text
@@ -89,31 +103,7 @@ Edges:
   - SDK errors → try-catch so they never break the product
 ```
 
-## Spoken questions (mock log)
-
-### Question 1: Introduce your most important project (STAR)
-
-> Live recap: (fill after the mock)
->
-> Corrected: Use the Day 76 STAR script, finish in 2 minutes. S + T 15s each, A 60s for 3 core steps, R 30s for numbers.
-
-### Question 2: If you designed an XX system, how would you do it?
-
-> Live recap: (fill after the mock)
->
-> Corrected: Five steps — confirm need → top-level design → key decisions → edges → extensibility. Sketch a diagram.
-
-### Question 3: Three core HR questions
-
-> Self-intro: (fill after the mock)
-> Why you left: (fill after the mock)
-> Salary: (fill after the mock)
-
-### Questions 4–N
-
-> (fill after the mock with the actual questions)
-
-## 5-minute recording order
+**Recording drill**
 
 Record in this order; do not reorganize on the fly:
 
@@ -121,7 +111,7 @@ Record in this order; do not reorganize on the fly:
 2. Weakest architecture question, retold in five steps (2 min)
 3. Recap of the three HR questions (1 min)
 
-## Today's recap
+## Recap
 
 Whole-session scores (fill after the mock):
 

@@ -176,3 +176,5 @@ module.exports = {
 4. **场景选择**：新项目 / 小型项目 / Vue3 项目建议 Vite，大型遗留项目 / 复杂定制建议 Webpack。
 
 > **加分点**：能说出 Vite 的 esbuild 依赖预构建原理，以及 Rolldown 正在成为 Vite 生产构建的核心。
+
+## 每日练习参考

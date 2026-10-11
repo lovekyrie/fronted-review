@@ -160,3 +160,13 @@ A better answer is not “we wired up Sentry and web-vitals”, but:
 - [Web Vitals core metrics](/en/network&broswer/web-vitals)
 - [Performance optimization](/en/advanced/week6/performance-optimization)
 - [Security](/en/advanced/week6/security)
+
+## Daily practice reference
+
+### Day 75: Three pillars
+
+| Pillar | Meaning | Frontend tools |
+|----|------|----------|
+| **Logs** | Error logs, user-behavior logs | Sentry / in-house SDK |
+| **Metrics** | Perf metrics, business metrics | web-vitals / PerformanceObserver |
+| **Traces** | Request tracing | Distributed trace-id (frontend + backend) |

@@ -194,3 +194,16 @@ function reverseString(s) {
 1. Pointer out of bounds and infinite loops (wrong `while (left < right)` condition).
 2. Confusing the initial position of `slow` with the return value `slow + 1` in deduplication problems.
 3. Using a hash map on a sorted-array problem: it works, but does not meet the optimal space requirement.
+
+## Daily practice reference
+
+### Day 10: Four two-pointer scenarios
+
+| Type | Fit for | Typical problems |
+|------|----------|--------|
+| Two ends | sorted arrays, palindrome checks | two-sum (after sorting), 3Sum |
+| Fast / slow | cycle detection, midpoint | linked-list cycle, middle of the list |
+| Sliding window | contiguous substring / subarray | longest substring without repeating chars, minimum window substring |
+| In-place swap | dedup, remove elements | remove duplicates from sorted array, move zeroes |
+
+Core idea: use **monotonicity** so both pointers only move in one direction, dropping O(n²) to O(n).

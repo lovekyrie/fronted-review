@@ -1,7 +1,7 @@
 export const navData = [
   { zh: '高级前端', en: 'Senior Frontend', link: '/advanced/senior-frontend-index' },
   { zh: 'AI Agent', en: 'AI Agent', link: '/ai-agent/' },
-  { zh: '80days', en: '80 Days', link: '/daily-prep/day01-js-foundation-checklist' },
+  { zh: '80 天复习', en: '80 Days', link: '/daily-prep/' },
   { zh: 'JS Core', en: 'JS Core', link: '/jscore/basic/data-type' },
   { zh: 'HTML & CSS', en: 'HTML & CSS', link: '/html&css/layout' },
   { zh: '框架原理', en: 'Frameworks', link: '/framework/vue/vue3' },
@@ -63,6 +63,7 @@ export const sidebarData = {
       zh: '总览',
       en: 'Overview',
       items: [
+        { zh: '80 天总览', en: '80-Day Overview', link: '/daily-prep/' },
         { zh: '每日模板', en: 'Daily Template', link: '/daily-prep/_template' },
       ],
     },
@@ -315,6 +316,7 @@ export const sidebarData = {
         { zh: '判断数据类型', en: 'Type Check', link: '/handwrite/judge-data-type' },
         { zh: 'Object.assign', en: 'Object.assign', link: '/handwrite/object-assign' },
         { zh: 'promisify', en: 'promisify', link: '/handwrite/promisify' },
+        { zh: 'Promise', en: 'Promise', link: '/handwrite/promise' },
       ],
     },
   ],

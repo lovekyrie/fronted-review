@@ -269,3 +269,15 @@ const Greeting = memo(function Greeting({ name }) {
 
 // 父组件更新时，若 name 未变，Greeting 不会重新渲染
 ```
+
+## 每日练习参考
+
+### Day 13：React 更新简图
+
+```text
+setState(newState)
+  → 创建 update 对象入队
+  → scheduleUpdateOnFiber → 进入调度
+  → render phase: 遍历 fiber 树，调用函数组件，生成新 VNode
+  → commit phase: 对比新旧 fiber，最小化 DOM 操作
+```

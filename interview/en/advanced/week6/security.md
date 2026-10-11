@@ -303,3 +303,17 @@ If you are asked about frontend security, do not recite “XSS, CSRF, clickjacki
 4. finally one real engineering trade-off, such as why you cannot rely only on localStorage or only on frontend filtering
 
 That upgrades the answer from “knows attack names” to “understands the security boundary between browser and app”.
+
+## Daily practice reference
+
+### Day 62: Frontend security checklist
+
+```text
+□ Do not render user input with innerHTML / v-html
+□ Cookie: HttpOnly + Secure + SameSite=Lax
+□ Ship a CSP header
+□ Sensitive actions carry a CSRF Token
+□ API origins: CORS allowlist
+□ Third-party scripts: integrity check (SRI)
+□ Avoid eval / new Function / document.write
+```

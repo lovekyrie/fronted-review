@@ -282,3 +282,28 @@ class LRUCache {
 1. 忽略大小写和非字母数字的预处理。
 2. `replace` 默认只替换首个匹配（全局替换需正则 `g` 或 `replaceAll`）。
 3. KMP 的 next 数组边界和回退逻辑容易写错。
+
+## 每日练习参考
+
+### Day 10：字符串高频技巧
+
+- 字符频次统计：用 `Map` 或长度 128 的数组。
+- 回文判断：对撞指针 `left < right`。
+- 子串搜索：优先 `includes` / `indexOf`，手写用滑窗。
+
+### Day 10：无重复最长子串（LeetCode 3）
+
+```js
+function lengthOfLongestSubstring(s) {
+  const map = new Map()
+  let left = 0, maxLen = 0
+  for (let right = 0; right < s.length; right++) {
+    if (map.has(s[right])) {
+      left = Math.max(left, map.get(s[right]) + 1)
+    }
+    map.set(s[right], right)
+    maxLen = Math.max(maxLen, right - left + 1)
+  }
+  return maxLen
+}
+```

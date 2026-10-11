@@ -1,12 +1,12 @@
 # 高级前端 80 天 Daily Prep
 
-沿用 `sprint-14-days` + `advanced/senior-frontend-roadmap` 拆分的每日执行清单。每天一个 `dayN-<slug>.md`，由四段组成：**输入 → 输出 → 演练 → 复盘**。
+沿用 `sprint-14-days` + `advanced/senior-frontend-roadmap` 拆分的每日任务卡。每天一个 `dayN-<slug>.md`，依次完成**目标 → 专题阅读 → 实操与自测 → 复盘**。知识正文维护在专题页；Day 文件只安排当天练习。
 
 ## 使用规则
 
 - 每日预算：**2–3 小时**
 - 技术栈侧重：**Vue 主 / React 副**
-- 每天必须有**可见产出**：速记卡 / 流程图 / 手写片段 / 录音
+- 每天必须有**可见产出**：流程图 / 手写片段 / 测试 / 录音
 - 每 7 天出现一次模拟面或阶段复盘，用来堵漏
 - 模板见 [`_template.md`](./_template)
 
@@ -24,7 +24,21 @@
 | 8. 测试保障 | Day 64–70 | 分层 / Vitest / Playwright | [`advanced/week7`](../advanced/week7/roadmap) |
 | 9. 架构与模拟面 | Day 71–80 | 场景 / 微前端 / 监控 / 模拟面 | [`advanced/week8`](../advanced/week8/roadmap) |
 
-## 每日清单索引
+## 按主题查找
+
+| 主题 | 专题入口 | 对应天数 |
+|------|----------|----------|
+| JS 与浏览器基础 | [JS Core](../jscore/basic/data-type)、[浏览器](../network&broswer/broswer-render) | Day 1–14 |
+| 构建链路 | [模块化](../advanced/week1/modules)、[构建工具](../advanced/week1/build-tools) | Day 15–21 |
+| 部署交付 | [CI/CD](../advanced/week2/ci-cd)、[部署](../advanced/week2/deployment) | Day 22–28 |
+| Vue 原理 | [响应式](../advanced/week3/reactivity)、[渲染机制](../advanced/week3/rendering-mechanism) | Day 29–42 |
+| React 机制 | [Hooks](../advanced/week4/hooks)、[并发](../advanced/week4/concurrency) | Day 43–49 |
+| TypeScript | [基础](../advanced/week5/typescript-basic)、[类型设计](../advanced/week5/typescript-design) | Day 50–56 |
+| 性能与安全 | [性能优化](../advanced/week6/performance-optimization)、[安全](../advanced/week6/security) | Day 57–63 |
+| 测试保障 | [测试策略](../advanced/week7/testing-strategy) | Day 64–70 |
+| 场景与模拟面 | [场景题](../scenarios/)、[面试题库](../advanced/week8/question-bank) | Day 71–80 |
+
+## 按天查找
 
 ### 阶段 1：基础打稳
 

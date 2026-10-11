@@ -282,3 +282,28 @@ class LRUCache {
 1. Skipping preprocessing for case and non-alphanumeric characters.
 2. `replace` only replaces the first match by default (use a regex with `g` or `replaceAll` for a global replace).
 3. KMP next-array boundaries and fallback logic are easy to get wrong.
+
+## Daily practice reference
+
+### Day 10: High-frequency string tricks
+
+- Character frequency: a `Map` or a length-128 array.
+- Palindrome check: two ends with `left < right`.
+- Substring search: prefer `includes` / `indexOf`; handwritten version uses a sliding window.
+
+### Day 10: Longest substring without repeating characters (LeetCode 3)
+
+```js
+function lengthOfLongestSubstring(s) {
+  const map = new Map()
+  let left = 0, maxLen = 0
+  for (let right = 0; right < s.length; right++) {
+    if (map.has(s[right])) {
+      left = Math.max(left, map.get(s[right]) + 1)
+    }
+    map.set(s[right], right)
+    maxLen = Math.max(maxLen, right - left + 1)
+  }
+  return maxLen
+}
+```

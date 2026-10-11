@@ -53,3 +53,16 @@ window.addEventListener('visibilitychange', () => {
 - `sendBeacon` 是异步非阻塞，适合小体积数据，不适合大 payload。
 - `IntersectionObserver` 比 scroll 监听更省性能。
 - `MutationObserver` 要控制观察范围，避免高频回调开销。
+
+## 每日练习参考
+
+### Day 4：sendBeacon
+
+用于在页面卸载时可靠地发送数据，不会因为页面关闭而取消请求：
+
+```js
+// 页面卸载时发送数据，不阻塞页面关闭
+navigator.sendBeacon('/analytics', JSON.stringify({ event: 'pageview' }))
+```
+
+适用场景：埋点上报、统计离开率。

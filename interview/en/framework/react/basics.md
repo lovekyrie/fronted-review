@@ -269,3 +269,15 @@ const Greeting = memo(function Greeting({ name }) {
 
 // When the parent re-renders, Greeting skips render if name is unchanged
 ```
+
+## Daily practice reference
+
+### Day 13: React update sketch
+
+```text
+setState(newState)
+  → create an update object and enqueue it
+  → scheduleUpdateOnFiber → enter scheduling
+  → render phase: walk the fiber tree, call function components, produce new VNodes
+  → commit phase: compare old/new fibers, minimize DOM operations
+```

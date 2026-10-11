@@ -434,3 +434,174 @@ If the interviewer asks about "React concurrency", you can answer in this order:
 9. For external stores, use a protocol such as `useSyncExternalStore` to stay concurrency-safe
 
 This kind of answer strings Fiber, the scheduler, lanes, transitions, Suspense, and Effect constraints into one complete pipeline.
+
+## Daily practice reference
+
+### Day 43: Fiber architecture
+
+- Fiber is React’s unit of work; each component corresponds to a Fiber node.
+- The Fiber tree is a linked structure: `child` / `sibling` / `return` (parent).
+- Core value: the render phase can be **interrupted / resumed / reused**.
+
+### Day 43: React’s two update phases
+
+| Phase | Role | Interruptible | Involves |
+|------|------|--------|------|
+| **Render** | Walk the Fiber tree, call component functions, compute new VNodes, diff and mark changes (effectTag) | ✅ interruptible | `beginWork` / `completeWork` |
+| **Commit** | Sync changes to the real DOM | ❌ not interruptible | `BeforeMutation` / `Mutation` / `Layout` |
+
+Commit has three sub-phases:
+- **BeforeMutation**: `getSnapshotBeforeUpdate`, schedule `useEffect`.
+- **Mutation**: actual DOM operations (insert / delete / update).
+- **Layout**: `useLayoutEffect` / `componentDidMount` / `componentDidUpdate`.
+
+### Day 43: Automatic batching (React 18)
+
+| Scenario | React 17 | React 18 |
+|------|----------|----------|
+| Event handlers | ✅ batched | ✅ batched |
+| Promise.then | ❌ not batched | ✅ batched |
+| setTimeout | ❌ not batched | ✅ batched |
+| Native events | ❌ not batched | ✅ batched |
+
+React 18 enables this with `createRoot`; all scenarios are batched automatically. `flushSync` can opt out of batching.
+
+### Day 43: Lanes priority model
+
+```text
+SyncLane (sync) > InputContinuousLane (continuous input) > DefaultLane (default) > IdleLane (idle)
+```
+
+- Each update carries a lane; the scheduler picks execution priority from the lane.
+- `startTransition` marks an update as low priority (TransitionLane); it can be interrupted by higher priority.
+
+### Day 43: Full React update pipeline
+
+```text
+setState(newValue)
+  → create an Update object, attach it to Fiber.updateQueue
+  → scheduleUpdateOnFiber(fiber, lane)
+  → ensureRootIsScheduled → pick a scheduling method based on lane
+    → Sync: schedule as a microtask
+    → Concurrent: MessageChannel / scheduler
+  → Render phase:
+    → workLoopSync / workLoopConcurrent
+    → beginWork: call the component function, diff children, mark effectTag
+    → completeWork: collect the effect list
+  → Commit phase:
+    → BeforeMutation: schedule useEffect
+    → Mutation: DOM operations
+    → Layout: useLayoutEffect runs synchronously
+```
+
+### Day 43: Batching comparison
+
+```jsx
+function handleClick() {
+  setCount(1)  // does not re-render immediately
+  setFlag(true) // does not re-render immediately
+  // one unified re-render after the event ends
+}
+
+// React 17: setTimeout is not batched:
+setTimeout(() => {
+  setCount(1)  // re-render
+  setFlag(true) // re-render  → 2 times in total
+}, 0)
+
+// React 18 automatic batching: only 1 re-render
+```
+
+### Day 47: Core concurrent-rendering ideas
+
+- **Not multithreading**; it is **interruptible scheduling** on a single thread.
+- High-priority updates (user input) can interrupt low-priority updates (list rendering).
+- Interrupted low-priority work is not lost; it resumes when idle.
+
+### Day 47: useTransition
+
+```jsx
+const [isPending, startTransition] = useTransition()
+
+function handleChange(e) {
+  // Urgent update: the input responds immediately
+  setInput(e.target.value)
+  // Non-urgent update: the result list can wait
+  startTransition(() => {
+    setSearchResults(filterData(e.target.value))
+  })
+}
+```
+
+- setState inside `startTransition` is marked as TransitionLane (low priority).
+- When `isPending` is true you can show a loading indicator.
+- If the user keeps typing, the previous transition render is interrupted.
+
+### Day 47: useDeferredValue
+
+```jsx
+const deferredQuery = useDeferredValue(query)
+// deferredQuery “lags” the update so the current frame can prioritize urgent work
+```
+
+- Difference from `useTransition`: `useTransition` marks low priority on the **trigger**; `useDeferredValue` delays using the value on the **consumer**.
+- Fits cases where you cannot control who calls setState (for example a value from props).
+
+### Day 47: How to choose
+
+| Scenario | Choose |
+|------|------|
+| You control setState | `useTransition` |
+| The value comes from props/outside | `useDeferredValue` |
+| You need a loading state | `useTransition` (has `isPending`) |
+
+### Day 47: Working with Suspense
+
+```jsx
+<Suspense fallback={<Loading />}>
+  <SearchResults query={deferredQuery} />
+</Suspense>
+```
+
+- Transition + Suspense: when a low-priority render suspends, show the old UI instead of the fallback.
+- Better UX: the input stays smooth, and old results stay visible until new results are ready.
+
+### Day 47: Full search-box example
+
+```jsx
+function SearchPage() {
+  const [input, setInput] = useState('')
+  const [isPending, startTransition] = useTransition()
+  const [results, setResults] = useState([])
+
+  function handleChange(e) {
+    setInput(e.target.value)  // urgent: the input responds immediately
+    startTransition(() => {
+      // non-urgent: filter a large dataset
+      setResults(hugeList.filter(item => item.includes(e.target.value)))
+    })
+  }
+
+  return (
+    <>
+      <input value={input} onChange={handleChange} />
+      {isPending && <Spinner />}
+      <ul>
+        {results.map(r => <li key={r}>{r}</li>)}
+      </ul>
+    </>
+  )
+}
+```
+
+### Day 47: Concurrent scheduling flow
+
+```text
+User types 'a'
+  → SyncLane: setInput('a') → immediately render the input
+  → TransitionLane: setResults(filter) → start rendering the list
+User keeps typing 'ab' (the list is still rendering)
+  → SyncLane: setInput('ab') → interrupt list render → immediately render the input
+  → TransitionLane: setResults(filter('ab')) → discard the previous render and start over
+Result: the input stays smooth; the list only renders the final result
+```

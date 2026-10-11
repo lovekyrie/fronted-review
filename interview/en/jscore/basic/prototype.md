@@ -580,3 +580,31 @@ Object.setPrototypeOf(obj, new prototype)
 - [MDN Inheritance and the prototype chain](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain)
 - [MDN class syntax](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Classes)
 - [V8 hidden classes blog](https://v8.dev/blog/elements-kinds)
+
+## Daily practice reference
+
+### Day 1: Prototype chain
+
+Core relationships:
+
+```js
+instance.__proto__ === Constructor.prototype
+Constructor.prototype.constructor === Constructor
+```
+
+Property lookup:
+
+```text
+the object itself
+  -> object.__proto__
+  -> Constructor.prototype
+  -> Object.prototype
+  -> null
+```
+
+What `new` does:
+
+1. Create a new object.
+2. Link the new object’s prototype to the constructor’s `prototype`.
+3. Run the constructor with the new object as `this`.
+4. If the constructor returns an object, return that object; otherwise return the new object.

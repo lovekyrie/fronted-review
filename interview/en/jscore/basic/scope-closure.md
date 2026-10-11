@@ -552,3 +552,129 @@ function process() {
 - [MDN Scope](https://developer.mozilla.org/zh-CN/docs/Glossary/Scope)
 - [V8 closure optimization](https://v8.dev/blog/closures)
 - [Module Pattern in depth](https://addyosmani.com/resources/essentialjsdesignpatterns/ detail/#modulepatternjavascript
+
+## Daily practice reference
+
+### Day 2: Scope and the scope chain
+
+JavaScript uses **lexical scope** (static scope). Scope is fixed when the function is defined, independent of where it is called.
+
+Three kinds of scope:
+
+- Global scope: lasts for the whole program lifetime.
+- Function scope: created by `function`; not visible from the outside.
+- Block scope: created by `let / const / class` inside `{}`.
+
+Scope-chain lookup:
+
+```text
+current scope
+  -> outer function scope
+  -> ...
+  -> global scope
+  -> ReferenceError if not found
+```
+
+### Day 2: Variable declaration comparison
+
+| Dimension | `var` | `let` | `const` |
+|------|-------|-------|---------|
+| Scope | function | block | block |
+| Hoisting | hoisted and initialized to `undefined` | hoisted but has TDZ | hoisted but has TDZ |
+| Redeclaration | allowed | not allowed | not allowed |
+| Reassignment | allowed | allowed | the reference is immutable |
+| Global declaration attached to `window` | yes | no | no |
+
+### Day 2: Closures
+
+Definition: **closure = a function + the outer variable environment it can access at definition time**.
+
+Why they exist: lexical scope + an inner function being held from the outside for a long time, so outer variables cannot be GC’d.
+
+Common uses:
+
+- Data privacy (module pattern).
+- Currying and partial application.
+- Debounce, throttle, and memoize.
+- Keeping each loop iteration’s index.
+
+Leak risks:
+
+- A closure holds a DOM reference + a listener that was never unbound.
+- `setTimeout / setInterval` holds a large object for a long time.
+- Circular references never manually set to `= null`.
+
+### Day 2: Execution context (simplified)
+
+- Creation phase: determine `this`, create the VariableEnvironment and LexicalEnvironment.
+- Execution phase: run line by line and assign values.
+- Call stack: function calls push, returns pop.
+
+### Day 2: Closure counter (classic closure)
+
+```js
+function createCounter() {
+  let count = 0
+  return {
+    inc: () => ++count,
+    dec: () => --count,
+    get: () => count,
+  }
+}
+
+const counter = createCounter()
+counter.inc()
+counter.inc()
+counter.get() // 2
+```
+
+### Day 2: Loop + closure trap and three fixes
+
+```js
+// Problem: var has no block scope, so all 3 callbacks share the same i
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 0) // 3 3 3
+}
+
+// Fix 1: let (a new block scope each iteration)
+for (let i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 0) // 0 1 2
+}
+
+// Fix 2: IIFE to create a closure explicitly
+for (var i = 0; i < 3; i++) {
+  ;(function (j) {
+    setTimeout(() => console.log(j), 0)
+  })(i)
+}
+```
+
+### Day 2: Flowchart: memory leak caused by a closure
+
+```text
+createLeak() runs
+  -> create large object bigData (10MB)
+  -> return inner function fn
+  -> outer fn = createLeak()
+
+createLeak finishes
+  -> but fn still references the closure scope
+  -> the closure scope references bigData
+  -> GC cannot collect bigData
+
+Release: fn = null
+  -> the closure loses its reference
+  -> bigData can be collected
+```
+
+### Day 2: Simplified debounce (a closure use case)
+
+```js
+function debounce(fn, delay) {
+  let timer = null
+  return function (...args) {
+    if (timer) clearTimeout(timer)
+    timer = setTimeout(() => fn.apply(this, args), delay)
+  }
+}
+```

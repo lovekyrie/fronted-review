@@ -160,3 +160,142 @@ function FocusDemo() {
   );
 }
 ```
+
+## Daily practice reference
+
+### Day 48: React 19 new API checklist
+
+| API | Purpose | Replaces |
+|-----|------|------|
+| `useActionState` | Manage an action’s pending/error/result | Handwritten loading + try-catch |
+| `useOptimistic` | Optimistic update + automatic rollback | Handwritten optimistic + rollback |
+| `use` | Read a Promise / Context in render | `useContext` / await + setState |
+| `useFormStatus` | Read the parent `<form>`’s submit status | props drilling |
+| `ref` as prop | Function components receive ref as a prop | `forwardRef` |
+| `<form action>` | Native form support for async actions | onSubmit + preventDefault |
+
+### Day 48: Actions concept
+
+An Action is a function that can be async, used with `<form action={fn}>` or `startTransition`:
+- Automatically manages pending state
+- Automatically handles errors (with Error Boundary)
+- Supports `useOptimistic` for optimistic UI
+- Supports `useFormStatus` to read submit status
+
+### Day 48: useActionState
+
+```jsx
+const [state, formAction, isPending] = useActionState(
+  async (prevState, formData) => {
+    const result = await submitForm(formData)
+    return result  // becomes the next prevState
+  },
+  initialState
+)
+```
+
+- Replaces the old `useState + useEffect + try-catch` pattern.
+- `isPending` automatically tracks the async status.
+- Supports SSR (the action can also run on the server).
+
+### Day 48: useOptimistic
+
+```jsx
+const [optimisticMessages, addOptimistic] = useOptimistic(
+  messages,
+  (currentMessages, newMessage) => [...currentMessages, newMessage]
+)
+```
+
+- `addOptimistic` updates the UI immediately (optimistic value).
+- After the action succeeds, real data overwrites it; on failure it automatically rolls back to `messages`.
+
+### Day 48: use
+
+```jsx
+function UserProfile({ userPromise }) {
+  const user = use(userPromise)  // read the Promise directly in render
+  return <div>{user.name}</div>
+}
+// The outer layer needs a <Suspense> wrapper
+```
+
+- Can be called inside conditionals (unlike other hooks).
+- Can also read Context: `const theme = use(ThemeContext)`.
+
+### Day 48: ref as prop (no more forwardRef)
+
+```jsx
+// React 19: receive ref directly in props
+function Input({ ref, ...props }) {
+  return <input ref={ref} {...props} />
+}
+// No longer needs a forwardRef wrapper
+```
+
+### Day 48: Full form + useActionState + useOptimistic example
+
+```jsx
+function TodoForm({ todos, addTodo }) {
+  const [optimisticTodos, addOptimistic] = useOptimistic(
+    todos,
+    (state, newTodo) => [...state, { text: newTodo, pending: true }]
+  )
+
+  const [error, formAction, isPending] = useActionState(
+    async (prevError, formData) => {
+      const text = formData.get('text')
+      addOptimistic(text)  // show immediately
+      try {
+        await addTodo(text)  // server request
+        return null
+      } catch (e) {
+        return e.message  // fail → rollback + show error
+      }
+    },
+    null
+  )
+
+  return (
+    <>
+      <ul>
+        {optimisticTodos.map((t, i) => (
+          <li key={i} style={{ opacity: t.pending ? 0.5 : 1 }}>{t.text}</li>
+        ))}
+      </ul>
+      <form action={formAction}>
+        <input name="text" />
+        <button disabled={isPending}>
+          {isPending ? 'Adding...' : 'Add'}
+        </button>
+      </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+    </>
+  )
+}
+```
+
+## Day 49 practice code
+
+```jsx
+// actions.ts
+'use server'
+export async function createTodo(formData: FormData) {
+  const text = formData.get('text')
+  await db.todos.create({ text })
+  revalidatePath('/todos')
+}
+
+// TodoForm.tsx
+'use client'
+import { createTodo } from './actions'
+
+export function TodoForm() {
+  return (
+    <form action={createTodo}>
+      <input name="text" />
+      <button type="submit">Add</button>
+    </form>
+  )
+}
+```

@@ -41,3 +41,26 @@ if (selection && selection.rangeCount > 0) {
 - 先说交互一致性（视觉反馈、撤销重做、边界情况）。
 - 再讲性能（最小化 DOM 更新、批量处理）。
 - 最后讲可靠性（数据持久化、异常恢复、输入安全）。
+
+## Day 14 practice code
+
+```js
+// 综合题：实现一个带取消的请求函数
+function createCancelableRequest(url) {
+  const controller = new AbortController()
+  const promise = fetch(url, { signal: controller.signal })
+    .then(res => res.json())
+
+  return {
+    promise,
+    cancel: () => controller.abort()
+  }
+}
+
+// 综合题：数组转树
+function arrayToTree(items, parentId = null) {
+  return items
+    .filter(item => item.parentId === parentId)
+    .map(item => ({ ...item, children: arrayToTree(items, item.id) }))
+}
+```

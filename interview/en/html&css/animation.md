@@ -355,3 +355,59 @@ requestAnimationFrame(() => {
 3. **will-change trap**: Do not overuse it; it can cause memory issues.
 4. **Read/write separation**: Use requestAnimationFrame to avoid forced synchronous layout.
 5. **Tooling**: Use the DevTools Performance panel's frame-rate curve to locate problems.
+
+## Daily practice reference
+
+### Day 9: Three CSS animation cost classes
+
+| Property type | Stages triggered | Cost | Examples |
+|----------|----------|------|------|
+| Geometry | Layout + Paint + Composite | highest | `width / height / top / left / margin` |
+| Appearance | Paint + Composite | medium | `color / background / box-shadow` |
+| Compositor | Composite only | lowest | `transform / opacity` |
+
+### Day 9: CSS animation vs JS animation
+
+- **CSS `transition` / `animation`**: simple state changes; the browser can optimize onto the compositor; good performance.
+- **JS `requestAnimationFrame`**: complex control (pause, reverse, chaining); frame-synced.
+- **Web Animations API**: combines the strengths; concise API; native browser support.
+
+### Day 9: Animations that trigger Layout vs Composite-only
+
+```css
+/* ❌ Triggers Layout (reflow every frame) */
+@keyframes move-bad {
+  from { top: 0; }
+  to { top: 100px; }
+}
+.box-bad {
+  position: relative;
+  animation: move-bad 1s infinite;
+}
+
+/* ✅ Composite only (GPU composite, high performance) */
+@keyframes move-good {
+  from { transform: translateY(0); }
+  to { transform: translateY(100px); }
+}
+.box-good {
+  animation: move-good 1s infinite;
+  will-change: transform;
+}
+```
+
+### Day 9: Fade in / fade out
+
+```css
+.fade-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.fade-enter-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.fade-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+```

@@ -279,3 +279,105 @@ If asked about error monitoring, do not only say “I would integrate Sentry”.
 4. Finally close the loop with alerting, troubleshooting, and rollback
 
 That upgrades the answer from “I can plug in a monitoring SDK” to “I understand a production governance system”.
+
+## Daily practice reference
+
+### Day 75: Error types
+
+| Type | How to catch |
+|------|----------|
+| JS runtime | `window.onerror` / `window.addEventListener('error')` |
+| Unhandled Promise | `window.addEventListener('unhandledrejection')` |
+| Resource load failure | `window.addEventListener('error', ..., true)` (capture phase) |
+| API error | Request interceptor (axios interceptor) |
+| White screen | Periodic DOM sampling / MutationObserver |
+| Framework error | Vue `errorHandler` / React `ErrorBoundary` |
+
+### Day 75: Error-report design
+
+```text
+1. Capture: global listeners + framework hooks
+2. Format: message + stack + user + page URL + time + release
+3. Aggregate: merge by fingerprint so duplicates collapse
+4. Sample: non-P0 errors sampled (10%-100%)
+5. Report: sendBeacon / fetch keepalive (still sends on unload)
+6. Consume: log service → aggregate → alert → SourceMap the stack
+```
+
+### Day 75: When to report
+
+| Method | Scene |
+|------|------|
+| `navigator.sendBeacon(url, data)` | Page unload (preferred) |
+| `fetch(url, { keepalive: true })` | sendBeacon alternative |
+| Buffer + timer | Non-urgent logs (fewer requests) |
+| Immediate | P0 errors (white screen / payment failure) |
+
+### Day 75: SourceMap restore
+
+```text
+Production JS is minified → line numbers in the stack are useless
+→ emit .map at build time, upload to Sentry / log service
+→ reports carry a release → server restores the real stack with source-map
+→ do not publish .map to the CDN (security)
+```
+
+### Day 75: Capture pipeline
+
+```text
+Browser runtime
+  ├─ window.onerror → JS error
+  ├─ unhandledrejection → Promise error
+  ├─ addEventListener('error', capture) → resource load error
+  ├─ Vue errorHandler → component error
+  └─ axios interceptor → API error
+       ↓
+SDK formats
+  { message, stack, url, line, col, release, userId, timestamp }
+       ↓
+Aggregate + sample (fingerprint dedupe, 10% sample for non-P0)
+       ↓
+sendBeacon / fetch keepalive
+       ↓
+Log service (Elasticsearch / ClickHouse)
+       ↓
+SourceMap restore + alert (DingTalk / email)
+```
+
+### Day 75: Minimal error SDK
+
+```ts
+class ErrorTracker {
+  private buffer: any[] = []
+  private timer: ReturnType<typeof setTimeout> | null = null
+
+  init() {
+    window.onerror = (msg, url, line, col, error) => {
+      this.report({ type: 'js', message: String(msg), stack: error?.stack, url, line, col })
+    }
+    window.addEventListener('unhandledrejection', (e) => {
+      this.report({ type: 'promise', message: String(e.reason) })
+    })
+    window.addEventListener('error', (e) => {
+      if (e.target && (e.target as any).src) {
+        this.report({ type: 'resource', url: (e.target as any).src })
+      }
+    }, true)
+  }
+
+  report(data: Record<string, any>) {
+    this.buffer.push({ ...data, timestamp: Date.now(), release: __RELEASE__ })
+    if (!this.timer) {
+      this.timer = setTimeout(() => this.flush(), 5000)
+    }
+  }
+
+  flush() {
+    if (this.buffer.length === 0) return
+    const payload = JSON.stringify(this.buffer)
+    navigator.sendBeacon('/api/logs', payload)
+    this.buffer = []
+    this.timer = null
+  }
+}
+```

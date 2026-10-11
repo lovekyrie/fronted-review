@@ -150,4 +150,22 @@ function updateChildren(parentElm, oldCh, newCh) {
 
 ## 8. 总结
 
-Vue 的 DOM Diff 算法通过双端比较策略，在保证正确性的同时，尽可能地提高性能。通过合理的优化策略和最佳实践，可以充分发挥其优势，提升应用性能。 
+Vue 的 DOM Diff 算法通过双端比较策略，在保证正确性的同时，尽可能地提高性能。通过合理的优化策略和最佳实践，可以充分发挥其优势，提升应用性能。
+
+## 每日练习参考
+
+### Day 35：传统 VDOM diff vs Block Tree diff
+
+```text
+传统 diff:
+  div (compare)
+  ├── span "static" (compare → no change)
+  ├── span "static" (compare → no change)
+  └── span {{ msg }} (compare → TEXT changed → update)
+  共对比 4 个节点
+
+Block Tree diff:
+  div [Block]
+  └── dynamicChildren: [ span {{ msg }} (PatchFlag: TEXT) ]
+  只对比 1 个节点，且知道只需更新 textContent
+```

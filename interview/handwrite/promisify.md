@@ -42,3 +42,28 @@ generateCommit()
 我们需要做的就是让这个回调函数控制 promise 的状态即可
 这里还用了 Proxy 代理了整个 fs 模块，拦截 get 方法，使得不需要手动给 fs 模块所有的方法都包裹一层 promisify 函数，更加的灵活 */
 ```
+
+## 每日练习参考
+
+### Day 12：promisify 三步
+
+```text
+1. 返回新函数
+2. 新函数内部 new Promise
+3. 调用原函数，传入 error-first 回调：(err, data) => err ? reject : resolve
+```
+
+### Day 12：promisify
+
+```js
+function promisify(fn) {
+  return function (...args) {
+    return new Promise((resolve, reject) => {
+      fn.call(this, ...args, (err, data) => {
+        if (err) reject(err)
+        else resolve(data)
+      })
+    })
+  }
+}
+```

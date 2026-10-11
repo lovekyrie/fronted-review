@@ -232,3 +232,48 @@ function fibonacci(n) {
 1. `sort()` sorts as strings by default; pass a comparator for numbers.
 2. Mixing in-place and non-mutating APIs causes side effects (`sort/splice`).
 3. Repeated `shift` on large arrays degrades performance.
+
+## Daily practice reference
+
+### Day 10: High-frequency array operations
+
+- **Dedup**: `[...new Set(arr)]` or sort then two pointers.
+- **Flatten**: `arr.flat(Infinity)` or recursive `reduce + concat`.
+- **Sort**: `arr.sort((a, b) => a - b)`; note the default is lexicographic.
+
+### Day 10: Two Sum (LeetCode 1)
+
+```js
+function twoSum(nums, target) {
+  const map = new Map()
+  for (let i = 0; i < nums.length; i++) {
+    const complement = target - nums[i]
+    if (map.has(complement)) return [map.get(complement), i]
+    map.set(nums[i], i)
+  }
+}
+```
+
+### Day 10: 3Sum (LeetCode 15)
+
+```js
+function threeSum(nums) {
+  nums.sort((a, b) => a - b)
+  const result = []
+  for (let i = 0; i < nums.length - 2; i++) {
+    if (i > 0 && nums[i] === nums[i - 1]) continue // skip duplicates
+    let left = i + 1, right = nums.length - 1
+    while (left < right) {
+      const sum = nums[i] + nums[left] + nums[right]
+      if (sum === 0) {
+        result.push([nums[i], nums[left], nums[right]])
+        while (left < right && nums[left] === nums[left + 1]) left++
+        while (left < right && nums[right] === nums[right - 1]) right--
+        left++; right--
+      } else if (sum < 0) left++
+      else right--
+    }
+  }
+  return result
+}
+```

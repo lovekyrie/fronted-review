@@ -275,3 +275,52 @@ watch(
 1. 解构 reactive 对象会丢失响应性（可用 `toRefs`）。
 2. 深层对象替换时注意引用变化与 watch 配置。
 3. 组合函数要负责副作用清理（事件监听、定时器）。
+
+## 每日练习参考
+
+### Day 13：Vue vs React 对照表
+
+| 维度 | Vue 3 | React 18+ |
+|------|-------|-----------|
+| 响应式 | Proxy 自动追踪依赖 | 手动 setState 触发重渲染 |
+| 模板 | SFC `<template>` + 编译优化 | JSX（本质是 JS） |
+| 组件更新 | 精确到组件（依赖收集） | 父组件 re-render 子组件默认也 re-render |
+| 状态管理 | Pinia（官方） | Redux / Zustand / Jotai |
+| 生命周期 | setup + onMounted 等 | useEffect + cleanup |
+| 性能优化 | 编译时（静态提升、PatchFlag） | 运行时（memo / useMemo / useCallback） |
+
+### Day 13：组件化三大价值
+
+1. **复用**：同一组件在不同页面使用，减少重复代码。
+2. **隔离**：每个组件有独立的状态和样式作用域，互不干扰。
+3. **可组合性**：小组件组合成大组件，像搭积木一样构建 UI。
+
+### Day 13：状态管理思路共性
+
+```text
+单向数据流：State → View → Action → State
+```
+
+- Vue（Pinia）：`state` + `getters` + `actions`，响应式自动更新视图。
+- React（Redux）：`store` + `reducers` + `dispatch`，不可变更新触发重渲染。
+- 共性：都是集中管理共享状态，单一数据源，可预测的状态变化。
+
+### Day 13：设计哲学差异
+
+- **Vue**：渐进式、低门槛、编译时优化、"帮你做更多"。
+- **React**：函数式、纯 UI = f(state)、运行时调度、"给你更多控制"。
+
+### Day 13：组件更新触发链对比
+
+```text
+Vue:  data 变更 → dep.notify() → scheduler 入队 → nextTick → 组件 render → patch (diff) → DOM 更新
+React: setState → update 入队 → scheduler 调度 → fiber reconcile (render phase) → commit phase → DOM 更新
+```
+
+### Day 13：Vue 3 响应式简图
+
+```text
+reactive(obj)
+  → Proxy get: track(target, key) → 收集当前 effect
+  → Proxy set: trigger(target, key) → 通知所有依赖的 effect 重新执行
+```

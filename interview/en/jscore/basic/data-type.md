@@ -505,3 +505,103 @@ myInstanceof(null, Object)     // false (null check)
 - [MDN Symbol](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Symbol)
 - [MDN BigInt](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/BigInt)
 - [IEEE 754 floating-point calculator](https://www.h-schmidt.net/FloatConverter/IEEE754.html)
+
+## Daily practice reference
+
+### Day 1: Data types
+
+JavaScript has 7 primitive types:
+
+- `string`
+- `number`
+- `boolean`
+- `null`
+- `undefined`
+- `symbol`
+- `bigint`
+
+Reference types all belong to the object system. Common ones:
+
+- `Object`
+- `Array`
+- `Function`
+- `Date`
+- `RegExp`
+
+How to tell them apart:
+
+- `typeof`: good for primitives and functions, but `typeof null === "object"` is a historical leftover.
+- `instanceof`: checks whether the constructor’s `prototype` appears on the instance’s prototype chain; not suitable for primitives.
+- `Object.prototype.toString.call(value)`: better for precise type checks.
+
+Prefer this for arrays:
+
+```js
+Array.isArray(value)
+```
+
+### Day 1: Knowledge notes
+
+Essence: call the function immediately, and explicitly set `this` for that call.
+
+Steps:
+
+1. The caller must be a function.
+2. Handle `thisArg`; if it is empty, point to the global object.
+3. Use `Symbol` as a temporary key so existing properties are not overwritten.
+4. Temporarily attach the current function to `thisArg`.
+5. Call it via `thisArg[fn](...args)`.
+6. Delete the temporary property.
+7. Return the function’s result.
+
+```js
+Function.prototype.myCall = function (thisArg, ...args) {
+  if (typeof this !== 'function') {
+    throw new TypeError('caller must be a function')
+  }
+
+  const context = thisArg == null ? globalThis : Object(thisArg)
+  const fnKey = Symbol('fn')
+
+  context[fnKey] = this
+  const result = context[fnKey](...args)
+  delete context[fnKey]
+
+  return result
+}
+```
+
+### Day 1: Practice example
+
+Essence: do not call immediately; return a new function with `this` and some arguments already bound.
+
+Steps:
+
+1. The caller must be a function.
+2. Save the original function, the bound object, and the preset arguments.
+3. Return a new function.
+4. On a normal call, use the bound object as `this`.
+5. On a `new` call, ignore the bound object and let `this` be the new instance.
+6. Merge preset arguments with call-time arguments.
+7. Keep the prototype relationship so `new boundFn()` can still reach methods on the original function’s prototype.
+
+```js
+Function.prototype.myBind = function (thisArg, ...presetArgs) {
+  if (typeof this !== 'function') {
+    throw new TypeError('caller must be a function')
+  }
+
+  const originalFn = this
+
+  function boundFn(...laterArgs) {
+    const isNewCall = this instanceof boundFn
+    const context = isNewCall ? this : thisArg
+
+    return originalFn.apply(context, [...presetArgs, ...laterArgs])
+  }
+
+  boundFn.prototype = Object.create(originalFn.prototype)
+
+  return boundFn
+}
+```

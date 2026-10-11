@@ -222,3 +222,69 @@ function ImageGallery({ images }) {
    - Cache data
    - Use lazy loading
    - Optimize image loading
+
+## Daily practice reference
+
+### Day 46: Essence of the trio
+
+| API | What it caches | Essence |
+|-----|----------|------|
+| `useMemo(fn, deps)` | caches the **computed result** | if deps are unchanged, return the previous result |
+| `useCallback(fn, deps)` | caches the **function reference** | equivalent to `useMemo(() => fn, deps)` |
+| `React.memo(Comp)` | caches **component render** | skip re-render if props are shallow-equal |
+
+### Day 46: Usage guidelines
+
+**When you should use them:**
+- Props (functions/objects) passed to a `memo` child need a stable reference.
+- Expensive derived values (sorting, filtering a large array) use `useMemo`.
+- Objects/functions used as `useEffect` dependencies need a stable reference.
+
+**When you should not:**
+- Simple math (`a + b`) does not need `useMemo`; caching itself has cost.
+- If the component is cheap to render, memo’s comparison cost may be higher than just re-rendering.
+- Wrapping everything in memo blindly increases complexity and hurts readability.
+
+### Day 46: Four cases that need a stable reference
+
+1. A callback passed to a `memo` child → `useCallback`
+2. An object/array passed to a `memo` child → `useMemo`
+3. A `useEffect` dependency that is an object/function → `useMemo` / `useCallback`
+4. A third-party library (for example react-query’s queryKey) needs a stable reference → `useMemo`
+
+### Day 46: React Compiler (future)
+
+React Compiler will analyze components at compile time and insert optimizations equivalent to `useMemo / useCallback / memo`, so developers no longer write them by hand. It is still experimental; production projects still need to do it manually.
+
+### Day 46: Anti-pattern: memo fails
+
+```jsx
+const Child = React.memo(({ config }) => {
+  console.log('Child render')
+  return <div>{config.name}</div>
+})
+
+function Parent() {
+  const [count, setCount] = useState(0)
+  // ❌ each render creates a new object; memo’s shallow compare is always false
+  return <Child config={{ name: 'test' }} />
+}
+```
+
+### Day 46: Correct pattern: stable references
+
+```jsx
+const Child = React.memo(({ config, onClick }) => {
+  console.log('Child render')
+  return <div onClick={onClick}>{config.name}</div>
+})
+
+function Parent() {
+  const [count, setCount] = useState(0)
+  // ✅ useMemo stabilizes the object reference
+  const config = useMemo(() => ({ name: 'test' }), [])
+  // ✅ useCallback stabilizes the function reference
+  const onClick = useCallback(() => console.log('click'), [])
+  return <Child config={config} onClick={onClick} />
+}
+```

@@ -43,3 +43,20 @@ function throttle(func, time = 100, options = {
   return _throttle
 }
 ```
+
+## 每日练习参考
+
+### Day 12：throttle（时间戳法）
+
+```js
+function throttle(fn, delay) {
+  let lastTime = 0
+  return function (...args) {
+    const now = Date.now()
+    if (now - lastTime >= delay) {
+      lastTime = now
+      fn.apply(this, args)
+    }
+  }
+}
+```

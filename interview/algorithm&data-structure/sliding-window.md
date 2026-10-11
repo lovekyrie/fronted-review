@@ -231,3 +231,27 @@ function minWindow(s, t) {
 1. 窗口收缩时忘记同步回滚计数，导致结果偏大/偏小。
 2. `left` 回退（应只前进），会破坏线性复杂度。
 3. 最小覆盖子串中 `valid` 统计和 `need` 规模判断写错。
+
+## 每日练习参考
+
+### Day 10：滑动窗口模板
+
+```js
+function slidingWindow(s) {
+  const map = new Map()
+  let left = 0, result = 0
+  for (let right = 0; right < s.length; right++) {
+    // 1. 扩大窗口：加入 s[right]
+    map.set(s[right], (map.get(s[right]) || 0) + 1)
+    // 2. 收缩窗口：不满足条件时移动 left
+    while (/* 窗口不合法 */) {
+      map.set(s[left], map.get(s[left]) - 1)
+      if (map.get(s[left]) === 0) map.delete(s[left])
+      left++
+    }
+    // 3. 更新结果
+    result = Math.max(result, right - left + 1)
+  }
+  return result
+}
+```

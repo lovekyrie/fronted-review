@@ -275,3 +275,52 @@ A good interview answer: the Composition API organizes logic via explicit import
 1. Destructuring a reactive object loses reactivity (use `toRefs`).
 2. When replacing nested objects, watch reference changes and watch options.
 3. Composables must clean up side effects (event listeners, timers).
+
+## Daily practice reference
+
+### Day 13: Vue vs React comparison
+
+| Dimension | Vue 3 | React 18+ |
+|------|-------|-----------|
+| Reactivity | Proxy auto-tracks dependencies | Manual setState triggers re-render |
+| Template | SFC `<template>` + compile-time optimizations | JSX (essentially JS) |
+| Component updates | Precise to the component (dependency collection) | Parent re-render also re-renders children by default |
+| State management | Pinia (official) | Redux / Zustand / Jotai |
+| Lifecycle | setup + onMounted, etc. | useEffect + cleanup |
+| Performance | Compile time (static hoisting, PatchFlag) | Runtime (memo / useMemo / useCallback) |
+
+### Day 13: Three values of componentization
+
+1. **Reuse**: the same component on different pages, less duplicated code.
+2. **Isolation**: each component has its own state and style scope; they do not interfere.
+3. **Composability**: small components compose into large ones, like building UI with blocks.
+
+### Day 13: Shared state-management idea
+
+```text
+Unidirectional data flow: State → View → Action → State
+```
+
+- Vue (Pinia): `state` + `getters` + `actions`; reactivity updates the view automatically.
+- React (Redux): `store` + `reducers` + `dispatch`; immutable updates trigger re-render.
+- Shared: centralized shared state, a single source of truth, predictable state changes.
+
+### Day 13: Design-philosophy differences
+
+- **Vue**: progressive, low barrier, compile-time optimization, "do more for you".
+- **React**: functional, pure UI = f(state), runtime scheduling, "give you more control".
+
+### Day 13: Component update trigger chain comparison
+
+```text
+Vue:  data change → dep.notify() → scheduler enqueue → nextTick → component render → patch (diff) → DOM update
+React: setState → enqueue update → scheduler → fiber reconcile (render phase) → commit phase → DOM update
+```
+
+### Day 13: Vue 3 reactivity sketch
+
+```text
+reactive(obj)
+  → Proxy get: track(target, key) → collect the current effect
+  → Proxy set: trigger(target, key) → notify all dependent effects to re-run
+```

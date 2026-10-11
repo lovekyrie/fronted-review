@@ -5,7 +5,7 @@ export default antfu({
   rules: {
     'no-console': 'off',
   },
-  ignores: ['interview/**/*.md'],
+  ignores: ['interview/**/*.md', 'docs/**/*.md'],
 }, {
   files: ['js/**/*.js', 'js-of-30-days/**/*.js', 'hand-write/**/*.js', 'algorithm/**/*.js', 'js-questions/**/*.js', 'js-questions/nowcoder/**/*.js', 'js-utils/**/*.js'],
   rules: {

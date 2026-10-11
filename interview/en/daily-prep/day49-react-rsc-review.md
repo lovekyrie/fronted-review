@@ -1,24 +1,41 @@
-# Day 49 RSC + React Topic Follow-up Review Execution Log
+# Day 49 RSC + React Topic Follow-up Review
 
-## Quick Navigation
-
-| Today | Topic | Core files |
-|------|------|----------|
-| Day 49 | RSC + review | [React 19 Features](../framework/react/react19-features), [Week 4 Roadmap](../advanced/week4/roadmap), [SSR/SSG](../advanced/ssr-ssg) |
-
-## Today's Goals
+## Goals
 
 - Finish React Server Components and `use server`
 - Summarize Days 43–48 into a *React Track 15-Question Answer Book*
 - Record an 8-minute take: the full path from setState to pixels on screen
 
-## Reading Checkpoints
+## Read in order
+
+1. [React 19 Features](../framework/react/react19-features)
+2. [Week 4 Roadmap](../advanced/week4/roadmap)
+3. [SSR/SSG](../advanced/ssr-ssg)
+
+## Practice and self-check
+
+**Checkpoints**
 
 - RSC is not SSR; it can **run components directly on the server** and stream serialized results to the client
 - “Server Component / Client Component” are distinguished by a `"use client"` marker
 - RSC’s gains: smaller bundles, safe access to the data layer; costs: serialization limits, a mental-model shift
 
-## Cheat Sheet / Knowledge Points
+**Produce or redraw from memory**
+
+- RSC core model
+- RSC vs SSR
+- RSC render flow
+- RSC in the Next.js App Router
+- When to use which
+- RSC render pipeline
+- Server Action example
+
+**Answer aloud without reading a reference answer**
+
+- 1. What is the essential difference between RSC and SSR?
+- 2. 3 self-drawn follow-ups
+
+**Mock format and scoring**
 
 ### RSC core model
 
@@ -60,8 +77,6 @@
 - **Use a Server Component**: data display, static UI, accessing the database/filesystem.
 - **Use a Client Component**: user interaction, browser APIs, state/effect.
 
-## Handwritten / Flowcharts
-
 ### RSC render pipeline
 
 ```text
@@ -81,56 +96,9 @@ Browser requests /dashboard
 
 ### Server Action example
 
-```jsx
-// actions.ts
-'use server'
-export async function createTodo(formData: FormData) {
-  const text = formData.get('text')
-  await db.todos.create({ text })
-  revalidatePath('/todos')
-}
+[Reference code](../framework/react/react19-features#day-49-practice-code)
 
-// TodoForm.tsx
-'use client'
-import { createTodo } from './actions'
-
-export function TodoForm() {
-  return (
-    <form action={createTodo}>
-      <input name="text" />
-      <button type="submit">Add</button>
-    </form>
-  )
-}
-```
-
-## Oral Questions
-
-### 1. What is the essential difference between RSC and SSR?
-
-Answer template:
-
-> SSR renders components to an HTML string for the client, but all component JS still has to be bundled and sent; the client can interact only after hydrate. In essence SSR only “rendered HTML early”; it saves zero bytes of JS.
->
-> RSC lets components run directly on the server; the render result is streamed to the client as an RSC Payload (a serialized format). Server Component JS **is never sent to the client**, which truly shrinks the bundle. Only components marked `"use client"` are packed for the client.
->
-> Another difference is data fetching: SSR needs a dedicated entry (getServerSideProps) to fetch data in one place; RSC can async/await inside each Server Component, so data fetching sits next to the component tree and feels more natural.
-
-### 2. 3 self-drawn follow-ups
-
-**Q: What are RSC’s limits?**
-
-> Server Components cannot use useState / useEffect / browser APIs, and cannot have event handlers. Props passed to Client Components must be serializable (no functions, no class instances). Server Components cannot import modules with interactive logic other than Client Components.
-
-**Q: How do you share data between Server Components and Client Components?**
-
-> Three ways. First, a Server Component passes props to a Client Component (must be serializable). Second, Server Actions let a Client Component call server logic. Third, share state across both ends via URL searchParams / cookies.
-
-**Q: What does RSC mean for existing React projects?**
-
-> Not every project needs RSC. For a pure SPA / admin dashboard, CSR is enough. RSC mainly fits content-heavy apps (e-commerce, social, docs sites), where shrinking the bundle and talking to the data layer directly pays off most. Migration cost is not low: you must draw Server / Client boundaries and change how you design components.
-
-## 8-Minute Recording Sequence (React Topic Summary)
+**Recording drill**
 
 1. Full setState → render → commit pipeline + Fiber + Lanes (2 minutes)
 2. useEffect’s three pitfalls + cleanup timing + Strict Mode (1.5 minutes)
@@ -138,7 +106,7 @@ Answer template:
 4. Concurrent rendering + useTransition + useDeferredValue (1.5 minutes)
 5. React 19 Actions + RSC model + Server/Client boundary (1.5 minutes)
 
-## Today's Review
+## Recap
 
 The 3 React questions most likely to break you:
 

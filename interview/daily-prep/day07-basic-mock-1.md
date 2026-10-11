@@ -1,10 +1,4 @@
-# Day 7 基础第一次模拟面 执行记录
-
-## 快速导航
-
-| 今日 | 主题 | 核心文件 |
-|------|------|----------|
-| Day 7 | 基础模拟面 1 | [14 天冲刺](../sprint-14-days)、[高频 50 题](../high-frequency-50) |
+# Day 7 基础第一次模拟面
 
 ## 今日目标
 
@@ -12,12 +6,29 @@
 - 做一次 60 分钟自模拟（JS / 浏览器 / 网络）
 - 输出 10 个“基础卡壳问题清单”，分类为 `不会 / 会但不熟 / 表达差`
 
-## 阅读卡点
+## 按顺序阅读
+
+1. [14 天冲刺](../sprint-14-days)
+2. [高频 50 题](../high-frequency-50)
+
+## 实操与自测
+
+**检查点**
 
 - 模拟面要严格限时，不允许回看文档
 - 每题答完立刻打分：**流畅 / 卡顿 / 答错**，只记短语不写长句
 
-## 速记卡 / 知识点
+**先独立完成，再对照专题**
+
+- 模拟题清单（Day 1–6 高频题，限时 60 分钟）
+- 白板手写题参考
+
+**脱稿口述题**
+
+- 1. 模拟题 A：this 绑定优先级
+- 2. 模拟题 B：闭包与内存泄漏
+
+**模拟流程与评分**
 
 ### 模拟题清单（Day 1–6 高频题，限时 60 分钟）
 
@@ -38,48 +49,17 @@
 
 自评标准：✅ 流畅 / ⚠️ 卡顿 / ❌ 答错
 
-## 手写 / 流程图
-
 ### 白板手写题参考
 
-```js
-// 题目 1：手写 call
-Function.prototype.myCall = function (thisArg, ...args) {
-  const context = thisArg == null ? globalThis : Object(thisArg)
-  const fnKey = Symbol('fn')
-  context[fnKey] = this
-  const result = context[fnKey](...args)
-  delete context[fnKey]
-  return result
-}
+[参考代码](../handwrite/call#day-7-practice-code)
 
-// 题目 2：手写防抖
-function debounce(fn, delay) {
-  let timer = null
-  return function (...args) {
-    if (timer) clearTimeout(timer)
-    timer = setTimeout(() => fn.apply(this, args), delay)
-  }
-}
-```
-
-## 口述题
-
-### 1. 模拟题 A：this 绑定优先级
-
-> 回答回顾参考：先讲四种绑定（默认 / 隐式 / 显式 / new），再讲优先级 `new > 显式 > 隐式 > 默认`，最后补充箭头函数没有自己的 this。
-
-### 2. 模拟题 B：闭包与内存泄漏
-
-> 回答回顾参考：先定义闭包（函数 + 外层变量环境），再讲 3 个应用场景（私有化、柯里化、防抖），最后讲泄漏（未解绑监听器、长期 setInterval），强调闭包 ≠ 泄漏。
-
-## 5 分钟录音顺序
+**录音练习**
 
 1. 挑最不熟的一题完整作答（2 分钟）
 2. 按正确结构重新讲一次（2 分钟）
 3. 标注两次差异，找出表达薄弱点（1 分钟）
 
-## 今日复盘
+## 复盘
 
 卡壳问题 Top 3：
 

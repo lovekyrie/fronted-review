@@ -2,7 +2,7 @@
 
 ## 1. Idea
 
-`async/await` landed in ES2017 and is often called the “final” async syntax. It is **syntactic sugar over Generators**.
+`async/await` landed in ES2017 and is often called the “final” async syntax. Its control flow can be modeled with a **Generator plus an auto-runner**, while the language defines `async` functions directly.
 
 *   `async`: the function has async work and returns a Promise.
 *   `await`: wait for the expression after it.
@@ -15,9 +15,9 @@
 
 ## 3. How it works (interview point)
 
-**Async/Await = Generator + an auto-runner**
+**Mental model: Generator + an auto-runner**
 
-A Generator only moves when you call `next()`. A function that keeps calling `next()` until `done: true` is essentially `async`.
+A Generator only moves when you call `next()`. A function that keeps calling `next()` until `done: true` models the main control flow of `async`; the following is a simplified teaching example.
 
 ```javascript
 // Tiny auto-runner (spawn)
@@ -52,7 +52,7 @@ function spawn(genF) {
 
 ## 4. Common pitfall: serial vs parallel
 
-**Wrong (serial, slow)**:
+**Serial is appropriate when B depends on A; independent work can start together**:
 ```javascript
 async function foo() {
   // getB does not start until getA finishes
@@ -61,7 +61,7 @@ async function foo() {
 }
 ```
 
-**Right (parallel)**:
+**Start independent requests together**:
 ```javascript
 async function foo() {
   // both requests start together

@@ -199,4 +199,90 @@ function validatePassword(password) {
    - 密码哈希
    - 加盐处理
    - 密码策略
-   - 安全存储 
+   - 安全存储
+
+## 每日练习参考
+
+### Day 62：XSS 三类
+
+| 类型 | 注入位置 | 存储 | 示例 |
+|------|----------|------|------|
+| **存储型** | 服务端数据库 | 持久化 | 评论区注入 `<script>` |
+| **反射型** | URL 参数 | 不存储 | 搜索 `?q=<script>alert(1)</script>` |
+| **DOM 型** | 客户端 JS | 不经服务端 | `innerHTML = location.hash` |
+
+### Day 62：XSS 防御
+
+| 层 | 措施 |
+|----|------|
+| 输出转义 | HTML 实体编码（`<` → `&lt;`），避免 `innerHTML` |
+| CSP | `script-src 'self'` 禁止 inline 脚本 |
+| HttpOnly | Cookie 设 HttpOnly，JS 无法读取 |
+| 输入校验 | 白名单过滤（后端为主） |
+| 框架自带 | React 默认转义、Vue v-html 需注意 |
+
+### Day 62：CSRF 攻击原理
+
+```text
+用户登录 A 站 → 浏览器存了 A 的 cookie
+→ 用户访问恶意 B 站 → B 站页面发请求到 A
+→ 浏览器自动带上 A 的 cookie → A 以为是用户操作
+```
+
+### Day 62：CSRF 防御
+
+| 措施 | 原理 |
+|------|------|
+| **SameSite Cookie** | `SameSite=Lax/Strict`，跨站请求不带 cookie |
+| **CSRF Token** | 表单带服务端生成的 token，攻击者拿不到 |
+| **Origin / Referer 校验** | 服务端检查来源域名 |
+| **验证码 / 二次确认** | 关键操作增加人机验证 |
+
+### Day 62：CSP 常用指令
+
+```http
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' 'nonce-abc123';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data: https://cdn.example.com;
+  connect-src 'self' https://api.example.com;
+  frame-ancestors 'none';
+```
+
+| 指令 | 控制 |
+|------|------|
+| `default-src` | 默认策略 |
+| `script-src` | JS 来源（`'nonce-xxx'` 允许特定 inline） |
+| `style-src` | CSS 来源 |
+| `img-src` | 图片来源 |
+| `connect-src` | XHR / fetch / WebSocket 来源 |
+| `frame-ancestors` | 谁能嵌套本页（防 clickjacking） |
+
+### Day 62：XSS 防御：输出转义函数
+
+```js
+function escapeHtml(str) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+  }
+  return str.replace(/[&<>"']/g, ch => map[ch])
+}
+```
+
+### Day 62：CSRF 攻击流程图
+
+```text
+用户浏览器
+  ├─ 已登录 bank.com（cookie: session=xxx）
+  ├─ 访问 evil.com
+  │   └─ <img src="https://bank.com/transfer?to=hacker&amount=10000">
+  │       → 浏览器自动带 bank.com 的 cookie！
+  └─ bank.com 收到请求，以为是用户操作 → 转账成功
+
+防御：SameSite=Lax → 跨站 GET 请求不带 cookie → 攻击失败
+```

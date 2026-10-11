@@ -71,3 +71,75 @@ and own the full path from design to production.
 3. Be honest about money; do not make it the only reason.
 4. On conflict: align on the goal first, then on the plan.
 5. Gaps / job-hopping: one consistent story, no contradictions.
+
+## Daily practice reference
+
+### Day 77: Resume polish checklist
+
+```text
+□ Grade skills: proficient / familiar / aware (do not write "expert")
+□ Projects in STAR; every bullet has a quantified Result
+□ Keep 2-3 strongest projects only; do not pile them up
+□ Align the stack with the target JD (keyword match)
+□ Drop unrelated experience (non-tech gigs, college clubs)
+□ PDF, 1-2 pages, clean layout
+□ Complete contact (phone + email + GitHub)
+```
+
+### Day 77: Skills list example
+
+```text
+Proficient: Vue 3 / React 18 / TypeScript / Vite / Vitest
+Familiar: Node.js / Webpack / CI/CD / micro-frontends (qiankun)
+Aware: Flutter / Kubernetes / Rust
+```
+
+### Day 77: Self-intro formula
+
+```text
+Current positioning → core experience → recent wins → fit for this role
+```
+
+### Day 77: 10 common HR questions
+
+| Q | Answer points |
+|----|----------|
+| Self-intro | 30s positioning + 30s core experience + a highlight |
+| Why you left | Frame positively (growth / challenge); do not trash the last company |
+| Career plan | 3 years of depth + 5 years of breadth or leadership; match the role |
+| Salary | Give a range, not a hard number: "for this level, I expect XX-YY" |
+| Overtime | "I will put in the hours when the project needs it; I care more about efficiency and outcomes" |
+| Strengths / weaknesses | Strengths with a story; weaknesses with a fix |
+| Team conflict | Facts, data, seek common ground |
+| Biggest achievement | STAR; stress your contribution |
+| What you know about us | Research the business; name the fit |
+| Any questions | Ask about stack / product direction / growth path |
+
+### Day 77: Before / after project bullets
+
+```text
+❌ Before:
+  "Owned frontend for the company admin system, Vue stack"
+
+✅ After:
+  "Led the admin permission rewrite: three-layer dynamic permission (API/route/button),
+   ops can configure roles themselves; frontend release frequency down 40%, permission bugs down 70%"
+```
+
+```text
+❌ Before:
+  "Optimized homepage performance"
+
+✅ After:
+  "Led e-commerce homepage perf: Code Split + WebP images + inline Critical CSS;
+   LCP P75 from 4.2s to 2.1s, bounce rate down 15%"
+```
+
+### Day 77: 1-minute self-intro structure
+
+```text
+[0-10s] Positioning: I am XX, X years frontend, currently Vue/React + TypeScript
+[10-30s] Core experience: last role at XX, led XX (one-sentence STAR)
+[30-50s] Highlight: recent depth in XX (perf / engineering / testing), did XX
+[50-60s] Fit: your JD asks for XX; that matches my experience closely
+```

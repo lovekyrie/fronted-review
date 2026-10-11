@@ -231,3 +231,66 @@ Interview bonus phrasing: if you deploy behind Nginx, `history` mode needs a fal
 ##### 7.4 keep-alive and route cache boundaries
 - Good for list pages that should keep scroll position and filters when you go back.
 - Not good for highly real-time pages (you need a fresh fetch every time you enter).
+
+## Daily practice reference
+
+### Day 40: Three routing modes
+
+| Mode | URL | Mechanism | Backend |
+|------|-----|------|----------|
+| hash | `/#/about` | `hashchange` event | Not needed |
+| history | `/about` | `popstate` + `pushState` | Needs fallback to index.html |
+| memory | no URL change | in-memory store | Not needed |
+
+### Day 40: Full navigation guard order
+
+```text
+1. beforeRouteLeave (leaving component)
+2. beforeEach (global before)
+3. beforeRouteUpdate (reused component, e.g. /user/1 → /user/2)
+4. beforeEnter (per-route)
+5. Resolve async components
+6. beforeRouteEnter (entering component, no this)
+7. beforeResolve (global resolve)
+8. afterEach (global after)
+9. DOM update
+10. beforeRouteEnter next(vm => {}) callback
+```
+
+### Day 40: How router-view updates
+
+`currentRoute` is a reactive ref → it changes on route switch → `<router-view>` injects the matched component → re-render.
+
+### Day 40: Dynamic routes + lazy loading
+
+```js
+{ path: '/user/:id', component: () => import('./User.vue') }
+// get params via useRoute().params.id
+```
+
+### Day 40: Minimal hash router
+
+```js
+class MiniRouter {
+  constructor(routes) {
+    this.routes = routes
+    this.current = window.location.hash.slice(1) || '/'
+    window.addEventListener('hashchange', () => {
+      this.current = window.location.hash.slice(1)
+    })
+  }
+  push(path) { window.location.hash = path }
+  match() { return this.routes.find(r => r.path === this.current) }
+}
+```
+
+### Day 40: Chain from push to router-view update
+
+```text
+router.push('/about')
+  → history.pushState / location.hash = '#/about'
+  → match the route table → find the matched component
+  → update currentRoute (shallowRef)
+  → router-view detects the reactive change
+  → render the new component
+```

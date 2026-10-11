@@ -279,3 +279,105 @@ navigator.sendBeacon('/monitor', JSON.stringify(payload))
 4. 最后补告警、排障和回滚的闭环
 
 这样答案会从“会接监控 SDK”升级成“理解线上治理体系”。
+
+## 每日练习参考
+
+### Day 75：前端错误分类
+
+| 类型 | 捕获方式 |
+|------|----------|
+| JS 运行时错误 | `window.onerror` / `window.addEventListener('error')` |
+| Promise 未捕获 | `window.addEventListener('unhandledrejection')` |
+| 资源加载失败 | `window.addEventListener('error', ..., true)`（捕获阶段） |
+| 接口错误 | 请求拦截器（axios interceptor） |
+| 白屏 | 定时采样 DOM 节点 / MutationObserver |
+| 框架错误 | Vue `errorHandler` / React `ErrorBoundary` |
+
+### Day 75：错误上报设计
+
+```text
+1. 捕获：全局监听 + 框架 hook
+2. 格式化：错误信息 + 堆栈 + 用户信息 + 页面 URL + 时间 + release 版本
+3. 聚合：相同错误 fingerprint 合并，避免重复
+4. 采样：非 P0 错误按比例采样（10%-100%）
+5. 上报：sendBeacon / fetch keepalive（页面卸载也能发）
+6. 消费：日志服务 → 聚合 → 告警 → SourceMap 还原堆栈
+```
+
+### Day 75：上报时机
+
+| 方式 | 场景 |
+|------|------|
+| `navigator.sendBeacon(url, data)` | 页面卸载时（最推荐） |
+| `fetch(url, { keepalive: true })` | 替代 sendBeacon |
+| 批量缓冲 + 定时上报 | 非紧急日志（降低请求数） |
+| 立即上报 | P0 错误（白屏 / 支付失败） |
+
+### Day 75：SourceMap 还原
+
+```text
+线上 JS 是压缩的 → 堆栈行号无意义
+→ 构建时生成 .map 文件，上传到 Sentry / 日志服务
+→ 错误上报时带 release 版本 → 服务端用 source-map 还原真实堆栈
+→ .map 文件不发布到 CDN（安全）
+```
+
+### Day 75：错误采集链路
+
+```text
+浏览器运行
+  ├─ window.onerror → JS 错误
+  ├─ unhandledrejection → Promise 错误
+  ├─ addEventListener('error', capture) → 资源加载错误
+  ├─ Vue errorHandler → 组件错误
+  └─ axios interceptor → API 错误
+       ↓
+SDK 格式化
+  { message, stack, url, line, col, release, userId, timestamp }
+       ↓
+聚合 + 采样（fingerprint 去重，10% 采样非 P0）
+       ↓
+sendBeacon / fetch keepalive
+       ↓
+日志服务（Elasticsearch / ClickHouse）
+       ↓
+SourceMap 还原 + 告警（钉钉 / 邮件）
+```
+
+### Day 75：简易错误 SDK
+
+```ts
+class ErrorTracker {
+  private buffer: any[] = []
+  private timer: ReturnType<typeof setTimeout> | null = null
+
+  init() {
+    window.onerror = (msg, url, line, col, error) => {
+      this.report({ type: 'js', message: String(msg), stack: error?.stack, url, line, col })
+    }
+    window.addEventListener('unhandledrejection', (e) => {
+      this.report({ type: 'promise', message: String(e.reason) })
+    })
+    window.addEventListener('error', (e) => {
+      if (e.target && (e.target as any).src) {
+        this.report({ type: 'resource', url: (e.target as any).src })
+      }
+    }, true)
+  }
+
+  report(data: Record<string, any>) {
+    this.buffer.push({ ...data, timestamp: Date.now(), release: __RELEASE__ })
+    if (!this.timer) {
+      this.timer = setTimeout(() => this.flush(), 5000)
+    }
+  }
+
+  flush() {
+    if (this.buffer.length === 0) return
+    const payload = JSON.stringify(this.buffer)
+    navigator.sendBeacon('/api/logs', payload)
+    this.buffer = []
+    this.timer = null
+  }
+}
+```

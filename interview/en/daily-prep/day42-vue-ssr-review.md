@@ -1,24 +1,41 @@
-# Day 42 Vue SSR / Nuxt + Vue Topic Follow-up Execution Log
+# Day 42 Vue SSR / Nuxt + Vue Topic Follow-up
 
-## Quick Navigation
-
-| Today | Topic | Core files |
-|------|------|----------|
-| Day 42 | SSR + Vue review | [SSR/SSG](../advanced/ssr-ssg), [Week 3 Roadmap](../advanced/week3/roadmap), [Vue Performance Optimization](../framework/vue/performance-optimization) |
-
-## Today's Goals
+## Goals
 
 - Finish Vue SSR and Nuxt official concepts
 - Produce a Vue SSR answer script: isomorphic rendering, hydrate, serialization, environment differences
 - Summarize Days 29–41 into a *Vue Track 20-Question Answer Book*
 
-## Reading Checkpoints
+## Read in order
+
+1. [SSR/SSG](../advanced/ssr-ssg)
+2. [Week 3 Roadmap](../advanced/week3/roadmap)
+3. [Vue Performance Optimization](../framework/vue/performance-optimization)
+
+## Practice and self-check
+
+**Checkpoints**
 
 - SSR pain points: dual-end API differences (`window / document` cannot be used casually), state serialization, request coalescing
 - Typical reasons `hydrate` fails: server and client HTML do not match (timestamps, random numbers, conditional rendering)
 - Nuxt 3’s `useAsyncData / useFetch` handle request deduping and state reuse for you
 
-## Cheat Sheet / Knowledge Points
+**Produce or redraw from memory**
+
+- SSR / SSG / CSR comparison
+- Vue SSR flow
+- Hydrate mechanism
+- Common reasons hydration fails
+- Nuxt 3 key APIs
+- Full SSR pipeline
+- Handling environment differences
+
+**Answer aloud without reading a reference answer**
+
+- 1. How do you choose SSR / SSG / CSR?
+- 2. What pitfalls cause hydrate to fail?
+
+**Mock format and scoring**
 
 ### SSR / SSG / CSR comparison
 
@@ -60,8 +77,6 @@
 | `useState` | SSR-safe shared state |
 | `definePageMeta` | Page-level config (layout, middleware) |
 
-## Handwritten / Flowcharts
-
 ### Full SSR pipeline
 
 ```text
@@ -79,50 +94,9 @@ Browser GET /about
 
 ### Handling environment differences
 
-```vue
-<script setup>
-// Client-only
-onMounted(() => {
-  // safe to use window / document
-})
+[Reference code](../advanced/ssr-ssg#day-42-practice-code)
 
-// Server-only
-onServerPrefetch(async () => {
-  await fetchData()
-})
-
-// Conditional component
-</script>
-<template>
-  <ClientOnly>
-    <EchartsChart />
-  </ClientOnly>
-</template>
-```
-
-## Oral Questions
-
-### 1. How do you choose SSR / SSG / CSR?
-
-Answer template:
-
-> The choice depends on three factors: SEO needs, first-paint speed, and how dynamic the data is. If the page is static or updates infrequently (blogs, docs), use SSG: generate HTML at build time, deploy to a CDN — fastest first paint, lowest cost. If content varies by user or request (e-commerce product pages, social feeds), you need SSR: the server renders on every request. If you do not need SEO and can accept a blank loading screen (admin dashboards), CSR is the simplest.
->
-> Nuxt 3 supports hybrid rendering (`routeRules`): different routes can use different strategies, for example SSR for the home page, SSG for docs, CSR for the admin area. That is currently the most flexible option.
-
-### 2. What pitfalls cause hydrate to fail?
-
-Answer template:
-
-> Four common pitfalls. First, time-related: `Date.now()` on the server differs from the client, so the HTML does not match. Fix: fetch the time on the server and pass it to the client through state.
->
-> Second, client-only APIs: the server has no `window / document`. If you call them in setup, the server either errors or renders empty, while the client renders something else. Fix: use `onMounted` or `<ClientOnly>`.
->
-> Third, async data out of sync: the server fetched data but did not serialize it into `__INITIAL_STATE__`, so the client has no data during hydrate and renders differently. Fix: use Nuxt’s `useFetch` / `useAsyncData`, which handle this automatically.
->
-> Fourth, random values: `Math.random()` / `uuid()` differ every time. Fix: generate them on the server and serialize them for the client to reuse.
-
-## 8-Minute Recording Sequence (Vue Topic Summary)
+**Recording drill**
 
 1. Reactivity (Proxy / track-trigger / three-layer dependency collection) (2 minutes)
 2. Compiler optimizations (Patch Flag / Block Tree / static hoisting) (2 minutes)
@@ -130,7 +104,7 @@ Answer template:
 4. Component scheduling (setupRenderEffect / shouldUpdateComponent / nextTick) (1 minute)
 5. Ecosystem (Router three modes + guards / Pinia state layering / SSR hydrate) (1.5 minutes)
 
-## Today's Review
+## Recap
 
 The 3 Vue questions most likely to break you:
 

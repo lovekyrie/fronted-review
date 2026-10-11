@@ -505,3 +505,103 @@ myInstanceof(null, Object)     // false（null 检查）
 - [MDN Symbol](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Symbol)
 - [MDN BigInt](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/BigInt)
 - [IEEE 754 浮点数计算器](https://www.h-schmidt.net/FloatConverter/IEEE754.html)
+
+## 每日练习参考
+
+### Day 1：数据类型
+
+JavaScript 有 7 种基本类型：
+
+- `string`
+- `number`
+- `boolean`
+- `null`
+- `undefined`
+- `symbol`
+- `bigint`
+
+引用类型统一属于对象体系，常见有：
+
+- `Object`
+- `Array`
+- `Function`
+- `Date`
+- `RegExp`
+
+判断方式：
+
+- `typeof`：适合判断基本类型和函数，但 `typeof null === "object"` 是历史遗留问题。
+- `instanceof`：判断构造函数的 `prototype` 是否出现在实例原型链上，不适合判断基本类型。
+- `Object.prototype.toString.call(value)`：更适合做精确类型判断。
+
+数组判断优先用：
+
+```js
+Array.isArray(value)
+```
+
+### Day 1：知识补充
+
+本质：立即调用函数，并显式指定函数执行时的 `this`。
+
+步骤：
+
+1. 判断调用者必须是函数。
+2. 处理 `thisArg`，为空时指向全局对象。
+3. 用 `Symbol` 生成临时属性，避免覆盖原对象属性。
+4. 把当前函数临时挂到 `thisArg` 上。
+5. 通过 `thisArg[fn](...args)` 调用函数。
+6. 删除临时属性。
+7. 返回函数执行结果。
+
+```js
+Function.prototype.myCall = function (thisArg, ...args) {
+  if (typeof this !== 'function') {
+    throw new TypeError('caller must be a function')
+  }
+
+  const context = thisArg == null ? globalThis : Object(thisArg)
+  const fnKey = Symbol('fn')
+
+  context[fnKey] = this
+  const result = context[fnKey](...args)
+  delete context[fnKey]
+
+  return result
+}
+```
+
+### Day 1：动手示例
+
+本质：不立即调用函数，而是返回一个绑定好 `this` 和部分参数的新函数。
+
+步骤：
+
+1. 判断调用者必须是函数。
+2. 保存原函数、绑定对象和预置参数。
+3. 返回一个新函数。
+4. 普通调用时，使用绑定对象作为 `this`。
+5. `new` 调用时，忽略绑定对象，让 `this` 指向新实例。
+6. 合并预置参数和调用参数。
+7. 维护原型关系，保证 `new boundFn()` 时能访问原函数原型上的方法。
+
+```js
+Function.prototype.myBind = function (thisArg, ...presetArgs) {
+  if (typeof this !== 'function') {
+    throw new TypeError('caller must be a function')
+  }
+
+  const originalFn = this
+
+  function boundFn(...laterArgs) {
+    const isNewCall = this instanceof boundFn
+    const context = isNewCall ? this : thisArg
+
+    return originalFn.apply(context, [...presetArgs, ...laterArgs])
+  }
+
+  boundFn.prototype = Object.create(originalFn.prototype)
+
+  return boundFn
+}
+```

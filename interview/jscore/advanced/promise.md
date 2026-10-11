@@ -42,65 +42,9 @@ promise.then(function(value) {
 *   **Promise.resolve(value)**: 返回一个以给定值解析后的 Promise 对象。
 *   **Promise.reject(reason)**: 返回一个带有拒绝原因的 Promise 对象。
 
-## 4. 常见面试题：手写简易 Promise
+## 4. 手写 Promise
 
-面试中通常不需要写出符合 Promise/A+ 规范的完整代码，但需要掌握核心逻辑（状态管理、回调存储）。
-
-```javascript
-class MyPromise {
-    constructor(executor) {
-        this.state = 'pending';
-        this.value = undefined;
-        this.reason = undefined;
-        this.onResolvedCallbacks = [];
-        this.onRejectedCallbacks = [];
-
-        const resolve = (value) => {
-            if (this.state === 'pending') {
-                this.state = 'fulfilled';
-                this.value = value;
-                this.onResolvedCallbacks.forEach(fn => fn());
-            }
-        };
-
-        const reject = (reason) => {
-            if (this.state === 'pending') {
-                this.state = 'rejected';
-                this.reason = reason;
-                this.onRejectedCallbacks.forEach(fn => fn());
-            }
-        };
-
-        try {
-            executor(resolve, reject);
-        } catch (err) {
-            reject(err);
-        }
-    }
-
-    then(onFulfilled, onRejected) {
-        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : value => value;
-        onRejected = typeof onRejected === 'function' ? onRejected : err => { throw err };
-
-        if (this.state === 'fulfilled') {
-            onFulfilled(this.value);
-        }
-        
-        if (this.state === 'rejected') {
-            onRejected(this.reason);
-        }
-
-        if (this.state === 'pending') {
-            this.onResolvedCallbacks.push(() => {
-                onFulfilled(this.value);
-            });
-            this.onRejectedCallbacks.push(() => {
-                onRejected(this.reason);
-            });
-        }
-    }
-}
-```
+实现练习见 [手写 Promise](../../handwrite/promise)。重点掌握状态、回调队列、非函数处理器的值穿透，以及 `then` 返回新 Promise；再说明完整实现如何吸收返回的 thenable。
 
 ## 5. 考点：值穿透
 
@@ -146,6 +90,16 @@ console.log('D');
 ### 7.1 错误不会被 catch 到的场景
 
 异步回调里抛错，不一定会被外层 Promise 的 `catch` 捕获，需要把异步操作 Promise 化。
+
+```js
+new Promise((resolve) => {
+  setTimeout(() => {
+    throw new Error('async')
+    resolve('ok')
+  }, 0)
+}).catch(err => console.log('caught', err.message))
+// catch 不会执行，错误变成未捕获异常
+```
 
 ### 7.2 Promise 链中漏写 return
 

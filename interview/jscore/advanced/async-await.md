@@ -2,7 +2,7 @@
 
 ## 1. 概念
 
-`async/await` 是 ES2017 引入的异步编程标准，被誉为异步编程的“终极解决方案”。它本质上是 **Generator 函数的语法糖**。
+`async/await` 是 ES2017 引入的异步编程标准，被誉为异步编程的“终极解决方案”。可以用 **Generator + 自动执行器** 理解其控制流，但语言语义由 `async` 函数自身定义。
 
 *   `async`：表示函数内部有异步操作，返回一个 Promise。
 *   `await`：表示紧跟在后面的表达式需要等待结果。
@@ -15,9 +15,9 @@
 
 ## 3. 实现原理（面试重点）
 
-**Async/Await = Generator + 自动执行器**
+**理解模型：Generator + 自动执行器**
 
-Generator 函数需要手动调用 `next()` 才能一步步执行，如果有一个函数能自动调用 `next()`，直到 `done: true`，那就是 `async` 函数了。
+Generator 函数需要手动调用 `next()` 才能一步步执行，如果有一个函数能自动调用 `next()`，直到 `done: true`，就能模拟 `async` 函数的主要控制流；下面仅是教学用简化实现。
 
 ```javascript
 // 简易版自动执行器（spawn）
@@ -52,7 +52,7 @@ function spawn(genF) {
 
 ## 4. 常见坑点：串行与并行
 
-**错误示范（串行，效率低）**：
+**有依赖时应串行；无依赖时不必串行**：
 ```javascript
 async function foo() {
   // 只有等 getA 完成，才会开始 getB
@@ -61,7 +61,7 @@ async function foo() {
 }
 ```
 
-**正确示范（并行，效率高）**：
+**独立请求可并行启动**：
 ```javascript
 async function foo() {
   // 两个请求同时发出

@@ -1,114 +1,38 @@
 # Day 77 resume + HR drill — execution log
 
-## Quick nav
-
-| Today | Topic | Core files |
-|------|------|----------|
-| Day 77 | Resume + HR | [HR questions](../hr-questions) |
-
-## Today's goals
+## Goals
 
 - Polish the resume sections “skills list + project experience”
 - Walk every question in `hr-questions.md` and prepare answer templates
 - Prepare a 1-minute self-intro (tech version + HR version)
 
-## Reading checkpoints
+## Read in order
+
+1. [HR questions](../hr-questions)
+
+## Practice and self-check
+
+**Checkpoints**
 
 - Grade skills as “proficient / familiar / aware”; do not label everything “expert”
 - HR staples: why you left / career plan / salary / overtime
 - Self-intro structure: **current positioning → core experience → recent wins → fit for this role**
 
-## Cheat sheet / knowledge
+**Produce or redraw from memory**
 
-### Resume polish checklist
+- Resume polish checklist — [reference section](../hr-questions#day-77-resume-polish-checklist)
+- Skills list example — [reference section](../hr-questions#day-77-skills-list-example)
+- Self-intro formula — [reference section](../hr-questions#day-77-self-intro-formula)
+- 10 common HR questions — [reference section](../hr-questions#day-77-10-common-hr-questions)
+- Before / after project bullets — [reference section](../hr-questions#day-77-before-after-project-bullets)
+- 1-minute self-intro structure — [reference section](../hr-questions#day-77-1-minute-self-intro-structure)
 
-```text
-□ Grade skills: proficient / familiar / aware (do not write "expert")
-□ Projects in STAR; every bullet has a quantified Result
-□ Keep 2-3 strongest projects only; do not pile them up
-□ Align the stack with the target JD (keyword match)
-□ Drop unrelated experience (non-tech gigs, college clubs)
-□ PDF, 1-2 pages, clean layout
-□ Complete contact (phone + email + GitHub)
-```
+**Answer aloud without reading a reference answer**
 
-### Skills list example
+- 1. 1-minute self-intro
+- 2. Why did you leave the last company?
 
-```text
-Proficient: Vue 3 / React 18 / TypeScript / Vite / Vitest
-Familiar: Node.js / Webpack / CI/CD / micro-frontends (qiankun)
-Aware: Flutter / Kubernetes / Rust
-```
-
-### Self-intro formula
-
-```text
-Current positioning → core experience → recent wins → fit for this role
-```
-
-### 10 common HR questions
-
-| Q | Answer points |
-|----|----------|
-| Self-intro | 30s positioning + 30s core experience + a highlight |
-| Why you left | Frame positively (growth / challenge); do not trash the last company |
-| Career plan | 3 years of depth + 5 years of breadth or leadership; match the role |
-| Salary | Give a range, not a hard number: "for this level, I expect XX-YY" |
-| Overtime | "I will put in the hours when the project needs it; I care more about efficiency and outcomes" |
-| Strengths / weaknesses | Strengths with a story; weaknesses with a fix |
-| Team conflict | Facts, data, seek common ground |
-| Biggest achievement | STAR; stress your contribution |
-| What you know about us | Research the business; name the fit |
-| Any questions | Ask about stack / product direction / growth path |
-
-## Handwritten / flow
-
-### Before / after project bullets
-
-```text
-❌ Before:
-  "Owned frontend for the company admin system, Vue stack"
-
-✅ After:
-  "Led the admin permission rewrite: three-layer dynamic permission (API/route/button),
-   ops can configure roles themselves; frontend release frequency down 40%, permission bugs down 70%"
-```
-
-```text
-❌ Before:
-  "Optimized homepage performance"
-
-✅ After:
-  "Led e-commerce homepage perf: Code Split + WebP images + inline Critical CSS;
-   LCP P75 from 4.2s to 2.1s, bounce rate down 15%"
-```
-
-### 1-minute self-intro structure
-
-```text
-[0-10s] Positioning: I am XX, X years frontend, currently Vue/React + TypeScript
-[10-30s] Core experience: last role at XX, led XX (one-sentence STAR)
-[30-50s] Highlight: recent depth in XX (perf / engineering / testing), did XX
-[50-60s] Fit: your JD asks for XX; that matches my experience closely
-```
-
-## Spoken questions
-
-### 1. 1-minute self-intro
-
-Answer template (tech version):
-
-> Hello, I am XX, X years of frontend, stack Vue 3 + TypeScript + Vite. Last role at XX, I led e-commerce homepage perf and the admin permission rewrite. On perf I moved homepage LCP from 4.2s to 2.1s and added Lighthouse CI against regressions. I have been systematically studying frontend engineering and testing, with solid Vitest + Playwright layering practice. Your JD asks for perf and engineering; that matches my experience closely.
-
-### 2. Why did you leave the last company?
-
-Answer template:
-
-> Mainly growth. The last company’s product had stabilized, the frontend stack moved slowly, and my room to grow was limited. I want a team with a stronger tech culture and harder problems (high traffic, micro-frontends, cross-platform) so both depth and breadth can keep moving.
->
-> (Note: do not trash the last company, do not cite interpersonal drama, do not cite low pay. The signal is “I am seeking growth.”)
-
-## 5-minute recording order
+**Recording drill**
 
 Record in this order; do not reorganize on the fly:
 
@@ -123,7 +47,7 @@ After recording, self-check:
 - Salary is a range.
 - Your questions back were actually useful.
 
-## Today's recap
+## Recap
 
 The 3 points that most need a follow-up today:
 

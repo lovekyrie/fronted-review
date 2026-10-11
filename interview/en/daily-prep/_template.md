@@ -1,56 +1,26 @@
-# Day N `<topic>` — execution log
+# Day N Topic
 
-> Daily template: copy and rename to `dayN-<slug>.md`. Budget 2–3 hours a day. Four stages: input → output → drill → recap.
+> Allow about 2–3 hours. Finish the exercise before checking the topic chapter.
 
-## Today's goals
+## Goals
 
-- Goal 1 (which docs / which chapter to finish)
-- Goal 2 (output: cheat sheet / flow / handwritten snippet)
-- Goal 3 (drill: speak X questions + one 5-minute recording)
+- Reading: name the topic sections to finish.
+- Visible output: diagram, handwritten implementation, or test.
+- Speaking: answer the questions and record yourself.
 
-## Reading checkpoints
+## Read in order
 
-- Easy-to-mix point 1
-- Likely follow-up 2
-- In-repo reference: `/en/path/to/file`
+1. [Topic section](../jscore/basic/data-type)
+2. [Advanced section](../jscore/advanced/promise)
 
-## Cheat sheet / knowledge
+## Practice and self-check
 
-<!-- One-page backbone notes. Do not copy whole docs. -->
+- Complete one concrete exercise and record its output or test result; [check the reference](../jscore/basic/data-type).
+- Answer two follow-ups aloud and note where you get stuck.
+- Record a five-minute answer: concept → example → edge case. Listen back and mark mistakes.
 
-## Handwritten / flow
+## Recap
 
-<!-- Key code or ASCII flow. Does not need to be fully runnable. -->
-
-```text
-```
-
-## Spoken questions
-
-### 1. Question
-
-> Answer template:
-
-### 2. Question
-
-> Answer template:
-
-## 5-minute recording order
-
-1. Segment 1 topic (X minutes)
-2. Segment 2 topic (X minutes)
-3. Segment 3 topic (X minutes)
-
-After recording, self-check:
-
-- [ ] Did you hit keyword A
-- [ ] Did you hit keyword B
-- [ ] Did you hit keyword C
-
-## Today's recap
-
-The 3 points that most need a follow-up today:
-
-1. 
-2. 
-3. 
+- Output completed today:
+- Questions missed:
+- Sections to revisit tomorrow:

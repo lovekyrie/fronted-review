@@ -59,3 +59,117 @@ router.beforeEach(async (to) => {
 - 二维码短时效（如 60 秒）。
 - 一次性使用，使用后立即失效。
 - 登录确认要有设备信息提示，防止误授权。
+
+## 每日练习参考
+
+### Day 73：权限三层模型
+
+| 层 | 控制点 | 前端实现 | 后端保底 |
+|----|--------|----------|----------|
+| **接口级** | API 请求 | 请求拦截器带 token | 鉴权中间件（必须有） |
+| **路由级** | 页面访问 | 路由守卫 + 动态路由 | 接口返回 403 |
+| **按钮级** | 操作权限 | 指令 / 组件 / hook | 接口返回 403 |
+
+### Day 73：RBAC vs ABAC
+
+| 模型 | 原理 | 适用 |
+|------|------|------|
+| **RBAC** | 用户 → 角色 → 权限 | 大多数后台系统 |
+| **ABAC** | 基于属性（用户/资源/环境）动态判断 | 复杂场景（医疗/金融） |
+
+### Day 73：动态路由流程
+
+```text
+1. 用户登录 → 获取 token
+2. 请求用户信息 → 返回 roles / permissions
+3. 根据 permissions 过滤路由表 → 生成用户路由
+4. router.addRoute(dynamicRoutes) 注入路由
+5. 菜单也同步过滤（菜单和路由用同一份数据源）
+```
+
+### Day 73：三种按钮级封装
+
+| 方式 | 优点 | 缺点 |
+|------|------|------|
+| **指令 v-auth** | 声明式，简洁 | 无法控制逻辑分支 |
+| **组件 AuthButton** | 可以 slot 包裹任意内容 | 多一层嵌套 |
+| **Hook useAuth** | 灵活，可用于任何逻辑 | 需要手动判断 |
+
+### Day 73：v-auth 指令
+
+```ts
+// directives/auth.ts
+import type { Directive } from 'vue'
+import { useUserStore } from '@/stores/user'
+
+export const vAuth: Directive<HTMLElement, string | string[]> = {
+  mounted(el, binding) {
+    const userStore = useUserStore()
+    const required = Array.isArray(binding.value) ? binding.value : [binding.value]
+    const hasAuth = required.some(p => userStore.permissions.includes(p))
+
+    if (!hasAuth) {
+      el.parentNode?.removeChild(el)
+    }
+  },
+}
+
+// 使用
+// <button v-auth="'user:delete'">删除用户</button>
+// <button v-auth="['order:edit', 'order:admin']">编辑订单</button>
+```
+
+### Day 73：动态路由生成
+
+```ts
+// router/dynamic.ts
+import type { RouteRecordRaw } from 'vue-router'
+
+const asyncRoutes: RouteRecordRaw[] = [
+  {
+    path: '/admin',
+    component: () => import('@/views/Admin.vue'),
+    meta: { permissions: ['admin'] },
+  },
+  {
+    path: '/order',
+    component: () => import('@/views/Order.vue'),
+    meta: { permissions: ['order:view'] },
+  },
+]
+
+export function generateRoutes(userPermissions: string[]): RouteRecordRaw[] {
+  return asyncRoutes.filter(route => {
+    const required = route.meta?.permissions as string[] | undefined
+    return !required || required.some(p => userPermissions.includes(p))
+  })
+}
+
+// 在路由守卫中调用
+router.beforeEach(async (to) => {
+  const userStore = useUserStore()
+  if (!userStore.routes.length) {
+    const dynamicRoutes = generateRoutes(userStore.permissions)
+    dynamicRoutes.forEach(route => router.addRoute(route))
+    userStore.routes = dynamicRoutes
+    return to.fullPath  // 重新导航
+  }
+})
+```
+
+### Day 73：useAuth Hook
+
+```ts
+export function useAuth() {
+  const userStore = useUserStore()
+  const hasPermission = (perm: string | string[]) => {
+    const perms = Array.isArray(perm) ? perm : [perm]
+    return perms.some(p => userStore.permissions.includes(p))
+  }
+  return { hasPermission }
+}
+
+// 使用
+const { hasPermission } = useAuth()
+if (hasPermission('order:delete')) { /* 执行删除 */ }
+```

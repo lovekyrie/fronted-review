@@ -59,3 +59,117 @@ Log in once; several systems share the session.
 - Short TTL (e.g. 60s).
 - One-shot: invalidate after use.
 - Show device info on confirm so people do not approve by accident.
+
+## Daily practice reference
+
+### Day 73: Three-layer model
+
+| Layer | Control point | Frontend | Backend fallback |
+|----|--------|----------|----------|
+| **API** | API requests | Request interceptor attaches token | Auth middleware (required) |
+| **Route** | Page access | Route guards + dynamic routes | API returns 403 |
+| **Button** | Action permission | Directive / component / hook | API returns 403 |
+
+### Day 73: RBAC vs ABAC
+
+| Model | Idea | Fits |
+|------|------|------|
+| **RBAC** | User → role → permission | Most admin systems |
+| **ABAC** | Dynamic check on attributes (user / resource / env) | Complex domains (healthcare / finance) |
+
+### Day 73: Dynamic-route flow
+
+```text
+1. User logs in → get token
+2. Fetch user info → roles / permissions
+3. Filter the route table by permissions → user routes
+4. router.addRoute(dynamicRoutes) injects them
+5. Filter menus the same way (menus and routes share one data source)
+```
+
+### Day 73: Three button-level wrappers
+
+| Approach | Pros | Cons |
+|------|------|------|
+| **Directive `v-auth`** | Declarative, terse | Cannot branch logic |
+| **Component `AuthButton`** | Wrap any content via slot | Extra nesting |
+| **Hook `useAuth`** | Flexible, any logic | You must branch yourself |
+
+### Day 73: `v-auth` directive
+
+```ts
+// directives/auth.ts
+import type { Directive } from 'vue'
+import { useUserStore } from '@/stores/user'
+
+export const vAuth: Directive<HTMLElement, string | string[]> = {
+  mounted(el, binding) {
+    const userStore = useUserStore()
+    const required = Array.isArray(binding.value) ? binding.value : [binding.value]
+    const hasAuth = required.some(p => userStore.permissions.includes(p))
+
+    if (!hasAuth) {
+      el.parentNode?.removeChild(el)
+    }
+  },
+}
+
+// usage
+// <button v-auth="'user:delete'">Delete user</button>
+// <button v-auth="['order:edit', 'order:admin']">Edit order</button>
+```
+
+### Day 73: Generate dynamic routes
+
+```ts
+// router/dynamic.ts
+import type { RouteRecordRaw } from 'vue-router'
+
+const asyncRoutes: RouteRecordRaw[] = [
+  {
+    path: '/admin',
+    component: () => import('@/views/Admin.vue'),
+    meta: { permissions: ['admin'] },
+  },
+  {
+    path: '/order',
+    component: () => import('@/views/Order.vue'),
+    meta: { permissions: ['order:view'] },
+  },
+]
+
+export function generateRoutes(userPermissions: string[]): RouteRecordRaw[] {
+  return asyncRoutes.filter(route => {
+    const required = route.meta?.permissions as string[] | undefined
+    return !required || required.some(p => userPermissions.includes(p))
+  })
+}
+
+// call from a route guard
+router.beforeEach(async (to) => {
+  const userStore = useUserStore()
+  if (!userStore.routes.length) {
+    const dynamicRoutes = generateRoutes(userStore.permissions)
+    dynamicRoutes.forEach(route => router.addRoute(route))
+    userStore.routes = dynamicRoutes
+    return to.fullPath  // re-navigate
+  }
+})
+```
+
+### Day 73: `useAuth` hook
+
+```ts
+export function useAuth() {
+  const userStore = useUserStore()
+  const hasPermission = (perm: string | string[]) => {
+    const perms = Array.isArray(perm) ? perm : [perm]
+    return perms.some(p => userStore.permissions.includes(p))
+  }
+  return { hasPermission }
+}
+
+// usage
+const { hasPermission } = useAuth()
+if (hasPermission('order:delete')) { /* run delete */ }
+```

@@ -685,3 +685,503 @@ watch(count, (value) => {
 7. 相比 Vue 2，Vue 3 能天然处理新增属性、删除属性、数组索引、`Map` / `Set`，不再需要 `Vue.set`
 
 这样回答既有主链路，也能承接后续追问。
+
+## 每日练习参考
+
+### Day 29：Proxy 常用 trap
+
+| trap | 触发场景 | 响应式意义 |
+|------|----------|------------|
+| `get` | 读取属性：`state.count` | 收集依赖，按需把深层对象转成响应式 |
+| `set` | 写入属性：`state.count = 1` | 判断新增/修改，触发对应依赖 |
+| `has` | `key in state` | 追踪 `in` 操作依赖 |
+| `deleteProperty` | `delete state.name` | 删除属性后触发更新 |
+| `ownKeys` | `Object.keys(state)` / `for...in` | 追踪对象 key 集合变化 |
+
+- Vue 3 用 Proxy 代理整个对象，能拦截新增属性、删除属性、数组索引、`length`、`Map/Set` 等更多操作。
+- Vue 2 用 `Object.defineProperty` 劫持已有属性，新属性和删除属性不能天然触发，所以才需要 `Vue.set` 这类补丁。
+- Proxy 的深响应不是初始化时把所有层级递归代理完，而是在 `get` 时按需把子对象转成 reactive。
+- `reactive` 适合对象、数组、`Map`、`Set`；`ref` 适合基础值或需要整体替换的值；`shallowReactive/shallowRef` 只追踪第一层。
+- `readonly` 也是基于代理，只允许读取和依赖收集，不允许写入；常用于暴露只读状态。
+- `Reflect.get(target, key, receiver)` 不只是默认读取，还能让 getter 里的 `this` 指向代理对象，保证嵌套依赖继续被收集。
+- `Reflect.set` 会返回布尔值，符合 Proxy `set` trap 的返回约定；直接 `target[key] = value` 容易丢掉默认语义。
+- 不要把“Proxy 性能更好”当作唯一结论，更准确的是：Proxy 让响应式语义更完整，初始化成本也更可控。
+
+### Day 29：补充笔记
+
+```js
+function reactive(target) {
+  return new Proxy(target, {
+    get(t, k, r) {
+      track(t, k)
+      const value = Reflect.get(t, k, r)
+      return isObject(value) ? reactive(value) : value
+    },
+    set(t, k, v, r) {
+      const oldValue = t[k]
+      const hadKey = Object.prototype.hasOwnProperty.call(t, k)
+      const ok = Reflect.set(t, k, v, r)
+
+      if (!hadKey) trigger(t, k, 'add')
+      else if (oldValue !== v) trigger(t, k, 'set')
+
+      return ok
+    },
+    deleteProperty(t, k) {
+      const hadKey = Object.prototype.hasOwnProperty.call(t, k)
+      const ok = Reflect.deleteProperty(t, k)
+      if (hadKey && ok) trigger(t, k, 'delete')
+      return ok
+    },
+  })
+}
+```
+
+```text
+读取 state.user.name
+  -> get(state, 'user')：track user，返回 reactive(user)
+  -> get(user, 'name')：track name
+
+修改 state.user.name
+  -> set(user, 'name')
+  -> trigger(user, 'name')
+  -> 触发依赖这个字段的 effect / component update
+```
+
+### Day 30：知识补充
+
+- Vue 3 响应式依赖结构可以概括成：`WeakMap<object, Map<PropertyKey, Set<ReactiveEffect>>>`。
+- `WeakMap` 的 key 是原始对象，避免对象已经不可达时还被依赖表强引用，利于 GC。
+- `Map` 的 key 是具体属性，保证依赖粒度细到属性级，而不是对象任意字段变化都全量触发。
+- `Set` 存 effect，天然去重，避免同一个 effect 被重复收集到同一个依赖集合。
+- `activeEffect` 表示当前正在执行的副作用；只有 effect 执行期间读取响应式数据，才会被 track。
+- effect 嵌套时需要 `effectStack`，子 effect 执行完要恢复父 effect，否则依赖会被收集到错误 effect 上。
+- `track` 做的是“读取时建立关系”：target -> key -> activeEffect。
+- `trigger` 做的是“写入时找到关系并执行”：target -> key -> effects；如果 effect 有 scheduler，就交给 scheduler。
+- cleanup 的作用是清理旧依赖，避免条件分支切换后 effect 仍然订阅已经不再读取的属性。
+- `trigger` 遍历 dep 前通常要复制一份集合，避免 effect 执行过程中重新收集或删除依赖导致死循环。
+
+### Day 30：动手示例
+
+```text
+reactive.get → track(target, key) → depsMap[key].add(activeEffect)
+reactive.set → trigger(target, key) → [...dep].forEach(run)
+```
+
+```js
+const targetMap = new WeakMap()
+let activeEffect
+const effectStack = []
+
+function effect(fn, options = {}) {
+  const runner = () => {
+    cleanup(runner)
+    activeEffect = runner
+    effectStack.push(runner)
+    const result = fn()
+    effectStack.pop()
+    activeEffect = effectStack[effectStack.length - 1]
+    return result
+  }
+
+  runner.deps = []
+  runner.scheduler = options.scheduler
+  runner()
+  return runner
+}
+
+function track(target, key) {
+  if (!activeEffect) return
+
+  let depsMap = targetMap.get(target)
+  if (!depsMap) targetMap.set(target, depsMap = new Map())
+
+  let dep = depsMap.get(key)
+  if (!dep) depsMap.set(key, dep = new Set())
+
+  if (!dep.has(activeEffect)) {
+    dep.add(activeEffect)
+    activeEffect.deps.push(dep)
+  }
+}
+
+function trigger(target, key) {
+  const depsMap = targetMap.get(target)
+  const dep = depsMap?.get(key)
+  if (!dep) return
+
+  const effects = new Set(dep)
+  effects.forEach((effect) => {
+    if (effect.scheduler) effect.scheduler(effect)
+    else effect()
+  })
+}
+
+function cleanup(effect) {
+  effect.deps.forEach(dep => dep.delete(effect))
+  effect.deps.length = 0
+}
+```
+
+```text
+effect 执行
+  -> activeEffect = 当前 effect
+  -> render / fn 读取 state.count
+  -> proxy get
+  -> track(state, 'count')
+  -> targetMap[state]['count'].add(activeEffect)
+
+state.count++
+  -> proxy set
+  -> trigger(state, 'count')
+  -> 找到 dep
+  -> scheduler(effect) 或 effect()
+```
+
+### Day 31：知识补充
+
+- 响应式的 `trigger` 是同步发生的，但组件 DOM 更新通常会进入 scheduler 队列异步批量执行。
+- scheduler 的核心价值是合并同一轮事件循环内的多次状态变更，避免中间状态反复 render 和 patch。
+- `queueJob` 会把组件更新 job 放进队列，并用去重逻辑保证同一个 job 在一次 flush 中只执行一次。
+- Vue 通过微任务触发 flush，常见理解是基于 `Promise.resolve().then(flushJobs)`。
+- 组件更新 job 会按 id 排序，父组件通常先创建、id 更小，所以父组件先更新；这能避免子组件先更新后又被父组件卸载。
+- `nextTick` 等的是当前 scheduler flush 对应的 promise，因此在 `await nextTick()` 后通常能读到 patch 后的 DOM。
+- `flush: 'pre'` 的 watcher 在组件 DOM 更新前执行，适合基于状态做前置副作用。
+- `flush: 'post'` 的 watcher 在组件 DOM 更新后执行，适合读取更新后的 DOM。
+- `flush: 'sync'` 会同步执行，不走批量队列，适合极少数需要立即响应的场景，但容易造成重复触发。
+- scheduler 不是让响应式变异步，而是让“副作用执行 / 组件更新”可调度。
+
+### Day 31：动手示例
+
+```text
+setState × 3 → queueJob 去重 → microtask flush → 执行 job → flushPost → nextTick 解决
+```
+
+```js
+const queue = []
+let isFlushing = false
+let currentFlushPromise
+
+function queueJob(job) {
+  if (!queue.includes(job)) {
+    queue.push(job)
+    queueFlush()
+  }
+}
+
+function queueFlush() {
+  if (isFlushing) return
+  currentFlushPromise = Promise.resolve().then(flushJobs)
+}
+
+function flushJobs() {
+  isFlushing = true
+  queue.sort((a, b) => a.id - b.id)
+
+  try {
+    for (const job of queue) job()
+  }
+  finally {
+    queue.length = 0
+    isFlushing = false
+    currentFlushPromise = null
+  }
+}
+
+function nextTick(fn) {
+  const p = currentFlushPromise || Promise.resolve()
+  return fn ? p.then(fn) : p
+}
+```
+
+```text
+count.value++
+count.value++
+count.value++
+  -> trigger 3 次
+  -> queueJob(renderEffect) 3 次
+  -> 队列只保留 1 个组件更新 job
+  -> 本轮同步代码结束
+  -> 微任务 flushJobs
+  -> render -> patch DOM
+  -> await nextTick() 后读取最新 DOM
+```
+
+### Day 32：4 API 对照表
+
+| API | 适合场景 | 响应边界 | 常见坑 |
+|-----|----------|----------|--------|
+| `ref` | 基础值、需要整体替换的对象、组合式函数返回值 | 通过 `.value` 追踪 | JS 中忘记 `.value`，解构后丢连接 |
+| `reactive` | 表单、状态对象、数组、Map/Set 等结构化数据 | 通过代理对象 getter/setter 追踪 | 直接解构、整体替换引用 |
+| `computed` | 由已有状态派生出的可缓存值 | 内部是懒执行 effect + dirty 缓存 | getter 有副作用，或用方法代替导致重复计算 |
+| `watch` | 监听明确来源后执行副作用 | source 变化后调回调，可拿新旧值 | 误用深度监听，忘记 cleanup |
+| `watchEffect` | 依赖分散但副作用简单 | 自动收集同步执行期间读取的依赖 | `await` 后读取的依赖不可靠，来源不够显式 |
+
+- `ref` 本质是带 `.value` 的响应式包装，基础类型必须通过对象包装才能被 getter/setter 追踪。
+- `reactive` 返回的是代理对象，响应式连接来自“访问代理对象”；直接解构得到普通值后不再经过代理。
+- `toRef` / `toRefs` 可以把 `reactive` 的属性转成 ref，保留和源对象的响应式连接。
+- `computed` 适合纯派生值，例如过滤、排序、聚合、class/style、权限展示；不要在 computed 里发请求、写缓存、改 DOM。
+- `computed` 第一次被读取才执行 getter，依赖没变时复用缓存，依赖变化时先标记 dirty。
+- `watch` 适合明确来源和副作用，例如请求、埋点、同步 localStorage、调用第三方实例。
+- `watchEffect` 会立即执行并自动收集依赖，但可读性不如 `watch` 显式，复杂场景更建议明确 source。
+- `deep: true` 的本质是递归读取内部属性来完成依赖收集，大对象上成本高，能监听具体字段就不要深度监听。
+
+### Day 32：响应丢失 3 种典型场景
+
+```js
+// 1. reactive 直接解构
+const state = reactive({ count: 0 })
+const { count } = state // count 是普通值
+
+// 2. watch 传入普通值
+watch(state.count, () => {}) // 错，应该传 getter 或 ref
+watch(() => state.count, () => {})
+
+// 3. 替换 reactive 引用
+let form = reactive({ name: 'A' })
+form = reactive({ name: 'B' }) // 原依赖不会自动指向新代理
+```
+
+### Day 32：补充笔记
+
+```js
+function ref(value) {
+  const r = {
+    get value() {
+      track(r, 'value')
+      return value
+    },
+    set value(next) {
+      if (next !== value) {
+        value = next
+        trigger(r, 'value')
+      }
+    },
+  }
+
+  return r
+}
+
+function computed(getter) {
+  let value
+  let dirty = true
+
+  const runner = effect(getter, {
+    lazy: true,
+    scheduler() {
+      if (!dirty) {
+        dirty = true
+        trigger(obj, 'value')
+      }
+    },
+  })
+
+  const obj = {
+    get value() {
+      if (dirty) {
+        value = runner()
+        dirty = false
+      }
+
+      track(obj, 'value')
+      return value
+    },
+  }
+
+  return obj
+}
+```
+
+```text
+count.value++
+  -> ref setter trigger count.value
+  -> computed 内部 effect 标记 dirty
+  -> 使用 computed.value 的 render effect 入队
+  -> render 重新读取 computed.value
+  -> dirty 为 true，重新计算并缓存
+```
+
+### Day 33：Vue 2 vs Vue 3 响应式角色对照
+
+| 维度 | Vue 2 | Vue 3 |
+|------|-------|-------|
+| 代理方式 | `Object.defineProperty` 劫持已有属性 | `Proxy` 代理整个对象 |
+| 数据观测 | `Observer` 递归 walk 对象 | `reactive` 按需创建代理 |
+| 依赖容器 | `Dep` | `dep: Set<ReactiveEffect>` |
+| 副作用 | `Watcher` | `ReactiveEffect` |
+| 依赖收集 | getter 中 `dep.depend()` | Proxy get 中 `track()` |
+| 触发更新 | setter 中 `dep.notify()` | Proxy set/delete 中 `trigger()` |
+| 新增属性 | 需要 `Vue.set` | 普通赋值即可触发 |
+| 删除属性 | 需要 `Vue.delete` | `deleteProperty` 可拦截 |
+| 数组 | 重写 7 个变异方法 | Proxy 拦截索引、length，并做数组特殊处理 |
+| Map/Set | 支持弱 | 有专门集合代理逻辑 |
+
+- Vue 2 初始化时会递归遍历对象已有 key，把每个 key 转成 getter/setter；对象越深，初始化成本越明显。
+- Vue 3 的深响应是懒代理：读取到深层对象时才把它转成 reactive。
+- Vue 2 无法天然感知新增/删除属性，因为新增 key 没有提前被 `defineProperty` 包装。
+- Vue 2 对数组索引和 `length` 处理困难，所以重写 `push/pop/shift/unshift/splice/sort/reverse`。
+- Vue 3 不等于“完全不用处理数组”，只是 Proxy 让索引、length、遍历等操作更容易进入统一响应式系统。
+- Vue 3 的 `effect` 可以被 scheduler 调度，所以组件更新、computed、watch 都能统一建立在 effect 之上。
+- 迁移时最明显变化：不再需要 `Vue.set`，但仍要注意 reactive 解构丢响应、ref `.value`、watch source 写法。
+
+### Day 33：补充笔记
+
+```text
+Vue 2:
+
+data
+  -> Observer.walk(data)
+  -> defineReactive(obj, key)
+  -> getter: Dep.depend() 收集 Watcher
+  -> setter: Dep.notify() 通知 Watcher
+  -> Watcher.update()
+  -> render / patch
+
+限制：
+  新增 key 没有 getter/setter
+  delete 不会触发 setter
+  数组索引和 length 不好拦截
+```
+
+```text
+Vue 3:
+
+state
+  -> reactive(state) 返回 Proxy
+  -> get: track(target, key)
+  -> set/delete/has/ownKeys: trigger(target, key, type)
+  -> ReactiveEffect / scheduler
+  -> render effect 入队
+  -> render / patch
+
+优势：
+  新增、删除、遍历、数组、Map/Set 都能进入代理语义
+  深层对象按需代理
+```
+
+### Day 38：依赖收集数据结构
+
+```text
+targetMap: WeakMap<target, Map<key, Set<ReactiveEffect>>>
+
+WeakMap {
+  target → Map {
+    'count' → Set [ effect1, effect2 ]
+    'name'  → Set [ effect3 ]
+  }
+}
+```
+
+- **WeakMap**：key 是原始对象，不影响 GC。
+- **Map**：key→deps 的映射。
+- **Set**：去重的 effect 集合。
+
+### Day 38：五件套关系图
+
+```text
+reactive(obj)  → Proxy → get 时 track / set 时 trigger
+ref(val)       → { _value, get value() → track, set value() → trigger }
+effect(fn)     → 创建 ReactiveEffect → 立即执行 fn → 访问响应数据 → 收集依赖
+computed(fn)   → 惰性 effect + dirty 标志 + 缓存值
+watch(source, cb) → effect + scheduler 里调 cb
+```
+
+### Day 38：实现要点
+
+| 模块 | 核心 | 易错点 |
+|------|------|--------|
+| `reactive` | Proxy get/set | 嵌套对象递归代理、已代理对象去重 |
+| `ref` | 类实例 + get/set | 自动 unwrap、和 reactive 互操作 |
+| `effect` | activeEffect + effectStack | 嵌套 effect 时 activeEffect 混乱 |
+| `computed` | dirty + lazy effect | 必须让访问者也能收到 trigger |
+| `watch` | effect + scheduler | oldValue / newValue 对比、immediate |
+
+### Day 38：reactive + effect + computed 核心实现
+
+```js
+const targetMap = new WeakMap()
+let activeEffect = null
+const effectStack = []
+
+function track(target, key) {
+  if (!activeEffect) return
+  let depsMap = targetMap.get(target)
+  if (!depsMap) targetMap.set(target, (depsMap = new Map()))
+  let deps = depsMap.get(key)
+  if (!deps) depsMap.set(key, (deps = new Set()))
+  deps.add(activeEffect)
+  activeEffect.deps.push(deps) // 反向记录，用于 cleanup
+}
+
+function trigger(target, key) {
+  const depsMap = targetMap.get(target)
+  if (!depsMap) return
+  const deps = depsMap.get(key)
+  if (!deps) return
+  const effectsToRun = new Set(deps) // 避免无限循环
+  effectsToRun.forEach(effect => {
+    if (effect.scheduler) effect.scheduler()
+    else effect.run()
+  })
+}
+
+function reactive(obj) {
+  return new Proxy(obj, {
+    get(target, key, receiver) {
+      track(target, key)
+      const result = Reflect.get(target, key, receiver)
+      return typeof result === 'object' && result !== null ? reactive(result) : result
+    },
+    set(target, key, value, receiver) {
+      const oldValue = target[key]
+      const result = Reflect.set(target, key, value, receiver)
+      if (oldValue !== value) trigger(target, key)
+      return result
+    }
+  })
+}
+
+class ReactiveEffect {
+  constructor(fn, scheduler) {
+    this.fn = fn
+    this.scheduler = scheduler
+    this.deps = []
+  }
+  run() {
+    cleanup(this) // 清除旧依赖
+    activeEffect = this
+    effectStack.push(this)
+    const result = this.fn()
+    effectStack.pop()
+    activeEffect = effectStack[effectStack.length - 1]
+    return result
+  }
+}
+
+function cleanup(effect) {
+  effect.deps.forEach(dep => dep.delete(effect))
+  effect.deps.length = 0
+}
+
+function effect(fn, options = {}) {
+  const _effect = new ReactiveEffect(fn, options.scheduler)
+  if (!options.lazy) _effect.run()
+  return _effect
+}
+
+function computed(getter) {
+  let dirty = true, value
+  const _effect = effect(getter, {
+    lazy: true,
+    scheduler() { dirty = true; trigger(obj, 'value') }
+  })
+  const obj = {
+    get value() {
+      track(obj, 'value')
+      if (dirty) { value = _effect.run(); dirty = false }
+      return value
+    }
+  }
+  return obj
+}
+```

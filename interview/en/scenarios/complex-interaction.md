@@ -41,3 +41,26 @@ if (selection && selection.rangeCount > 0) {
 - Consistency first (visual feedback, undo/redo, edges).
 - Then perf (minimal DOM updates, batching).
 - Then reliability (persist, recover, input safety).
+
+## Day 14 practice code
+
+```js
+// Combined question: a cancelable request helper
+function createCancelableRequest(url) {
+  const controller = new AbortController()
+  const promise = fetch(url, { signal: controller.signal })
+    .then(res => res.json())
+
+  return {
+    promise,
+    cancel: () => controller.abort()
+  }
+}
+
+// Combined question: array to tree
+function arrayToTree(items, parentId = null) {
+  return items
+    .filter(item => item.parentId === parentId)
+    .map(item => ({ ...item, children: arrayToTree(items, item.id) }))
+}
+```

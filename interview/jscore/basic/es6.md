@@ -314,170 +314,9 @@ Object.is(+0, -0);   // false
 
 ## 高频追问与深层原理
 
-### Promise 静态方法的实现细节
+### Promise 与 async/await
 
-#### Promise.all：任一失败则整体失败
-
-```js
-Promise.myAll = function(promises) {
-  const results = new Array(promises.length)
-  let completed = 0
-
-  return new Promise((resolve, reject) => {
-    promises.forEach((p, i) => {
-      Promise.resolve(p)
-        .then(value => {
-          results[i] = value
-          if (++completed === promises.length) {
-            resolve(results)
-          }
-        })
-        .catch(reject) // 任一 reject 立即 reject
-    })
-  })
-}
-
-// 测试
-Promise.myAll([
-  Promise.resolve(1),
-  new Promise(r => setTimeout(() => r(2), 100)),
-  Promise.resolve(3)
-]).then(console.log) // [1, 2, 3] (等待最慢的)
-```
-
-#### Promise.allSettled：全部完成才 resolve
-
-```js
-Promise.myAllSettled = function(promises) {
-  return Promise.all(
-    promises.map(p =>
-      Promise.resolve(p)
-        .then(
-          value => ({ status: 'fulfilled', value }),
-          reason => ({ status: 'rejected', reason })
-        )
-    )
-  )
-}
-
-// 使用场景：即使部分请求失败，也想知道成功的结果
-Promise.myAllSettled([
-  fetch('/api/user'),
-  fetch('/api/config') // 即使失败，user 数据仍可用
-]).then(results => {
-  const [user, config] = results
-  if (user.status === 'fulfilled') {
-    console.log(user.value)
-  }
-})
-```
-
-#### Promise.race：谁先完成返回谁
-
-```js
-Promise.myRace = function(promises) {
-  return new Promise((resolve, reject) => {
-    promises.forEach(p => {
-      Promise.resolve(p)
-        .then(resolve)
-        .catch(reject)
-    })
-  })
-}
-
-// 应用：请求超时
-const requestWithTimeout = (url, timeout = 5000) => {
-  return Promise.myRace([
-    fetch(url),
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Timeout')), timeout)
-    )
-  ])
-}
-```
-
----
-
-### async/await 本质：Generator + 自动执行器
-
-#### async 是 Generator 的语法糖
-
-```js
-// async 函数
-async function fetchData() {
-  const result = await fetch('/api/data')
-  return result
-}
-
-// Babel 转译后大概等价于：
-function fetchData() {
-  return spawn(function* () {
-    const result = yield fetch('/api/data')
-    return result
-  })
-}
-```
-
-#### 自动执行器 spawn 的实现
-
-```js
-function spawn(gen) {
-  return new Promise((resolve, reject) => {
-    const iterator = gen()
-
-    function step(nextValue) {
-      let result
-      try {
-        result = iterator.next(nextValue)
-      } catch (e) {
-        return reject(e)
-      }
-
-      if (result.done) {
-        return resolve(result.value)
-      }
-
-      // 递归调用，保持 Promise 链
-      Promise.resolve(result.value)
-        .then(step)
-        .catch(err => iterator.throw(err))
-    }
-
-    step()
-  })
-}
-```
-
-#### async/await 的常见陷阱
-
-```js
-// 陷阱1：并行 vs 串行
-async function loadData() {
-  const a = await fetchA() // 必须等 a 完成
-  const b = await fetchB() // 串行，总耗时 = a + b
-}
-
-// 正确并行：
-async function loadData() {
-  const [a, b] = await Promise.all([fetchA(), fetchB()])
-}
-
-// 陷阱2：循环中的 await
-async function processItems(items) {
-  const results = []
-  for (const item of items) {
-    results.push(await process(item)) // 串行
-  }
-  return results
-}
-
-// 正确并行：
-async function processItems(items) {
-  return Promise.all(items.map(process))
-}
-```
-
----
+Promise 组合方法和错误传播见 [Promise](../advanced/promise)；`spawn` 自动执行器与串行、并行 `await` 见 [async/await](../advanced/async-await)。
 
 ### Iterator / Generator 的实际业务应用
 
@@ -650,7 +489,7 @@ const HeavyComponent = React.lazy(() => import('./HeavyComponent'))
 >
 > 底层实现上，`async` 函数被转译为 Generator + 自动执行器。每次 `await` 都会 yield 一个 Promise，自动执行器负责递归调用 `.then()` 保持 Promise 链。
 >
-> **常见陷阱**：在循环中使用 `await` 会变成串行，应该用 `Promise.all` 并行处理。
+> 依赖任务与独立任务的安排见 [串行与并行 `await`](../advanced/async-await#4-常见坑点串行与并行)。
 
 ---
 
@@ -660,3 +499,25 @@ const HeavyComponent = React.lazy(() => import('./HeavyComponent'))
 - [MDN async/await](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function)
 - [MDN Iterator](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Iteration_protocols)
 - [ES Module 规范](https://tc39.es/ecma262/#sec-modules)
+
+## 每日练习参考
+
+### Day 2：ES6 必背要点
+
+- `let / const` + 块级作用域 + TDZ。
+- 箭头函数：无独立 `this / arguments / prototype`，不能 `new`。
+- 解构赋值 + 默认值。
+- `Promise`：状态不可逆 `pending -> fulfilled / rejected`。
+- `class`：原型继承的语法糖，方法默认在 `prototype` 上、不可枚举。
+- ES Module：静态分析、值引用、`import` 提升、默认严格模式。
+- `Set / Map / WeakMap / WeakSet`：去重、键不限类型、弱引用避免泄漏。
+
+### Day 2：ESM vs CommonJS
+
+| 维度 | CommonJS | ES Module |
+|------|----------|-----------|
+| 加载时机 | 运行时 | 编译时静态分析 |
+| 导出 | 值的拷贝 | 值的引用（live binding） |
+| 顶层 `this` | `module.exports` | `undefined` |
+| 异步 | 同步 | 支持顶层 `await` |
+| Tree-shaking | 不友好 | 友好 |

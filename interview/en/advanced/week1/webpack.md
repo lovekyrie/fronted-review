@@ -281,3 +281,104 @@ Both emit a full map; the former does not expose a URL at the end of the bundle,
 2. Production strengths: splitting, cache hashes, mature ecosystem  
 3. Weakness: high bundling cost in development  
 4. Production debugging: `hidden-source-map` + CI upload maps to Sentry, align versions via release
+
+## Daily practice reference
+
+### Day 18: webpack's 5 core concepts
+
+| Concept | Role |
+|------|------|
+| **Entry** | Build entry files; dependency-graph resolution starts here |
+| **Output** | Output path and filenames |
+| **Loader** | Handle non-JS files (CSS, images, TS, etc.); transform **a single file** |
+| **Plugin** | Act on the **whole build lifecycle**: packing optimizations, asset management, env injection, etc. |
+| **Mode** | `development` / `production`; matching optimizations turn on automatically |
+
+### Day 18: Loader execution order
+
+- Runs **right-to-left, bottom-to-top**.
+- `use: ['style-loader', 'css-loader', 'sass-loader']`: sass → css → style.
+- A loader is essentially a function: `(source) => transformedSource`.
+
+### Day 18: Plugin lifecycle
+
+Plugins register callbacks (tap) on `compiler.hooks` and `compilation.hooks`:
+
+```text
+init → compile → make (build the module graph) → seal (optimize) → emit (write files) → done
+```
+
+Common plugins: `HtmlWebpackPlugin`, `MiniCssExtractPlugin`, `DefinePlugin`, `BundleAnalyzerPlugin`.
+
+### Day 18: Chunk types
+
+| Type | Source |
+|------|------|
+| Entry chunk | One per entry |
+| Async chunk | Produced by dynamic `import()` |
+| Runtime chunk | webpack runtime (module-loading machinery) |
+| Vendor chunk | Third-party libs split by `SplitChunksPlugin` |
+
+### Day 18: SplitChunksPlugin defaults
+
+```js
+optimization: {
+  splitChunks: {
+    chunks: 'all',
+    minSize: 20000,      // only split if at least 20KB
+    maxAsyncRequests: 30, // cap on parallel requests
+    cacheGroups: {
+      vendors: { test: /node_modules/, priority: -10 },
+      default: { minChunks: 2, priority: -20, reuseExistingChunk: true }
+    }
+  }
+}
+```
+
+### Day 18: Long-term cache strategy
+
+```text
+1. Filenames use contenthash: unchanged content → unchanged hash
+2. Split the runtime chunk: avoid vendor hash changing when app code changes
+3. Stable module ids: moduleIds: 'deterministic'
+4. Vendor in its own chunk: third-party libs change less often
+```
+
+### Day 18: webpack build pipeline
+
+```text
+entry (src/index.js)
+  → recursively resolve import / require → build Module Graph
+  → each module runs through the Loader chain
+  → Module Graph → optimize → SplitChunks into Chunks
+  → each Chunk → Template → Asset (JS/CSS files)
+  → emit to dist/
+```
+
+### Day 18: Minimal webpack config
+
+```js
+const path = require('path')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+
+module.exports = {
+  mode: 'production',
+  entry: './src/index.js',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].[contenthash:8].js',
+    clean: true
+  },
+  module: {
+    rules: [
+      { test: /\.css$/, use: ['style-loader', 'css-loader'] },
+      { test: /\.js$/, exclude: /node_modules/, use: 'babel-loader' }
+    ]
+  },
+  plugins: [new HtmlWebpackPlugin({ template: './src/index.html' })],
+  optimization: {
+    splitChunks: { chunks: 'all' },
+    runtimeChunk: 'single'
+  }
+}
+```

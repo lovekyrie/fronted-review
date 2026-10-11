@@ -1,24 +1,35 @@
-# Day 21 Build Topic Follow-up Review Execution Log
+# Day 21 Build Topic Follow-up Review
 
-## Quick nav
-
-| Today | Topic | Core files |
-|------|------|----------|
-| Day 21 | Build review | [Week 1 roadmap](../advanced/week1/roadmap), [Build tools](../advanced/week1/build-tools), [Modules](../advanced/week1/modules) |
-
-## Today's goals
+## Goals
 
 - Collect all outputs from Day 15–20 into a *Build Pipeline 15-Question Answer Book*
 - Do a 30-minute self follow-up: for every answer, ask "why", and do not stop at one layer
 - Record an 8-minute audio: walk ESM → dev server → bundle → chunk → cache in one go
 
-## Reading pitfalls
+## Read in order
+
+1. [Week 1 roadmap](../advanced/week1/roadmap)
+2. [Build tools](../advanced/week1/build-tools)
+3. [Modules](../advanced/week1/modules)
+
+## Practice and self-check
+
+**Checkpoints**
 
 - The follow-up most likely to break you in interviews after "why is Vite fast" is: then why is production not equally fast?
 - When "Tree Shaking" is pushed all the way down, they are testing your combined understanding of **static analysis + sideEffects + pure functions**
 - Build questions easily get pulled into **cache invalidation debugging** or **production performance issues**
 
-## Cheat sheet / key points
+**Produce or redraw from memory**
+
+- Build Pipeline 15-Question Answer Book
+
+**Answer aloud without reading a reference answer**
+
+- 1. The full chain: ESM → dev server → bundle → chunk → cache
+- 2. Randomly pick 3 build follow-ups (choose your weakest)
+
+**Mock format and scoring**
 
 ### Build Pipeline 15-Question Answer Book
 
@@ -38,8 +49,6 @@
 14. **How to debug a slow build**: Separate install, typecheck, transform, plugins, minify, sourcemap, and I/O upload stages.
 15. **How to debug cache misses**: Check HTML caching, asset hashes, CDN purge, whether old assets were kept, the service worker, and Nginx headers.
 
-## Handwritten / flow diagrams
-
 ```text
 Source entry
   -> Module resolution: ESM / CJS / alias / extensions
@@ -56,21 +65,7 @@ Source entry
        HTML fetches the latest asset references -> static assets hit long cache
 ```
 
-## Oral questions
-
-### 1. The full chain: ESM → dev server → bundle → chunk → cache
-
-> Answer template: I would start from the module system. Source code expresses static dependencies with ESM, and the bundler first understands the entry and the dependency graph. In development, Vite uses native browser ESM: the dev server transforms a module on request and returns it, and HMR only updates the affected module boundary; webpack's dev server is more about assembling a bundle first and then serving it. In production, both Vite and webpack turn the graph into deployable artifacts: tree-shaking, dynamic-import splitting, minify, contenthash, and source maps. At release time, HTML references the latest hashed assets; HTML itself is short-cached, while JS/CSS are long-cached. That is how you get first-screen performance, cache hits, and controllable rollback at the same time.
-
-### 2. Randomly pick 3 build follow-ups (choose your weakest)
-
-> Answer template:
->
-> 1. **Why is Vite production not necessarily faster than webpack?** Because the production goal is not returning modules on demand; it is fully analyzing the graph and emitting optimized artifacts. Time is spent on transform, minify, splitting, sourcemaps, and the plugin chain.
-> 2. **Why does tree-shaking fail?** Common causes: the dep is CommonJS, the module has side effects, `sideEffects` is marked incorrectly, the import pulls the whole package in, or the minify stage does not drop dead code correctly.
-> 3. **How do you debug a low cache hit rate?** First check whether HTML is strongly cached, then whether static assets use contenthash, whether vendor/runtime stay stable, whether CDN purge went wrong, and whether old assets were deleted too early.
-
-## 8-minute recording outline
+**Recording drill**
 
 1. Module-system evolution (1 minute)
 2. Babel vs bundler responsibilities (1.5 minutes)
@@ -78,7 +73,7 @@ Source entry
 4. Code splitting + tree shaking (1.5 minutes)
 5. Caching strategy (2 minutes)
 
-## Today's review
+## Recap
 
 The 3 questions most likely to break you:
 

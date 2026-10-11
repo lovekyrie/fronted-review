@@ -23,3 +23,25 @@ const User = {
 const getCount = User.getCount.myBind(User)
 console.log(getCount())
 ```
+
+## Daily practice reference
+
+### Day 11: myBind
+
+```js
+Function.prototype.myBind = function (thisArg, ...preset) {
+  const originFn = this
+  const boundFn = function (...args) {
+    // When called with new, this is an instance of boundFn; ignore the bound object
+    return originFn.apply(
+      this instanceof boundFn ? this : thisArg,
+      [...preset, ...args]
+    )
+  }
+  // Inherit the original function's prototype
+  if (originFn.prototype) {
+    boundFn.prototype = Object.create(originFn.prototype)
+  }
+  return boundFn
+}
+```

@@ -214,4 +214,22 @@ if (window.localStorage) {
    - 使用浏览器开发工具
    - 使用在线测试工具
    - 使用自动化测试
-   - 进行跨浏览器测试 
+   - 进行跨浏览器测试
+
+## 每日练习参考
+
+### Day 9：浏览器兼容性处理链路
+
+```text
+开发时写现代语法
+  → PostCSS + Autoprefixer 自动加前缀
+  → Browserslist 配置目标浏览器
+  → Babel / core-js 处理 JS polyfill
+  → 构建产物兼容目标范围
+```
+
+Browserslist 配置示例：
+
+```text
+> 0.5%, last 2 versions, not dead
+```

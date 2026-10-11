@@ -158,3 +158,136 @@ Cache-Control: public, max-age=31536000, immutable
 - Service Worker Cache: programmable cache, good for offline and fine-grained strategies.
 
 > Interview tip: which cache layer the browser hits is an implementation detail. The frontend mainly influences caching behavior through response headers.
+
+## Daily practice reference
+
+### Day 6: Two-layer cache model
+
+```text
+Browser issues a request
+  → check strong cache (Cache-Control / Expires)
+    → hit: return 200 (from cache) directly, no server request
+    → miss: send a negotiation-cache request (with ETag / Last-Modified)
+      → server 304: not modified, use local cache
+      → server 200: return the new resource
+```
+
+| Type | Fields | Priority |
+|------|------|--------|
+| Strong cache | `Cache-Control: max-age=xxx` | higher than `Expires` |
+| Negotiation cache | `ETag` / `If-None-Match` | higher than `Last-Modified` |
+
+**Engineering practice**: do not cache HTML (`no-cache`); strongly cache JS/CSS with a hash in the filename (versioning); long-cache images/fonts.
+
+### Day 6: Cache decision flowchart
+
+```text
+Request a resource
+  ├─ Cache-Control: max-age not expired?
+  │    └─ yes → 200 (from disk/memory cache)
+  │    └─ no → request the server with If-None-Match (ETag)
+  │              ├─ resource unchanged → 304 Not Modified
+  │              └─ resource changed → 200 + new resource
+  └─ no cache headers → normal request 200
+```
+
+### Day 61: HTTP caching system
+
+| Type | Header | Behavior |
+|------|------|------|
+| **Strong cache** | `Cache-Control: max-age=31536000` | No request; use the local cache directly |
+| **Negotiated cache** | `ETag` / `If-None-Match` | Send a request; the server returns 304 or new content |
+| | `Last-Modified` / `If-Modified-Since` | Same as above (lower precision, second-level) |
+
+### Day 61: Common Cache-Control values
+
+| Value | Meaning |
+|----|------|
+| `max-age=N` | Cache is fresh for N seconds |
+| `no-cache` | **Revalidate every time** (not “do not cache”!) |
+| `no-store` | **Do not cache at all** |
+| `immutable` | Do not revalidate within the freshness lifetime (pair with hashed filenames) |
+| `s-maxage=N` | CDN cache lifetime (overrides max-age) |
+| `stale-while-revalidate=N` | After expiry, return the stale cache first and update in the background |
+
+### Day 61: Best practice: split strategies for HTML vs static assets
+
+```text
+HTML:       Cache-Control: no-cache (revalidate every time so the entry is always latest)
+JS/CSS/IMG: Cache-Control: max-age=31536000, immutable (long-lived cache + hashed filenames)
+API:        Cache-Control: no-store or max-age=0, must-revalidate
+```
+
+### Day 61: Service Worker lifecycle
+
+```text
+register → install (download and cache assets) → waiting (wait for the old SW to release) → activate (clean old caches) → fetch (intercept requests)
+```
+
+- **install**: precache static assets (`caches.open + cache.addAll`).
+- **waiting**: a newly installed SW does not take over immediately; all old pages must close first. `skipWaiting()` can skip this.
+- **activate**: clean caches from old versions. `clients.claim()` takes over immediately.
+
+### Day 61: Three caching strategies
+
+| Strategy | Behavior | Fit |
+|------|------|------|
+| **Cache First** | Check the cache first; network only on miss | Static assets, fonts, images |
+| **Network First** | Network first; fall back to cache on failure | API, HTML |
+| **Stale While Revalidate** | Return the cache first, update in the background | Assets that are not critical but should eventually be consistent |
+
+### Day 61: Request chain
+
+```text
+Browser issues a request
+  → Service Worker intercepts (fetch event)
+    → SW cache hit? → return cache
+    → miss → send to the network
+      → HTTP strong-cache hit (max-age not expired)? → return disk/memory cache
+      → expired → send to the server
+        → negotiated-cache hit (304)? → return local cache
+        → miss → return the new resource (200)
+```
+
+### Day 61: Implementing the three strategies
+
+```js
+// Cache First
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(cached =>
+      cached || fetch(e.request).then(res => {
+        const clone = res.clone()
+        caches.open('v1').then(cache => cache.put(e.request, clone))
+        return res
+      })
+    )
+  )
+})
+
+// Network First
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    fetch(e.request)
+      .then(res => {
+        const clone = res.clone()
+        caches.open('v1').then(cache => cache.put(e.request, clone))
+        return res
+      })
+      .catch(() => caches.match(e.request))
+  )
+})
+
+// Stale While Revalidate
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      const fetchPromise = fetch(e.request).then(res => {
+        caches.open('v1').then(cache => cache.put(e.request, res.clone()))
+        return res
+      })
+      return cached || fetchPromise
+    })
+  )
+})
+```

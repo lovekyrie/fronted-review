@@ -196,3 +196,24 @@ So in many cases a BFF/proxy layer can architecturally avoid frontend cross-orig
 
 ##### 8.4 Fast interview answer
 Start with the principle (same-origin policy), then the main solution (CORS), then alternatives and boundaries (proxy, WebSocket, postMessage).
+
+## Daily practice reference
+
+### Day 6: CORS
+
+**Simple requests** (no preflight):
+- Methods: GET / HEAD / POST
+- Content-Type: `text/plain` / `multipart/form-data` / `application/x-www-form-urlencoded`
+- No custom headers
+
+**Preflight (OPTIONS)** triggers: non-simple methods (PUT / DELETE), custom headers, `Content-Type: application/json`.
+
+Key server response headers:
+
+```text
+Access-Control-Allow-Origin: https://example.com
+Access-Control-Allow-Methods: GET, POST, PUT
+Access-Control-Allow-Headers: Content-Type, Authorization
+Access-Control-Allow-Credentials: true
+Access-Control-Max-Age: 86400
+```

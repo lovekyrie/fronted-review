@@ -278,3 +278,85 @@ CJS→ESM + merging tiny files to cut requests. It is not at odds with "fast"; i
 2. Strengths: modern default DX, fast HMR  
 3. Complex customization still requires Rollup splitting and plugins  
 4. Production debugging: hidden map + release alignment + Sentry upload, same flow as webpack
+
+## Daily practice reference
+
+### Day 17: Vite development model
+
+```text
+1. Use native browser ESM; do not bundle source
+2. Pre-bundle (esbuild): convert CJS deps to ESM + merge files to cut requests
+3. Compile on demand: only compile the module the browser requests
+4. HMR: push changes over WebSocket; only invalidate affected modules
+```
+
+### Day 17: Dependency Pre-Bundling
+
+Uses esbuild (written in Go, very fast) to solve two problems:
+- **CJS → ESM**: most third-party packages are CJS; the browser cannot use them directly.
+- **Merge requests**: lodash-es has hundreds of tiny files; pre-bundling merges them into one so the browser does not fire hundreds of requests.
+
+Cache lives in `node_modules/.vite/`; it is not rebuilt if deps are unchanged.
+
+### Day 17: HMR comparison
+
+| Dimension | Vite | webpack |
+|------|------|---------|
+| Update scope | Only invalidate affected modules | Re-bundle the affected chunk |
+| Speed | Independent of project size (O(1)) | Grows with chunk size |
+| Transport | WebSocket pushes update info | WebSocket pushes a new chunk |
+
+### Day 17: Production build
+
+- Uses **Rollup**, not esbuild, because Rollup's code splitting, tree-shaking, CSS handling, and plugin ecosystem are more mature.
+- Vite 5+ has experimental Rolldown (a Rust Rollup-compatible bundler).
+
+### Day 17: Vite vs webpack
+
+| Dimension | Vite | webpack |
+|------|------|---------|
+| Dev startup | Seconds (no source bundle) | Minutes (full bundle) |
+| Dev compile | On demand (when the browser requests) | Full bundle |
+| HMR | Module-level, very fast | Chunk-level, slower |
+| Production bundle | Rollup | webpack itself |
+| Config complexity | Low (convention over configuration) | High (flexible but verbose) |
+| Ecosystem | Growing fast | Most mature |
+
+### Day 17: Full Vite Dev Server flow
+
+```text
+browser requests /src/main.ts
+  → Vite dev server intercepts the request
+  → check whether it is a third-party dep
+    → yes: redirect to /.vite/deps/xxx.js (pre-bundle output)
+    → no: esbuild compiles TS/JSX on the fly → return ESM
+  → browser runs ESM and finds import statements
+  → keep requesting dependent modules (on-demand loading)
+  → when source changes:
+    → Vite notifies the browser over WebSocket
+    → the browser only re-requests the changed module
+    → module-level HMR takes effect
+```
+
+### Day 17: Vite plugin API sketch
+
+```js
+// vite.config.ts
+export default {
+  plugins: [{
+    name: 'my-plugin',
+    transform(code, id) {
+      // Like a Rollup plugin: transform module contents
+      if (id.endsWith('.md')) {
+        return `export default ${JSON.stringify(code)}`
+      }
+    },
+    configureServer(server) {
+      // Dev-only: custom middleware
+      server.middlewares.use('/api', (req, res) => {
+        res.end('hello')
+      })
+    }
+  }]
+}
+```

@@ -292,3 +292,78 @@ Do not put in the global store:
 1. Selectors / computed properties should expose only the derived state you need.
 2. Avoid storing oversized, redundant structures in the store.
 3. Update large objects more granularly to reduce unrelated component reactions.
+
+## Daily practice reference
+
+### Day 41: Pinia vs Vuex comparison
+
+| Dimension | Pinia | Vuex |
+|------|-------|------|
+| API | `defineStore` | `new Vuex.Store` |
+| mutations | ❌ not needed | ✅ must mutate through mutations |
+| TypeScript | naturally friendly | needs extra type declarations |
+| Modularization | each store is independent, imported on demand | global single store + modules |
+| DevTools | ✅ supported | ✅ supported |
+| Composition API | ✅ setup store | ❌ |
+| Size | ~1KB | ~10KB |
+
+### Day 41: Two Pinia store styles
+
+```ts
+// 1. Options Store
+export const useCounterStore = defineStore('counter', {
+  state: () => ({ count: 0 }),
+  getters: { double: (state) => state.count * 2 },
+  actions: { increment() { this.count++ } }
+})
+
+// 2. Setup Store (recommended)
+export const useCounterStore = defineStore('counter', () => {
+  const count = ref(0)
+  const double = computed(() => count.value * 2)
+  function increment() { count.value++ }
+  return { count, double, increment }
+})
+```
+
+### Day 41: State-layering architecture
+
+| Layer | Where it lives | Examples |
+|------|----------|------|
+| Component state | `ref / reactive` | form input, UI toggles |
+| Global state | Pinia store | user info, permissions, theme |
+| Server cache | TanStack Query / SWR | API data, lists, pagination |
+| URL state | route query/params | search filters, page number, tab |
+| Persistent state | localStorage / IndexedDB | token, user preferences |
+
+### Day 41: Persistence approach
+
+```ts
+// pinia-plugin-persistedstate
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+pinia.use(piniaPluginPersistedstate)
+
+defineStore('user', {
+  state: () => ({ token: '' }),
+  persist: true  // defaults to localStorage
+})
+```
+
+### Day 41: Pinia core idea (simplified)
+
+```text
+defineStore('id', setup)
+  → create a reactive store object
+  → register it on the pinia instance (app.use(pinia))
+  → the component calls useStore() → get existing / create new from pinia._stores
+  → refs/reactives inside the store are tracked automatically
+  → dependencies are collected during component render, and updates fire when data changes
+```
+
+### Day 41: Vuex data flow
+
+```text
+Component → dispatch(action) → commit(mutation) → state changes → component updates
+                 ↓
+           can be async           must be sync
+```

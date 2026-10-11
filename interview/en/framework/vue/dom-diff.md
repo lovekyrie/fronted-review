@@ -151,3 +151,21 @@ function updateChildren(parentElm, oldCh, newCh) {
 ## 8. Summary
 
 Vue's DOM Diff algorithm uses two-ended comparison to stay correct while improving performance. Combined with reasonable optimizations and best practices, it can take full advantage of the algorithm and improve app performance.
+
+## Daily practice reference
+
+### Day 35: Traditional VDOM diff vs Block Tree diff
+
+```text
+Traditional diff:
+  div (compare)
+  ├── span "static" (compare → no change)
+  ├── span "static" (compare → no change)
+  └── span {{ msg }} (compare → TEXT changed → update)
+  compare 4 nodes in total
+
+Block Tree diff:
+  div [Block]
+  └── dynamicChildren: [ span {{ msg }} (PatchFlag: TEXT) ]
+  compare only 1 node, and know that only textContent needs updating
+```

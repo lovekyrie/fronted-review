@@ -39,20 +39,19 @@ After an async task finishes, its callback waits in a task queue. There are two 
 1. **Macro tasks**
    - `setTimeout` / `setInterval`
    - `setImmediate` (Node)
-   - `requestAnimationFrame` (browser)
    - I/O (file I/O, network)
-   - UI rendering
 
 2. **Micro tasks**
    - `Promise.then/catch/finally`
-   - `process.nextTick` (Node, highest priority)
    - `MutationObserver`
    - `queueMicrotask`
+
+`requestAnimationFrame` is a rendering callback, not a task or microtask. Rendering itself is also not a task. Node.js `process.nextTick` uses a separate queue that runs before Promise microtasks.
 
 #### Event Loop process
 This is the core of JS asynchrony.
 1. **Synchronous code**: run top to bottom, push onto the call stack, then clear it.
-2. **Drain microtasks**: when the call stack is empty, run **all** tasks in the microtask queue.
+2. **Drain microtasks**: at each microtask checkpoint, run queued microtasks until the queue is empty.
 3. **Render UI**: (browser) a paint may happen here.
 4. **Run one macrotask**: take **one** task from the macrotask queue.
 5. **Loop**: go back to step 2.
@@ -146,7 +145,7 @@ setTimeout(() => {
 #### Best practices
 1. **Avoid long synchronous work**: it blocks the event loop and janks the page. Offload heavy computation to `Web Workers`.
 2. **Know microtask priority**: `Promise` and `MutationObserver` run before `setTimeout`, so they fit high-priority data updates.
-3. **Don't overuse timers**: `setTimeout` has a minimum delay (4ms) and is a poor high-precision clock. Use `requestAnimationFrame` for animation.
+3. **Don't overuse timers**: repeated nested timers may be clamped to at least 4ms; timers are poor high-precision clocks. Use `requestAnimationFrame` for animation.
 
 ---
 
@@ -200,7 +199,7 @@ Node.js's event loop has multiple **phases**, each handling a specific kind of w
 #### When microtasks run in Node.js
 
 ```js
-// In Node.js, microtasks run after each phase, not after each macrotask
+// Current Node.js also processes nextTick and Promise microtasks after callbacks
 
 // Phase: timers
 setTimeout(() => console.log('timeout'))
@@ -247,25 +246,9 @@ function chunkedTask(tasks, callback) {
 
 #### When RAF runs
 
-```
-┌─────────────────────────────────────────┐
-│            Call Stack                    │
-└─────────────────────────────────────────┘
-                    ↓
-┌─────────────────────────────────────────┐
-│        Microtask queue                   │
-└─────────────────────────────────────────┘
-                    ↓
-┌─────────────────────────────────────────┐
-│          Rendering                       │ ← here!
-│    - style recalc                        │
-│    - layout                              │
-│    - paint                               │
-└─────────────────────────────────────────┘
-                    ↓
-┌─────────────────────────────────────────┐
-│              Macrotasks                  │
-└─────────────────────────────────────────┘
+```text
+Task → microtask checkpoint → rendering opportunity (if needed)
+                                  → rAF callbacks → style/layout/paint
 ```
 
 **RAF callbacks run before rendering**, which is why they are a good fit for animation.
@@ -285,16 +268,16 @@ function animate(time) {
 
 // RAF approach (recommended)
 function animate() {
-  // The browser targets 60fps and calls this before paint
+  // The browser schedules this before a paint opportunity
   requestAnimationFrame(animate)
 }
 ```
 
 | Dimension | setTimeout | RAF |
 |------|-----------|-----|
-| Precision | Unstable, can drop frames | Stable 60fps |
+| Precision | Unstable, can drop frames | Follows display refresh when rendering |
 | Throttling | Manual time-delta | Automatic |
-| Hidden tab | Keeps running | Pauses (saves CPU) |
+| Hidden tab | May be throttled | Often paused (saves CPU) |
 | Mobile power saving | No | Yes |
 
 ---
@@ -304,7 +287,7 @@ function animate() {
 `queueMicrotask` queues a callback as a microtask, at a lower level than `Promise.then`:
 
 ```js
-// Scenario 1: run after the current microtask queue is drained
+// Scenario 1: run at the next microtask checkpoint
 queueMicrotask(() => {
   console.log('microtask')
 })
@@ -337,7 +320,7 @@ queueMicrotask(() => {
 |------|--------|---------|
 | Rendering | Yes (may paint each tick) | No (no UI) |
 | Phases | No (simple loop) | Multiple phases (timers/poll/check/close) |
-| Microtask timing | After each macrotask | After each phase |
+| Microtask timing | At each checkpoint after a task | Usually after a callback in current Node.js |
 | setImmediate | No | Yes |
 | process.nextTick | No | Yes (higher than Promise) |
 | queueMicrotask | Yes | Yes |
@@ -372,12 +355,12 @@ Promise.resolve().then(() => console.log('2'))
 > 1. The **call stack** runs synchronous code
 > 2. After the stack is empty, the **microtask queue** is fully drained (Promise, queueMicrotask, MutationObserver)
 > 3. In the browser, a **render** may run
-> 4. Take one task from the **macrotask queue** (setTimeout, setInterval, I/O, RAF)
+> 4. Take one task from the **task queue** (setTimeout, setInterval, I/O); RAF belongs to rendering
 > 5. Go back to step 2
 >
 > Key point: **all microtasks are drained after every macrotask**, so `Promise.then` runs before `setTimeout`.
 >
-> Node.js has multiple phases (timers/poll/check). Microtasks run after each phase. `process.nextTick` has higher priority than Promise.
+> Node.js has multiple phases (timers/poll/check). Current versions process `process.nextTick` and Promise microtasks after callbacks; `nextTick` normally runs first.
 
 ---
 
@@ -386,3 +369,30 @@ Promise.resolve().then(() => console.log('2'))
 - [Node.js event loop docs](https://nodejs.org/en/guides/event-loop-timers-and-nexttick)
 - [MDN concurrency model](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Event_loop)
 - [Jake Archibald's event loop article](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/)
+
+## Event-loop output exercises
+
+Write down when each callback enters a queue, then check the output:
+
+```js
+console.log('1')
+setTimeout(() => console.log('2'), 0)
+Promise.resolve().then(() => console.log('3'))
+Promise.resolve().then(() => {
+  console.log('4')
+  setTimeout(() => console.log('5'), 0)
+})
+console.log('6')
+// 1 → 6 → 3 → 4 → 2 → 5
+```
+
+In the next example, `micro` runs before another task. The order of `timeout` and `rAF` depends on the next rendering opportunity. The microtask queued inside `rAF` runs at a subsequent microtask checkpoint.
+
+```js
+requestAnimationFrame(() => {
+  console.log('rAF')
+  Promise.resolve().then(() => console.log('micro in rAF'))
+})
+setTimeout(() => console.log('timeout'), 0)
+Promise.resolve().then(() => console.log('micro'))
+```

@@ -183,4 +183,130 @@ observer.observe({ entryTypes: ['layout-shift', 'paint'] });
    - CSS阻塞处理
    - JavaScript阻塞处理
    - 资源加载优化
-   - 关键渲染路径优化 
+   - 关键渲染路径优化
+
+## 每日练习参考
+
+### Day 58：渲染流水线 5 步
+
+```text
+1. Parse: HTML → DOM tree, CSS → CSSOM tree
+2. Style: DOM + CSSOM → Render Tree（不包含 display:none）
+3. Layout: 计算每个节点的几何信息（位置、大小）
+4. Paint: 生成绘制指令（颜色、边框、阴影等）
+5. Composite: 将多个图层合并，GPU 输出到屏幕
+```
+
+### Day 58：触发层级对照表
+
+| 操作类型 | 触发阶段 | 示例属性 |
+|----------|----------|----------|
+| **回流（Reflow）** | Layout → Paint → Composite | `width / height / margin / padding / display / position / font-size` |
+| **重绘（Repaint）** | Paint → Composite | `color / background / visibility / box-shadow / border-color` |
+| **合成（Composite Only）** | Composite | `transform / opacity / will-change` |
+
+### Day 58：合成层提升条件
+
+- `transform: translateZ(0)` 或 `translate3d()`
+- `will-change: transform / opacity`
+- `position: fixed`（部分浏览器）
+- `<video>` / `<canvas>` / `<iframe>`
+- CSS `filter` / `backdrop-filter`
+
+### Day 58：回流触发的常见操作
+
+```js
+// 读取布局信息会强制同步回流（Layout Thrashing）
+el.offsetTop / el.offsetHeight
+el.getBoundingClientRect()
+window.getComputedStyle(el)
+el.scrollTop
+```
+
+### Day 58：完整渲染流水线
+
+```text
+HTML bytes → 解码 → Tokenize → 构建 DOM Tree
+                                     ↓
+CSS bytes → 解码 → Tokenize → 构建 CSSOM Tree
+                                     ↓
+                              Render Tree（DOM + CSSOM，排除 display:none）
+                                     ↓
+                              Layout（计算几何信息）
+                                     ↓
+                              Paint（生成绘制指令，按图层）
+                                     ↓
+                              Composite（GPU 合成图层，输出到屏幕）
+```
+
+### Day 58：避免 Layout Thrashing
+
+```js
+// ❌ 读写交替，每次读都强制同步回流
+for (let i = 0; i < items.length; i++) {
+  items[i].style.width = container.offsetWidth + 'px'  // 读 → 写 → 读 → 写
+}
+
+// ✅ 批量读，再批量写
+const width = container.offsetWidth  // 读一次
+for (let i = 0; i < items.length; i++) {
+  items[i].style.width = width + 'px'  // 只写
+}
+```
+
+### Day 58：只触发 Composite 的动画
+
+```css
+/* ✅ 只触发合成层，60fps 流畅动画 */
+.animate {
+  transform: translateX(100px);
+  opacity: 0.5;
+  will-change: transform, opacity;
+}
+
+/* ❌ 触发回流，性能差 */
+.animate-bad {
+  left: 100px;  /* 触发 Layout */
+  width: 200px; /* 触发 Layout */
+}
+```
+
+### Day 5：浏览器渲染流水线
+
+```text
+HTML → DOM Tree
+             ↘
+CSS  → CSSOM    → Render Tree → Layout → Paint → Composite
+```
+
+- **重排 (Reflow)**：几何属性变化（`width / height / margin`），触发 Layout 重新计算，代价最大。
+- **重绘 (Repaint)**：外观属性变化（`color / background`），不触发 Layout。
+- **合成 (Composite)**：`transform / opacity` 走 GPU 合成层，不触发 Layout 和 Paint，性能最好。
+
+### Day 5：渲染流水线完整图
+
+```text
+╔════════╗   ╔════════╗
+║  HTML  ║   ║  CSS   ║
+╚════┬═══╝   ╚════┬═══╝
+     │ parse       │ parse
+     ▼              ▼
+╔════════╗   ╔════════╗
+║DOM Tree║   ║ CSSOM  ║
+╚════┬═══╝   ╚════┬═══╝
+     │              │
+     └──────┬──────┘
+           ▼
+   ╔═══════════╗
+   ║Render Tree║
+   ╚═════┬═════╝
+         ▼
+   Layout → Paint → Composite
+```
+
+### Day 5：合成层触发条件
+
+- `transform: translate3d()` / `will-change: transform`
+- `opacity` 动画
+- `<video>` / `<canvas>` / `<iframe>`
+- `position: fixed`（部分浏览器）

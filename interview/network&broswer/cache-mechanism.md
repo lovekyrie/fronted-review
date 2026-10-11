@@ -158,3 +158,136 @@ Cache-Control: public, max-age=31536000, immutable
 - Service Worker Cache：可编程缓存，适合离线与精细化策略。
 
 > 面试可补一句：浏览器到底命中哪层缓存由实现策略决定，前端主要通过响应头影响缓存行为。
+
+## 每日练习参考
+
+### Day 61：HTTP 缓存体系
+
+| 类型 | 头部 | 行为 |
+|------|------|------|
+| **强缓存** | `Cache-Control: max-age=31536000` | 不发请求，直接用本地缓存 |
+| **协商缓存** | `ETag` / `If-None-Match` | 发请求，服务器返回 304 或新内容 |
+| | `Last-Modified` / `If-Modified-Since` | 同上（精度低，秒级） |
+
+### Day 61：Cache-Control 常见值
+
+| 值 | 含义 |
+|----|------|
+| `max-age=N` | 缓存 N 秒内有效 |
+| `no-cache` | **每次都协商**（不是不缓存！） |
+| `no-store` | **完全不缓存** |
+| `immutable` | 缓存期内不协商（配合 hash 文件名） |
+| `s-maxage=N` | CDN 缓存时间（覆盖 max-age） |
+| `stale-while-revalidate=N` | 过期后先返回旧缓存，后台更新 |
+
+### Day 61：最佳实践：HTML + 静态资源分策略
+
+```text
+HTML:       Cache-Control: no-cache（每次协商，保证拿到最新入口）
+JS/CSS/IMG: Cache-Control: max-age=31536000, immutable（长期缓存 + 文件名带 hash）
+API:        Cache-Control: no-store 或 max-age=0, must-revalidate
+```
+
+### Day 61：Service Worker 生命周期
+
+```text
+register → install（下载缓存资源）→ waiting（等旧 SW 释放）→ activate（清理旧缓存）→ fetch（拦截请求）
+```
+
+- **install**：预缓存静态资源（`caches.open + cache.addAll`）。
+- **waiting**：新 SW 安装后不会立即接管，要等所有旧页面关闭。`skipWaiting()` 可跳过。
+- **activate**：清理旧版本缓存。`clients.claim()` 立即接管。
+
+### Day 61：三种缓存策略
+
+| 策略 | 行为 | 适用 |
+|------|------|------|
+| **Cache First** | 先查缓存，没有再走网络 | 静态资源、字体、图片 |
+| **Network First** | 先走网络，失败用缓存 | API、HTML |
+| **Stale While Revalidate** | 先返回缓存，同时后台更新 | 不太关键但需要最终一致的资源 |
+
+### Day 61：请求链路
+
+```text
+浏览器发起请求
+  → Service Worker 拦截（fetch event）
+    → 命中 SW 缓存？→ 返回缓存
+    → 未命中 → 发到网络
+      → HTTP 强缓存命中（max-age 未过期）？→ 返回 disk/memory cache
+      → 过期 → 发到服务器
+        → 协商缓存命中（304）？→ 返回本地缓存
+        → 未命中 → 返回新资源（200）
+```
+
+### Day 61：三种策略实现
+
+```js
+// Cache First
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(cached =>
+      cached || fetch(e.request).then(res => {
+        const clone = res.clone()
+        caches.open('v1').then(cache => cache.put(e.request, clone))
+        return res
+      })
+    )
+  )
+})
+
+// Network First
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    fetch(e.request)
+      .then(res => {
+        const clone = res.clone()
+        caches.open('v1').then(cache => cache.put(e.request, clone))
+        return res
+      })
+      .catch(() => caches.match(e.request))
+  )
+})
+
+// Stale While Revalidate
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      const fetchPromise = fetch(e.request).then(res => {
+        caches.open('v1').then(cache => cache.put(e.request, res.clone()))
+        return res
+      })
+      return cached || fetchPromise
+    })
+  )
+})
+```
+
+### Day 6：缓存两层模型
+
+```text
+浏览器发起请求
+  → 检查强缓存（Cache-Control / Expires）
+    → 命中：直接返回 200 (from cache)，不请求服务器
+    → 未命中：发起协商缓存请求（带 ETag / Last-Modified）
+      → 服务器 304：未修改，用本地缓存
+      → 服务器 200：返回新资源
+```
+
+| 类型 | 字段 | 优先级 |
+|------|------|--------|
+| 强缓存 | `Cache-Control: max-age=xxx` | 高于 `Expires` |
+| 协商缓存 | `ETag` / `If-None-Match` | 高于 `Last-Modified` |
+
+**工程实践**：HTML 不缓存（`no-cache`），JS/CSS 强缓存 + 文件名带 hash（版本化），图片/字体长缓存。
+
+### Day 6：缓存决策流程图
+
+```text
+请求资源
+  ├─ Cache-Control: max-age 未过期？
+  │    └─ 是 → 200 (from disk/memory cache)
+  │    └─ 否 → 带 If-None-Match (ETag) 请求服务器
+  │              ├─ 资源未变 → 304 Not Modified
+  │              └─ 资源已变 → 200 + 新资源
+  └─ 无缓存头 → 正常请求 200
+```

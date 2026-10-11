@@ -499,3 +499,455 @@ If the interviewer asks about “Vue 3 rendering internals,” answer in this or
 10. SSR hydration reuses server DOM, but requires the server and client render results to match
 
 That answer connects Vue 3 reactivity, scheduling, compile-time optimization, and DOM patch into one complete pipeline.
+
+## Daily practice reference
+
+### Day 34: Knowledge notes
+
+- Vue templates do not run directly. The compiler turns the template into a render function, and executing render produces vnodes.
+- The main compilation pipeline can be split into three steps: `parse -> transform -> codegen`.
+- `parse` turns the template string into an AST that describes tags, attributes, directives, interpolations, text, and so on.
+- `transform` converts and marks the AST, for example identifying dynamic text, dynamic class/style, events, directives, and components.
+- `codegen` turns the transformed AST into a render function string, which includes calls such as `openBlock`, `createElementBlock`, and `createVNode`.
+- Static hoisting lifts vnodes that do not depend on reactive data outside render, creating them once and reducing repeated creation and comparison on updates.
+- A patch flag is a compiler hint on a dynamic node telling the runtime which parts of that vnode can change, such as text, class, style, or props.
+- Event caching keeps event handler references stable, reducing meaningless props changes from creating a new function on every render.
+- The block tree collects dynamic children inside a stable structure. On update it prefers walking `dynamicChildren` instead of fully recursing the whole template tree.
+- Day 34 only needs the main compilation chain; patch flag, block tree, and diff details are covered on Day 35–36.
+
+### Day 34: Common patch flag directions
+
+| Type | Meaning | Example |
+|------|------|------|
+| TEXT | Dynamic text | `{{ title }}` |
+| CLASS | Dynamic class | `:class="cls"` |
+| STYLE | Dynamic style | `:style="style"` |
+| PROPS | Specified props are dynamic | `:id="id"` |
+| FULL_PROPS | Props are complex; full comparison is needed | `v-bind="obj"` |
+| NEED_PATCH | Needs runtime handling | ref, directives, etc. |
+
+### Day 34: Practice example
+
+```text
+template → parse → AST → transform(add patchFlag) → codegen → render function
+```
+
+```vue
+<template>
+  <div class="card">
+    <h3>{{ title }}</h3>
+    <p>static text</p>
+    <button @click="onClick">{{ count }}</button>
+  </div>
+</template>
+```
+
+```js
+// Simplified render shape; focus on dynamic flags and static nodes
+const _hoisted_1 = createElementVNode('p', null, 'static text')
+
+function render(_ctx, _cache) {
+  return openBlock(), createElementBlock('div', { class: 'card' }, [
+    createElementVNode('h3', null, toDisplayString(_ctx.title), 1),
+    _hoisted_1,
+    createElementVNode(
+      'button',
+      {
+        onClick: _cache[0] || (_cache[0] = (...args) => _ctx.onClick(...args)),
+      },
+      toDisplayString(_ctx.count),
+      1,
+    ),
+  ])
+}
+```
+
+```text
+Component mount
+  -> create render effect
+  -> run render function
+  -> render reads title/count
+  -> track component render effect
+  -> generate vnode
+  -> patch to DOM
+
+State change
+  -> trigger render effect
+  -> scheduler queueJob
+  -> render again
+  -> do fewer comparisons via patch flag / block tree
+  -> patch DOM
+```
+
+### Day 35: Patch Flag enums
+
+| Flag | Value | Meaning |
+|------|-----|------|
+| `TEXT` | 1 | Children are dynamic text |
+| `CLASS` | 2 | Dynamic class binding |
+| `STYLE` | 4 | Dynamic style binding |
+| `PROPS` | 8 | Dynamic non-class/style attributes |
+| `FULL_PROPS` | 16 | Props with dynamic keys; full diff is required |
+| `HYDRATE_EVENTS` | 32 | Events that need hydrate |
+| `STABLE_FRAGMENT` | 64 | Fragment whose child order does not change |
+| `KEYED_FRAGMENT` | 128 | Fragment whose children have keys |
+| `UNKEYED_FRAGMENT` | 256 | Fragment whose children have no keys |
+| `NEED_PATCH` | 512 | Only non-props patch is needed (ref / hooks) |
+| `HOISTED` | -1 | Statically hoisted node; never diffed |
+| `BAIL` | -2 | Exit optimized mode and take a full diff |
+
+Role: the compiler marks at compile time which nodes are dynamic and which properties are dynamic. At runtime `patch` takes a **fast path** from the flag and skips unchanged parts.
+
+### Day 35: Block Tree
+
+- **Block**: a "dynamic node container" that collects all descendant dynamic nodes into the `dynamicChildren` array.
+- **Traditional diff**: recursively walk the whole vnode tree and compare node by node.
+- **Block diff**: only walk `block.dynamicChildren`, a flattened array, O(number of dynamic nodes) rather than O(total nodes).
+
+Block cut-off points: `v-if` / `v-for` / `<Component>` create a new Block because they can change subtree structure.
+
+### Day 35: Static Hoisting
+
+```js
+// Before compile
+<div>
+  <span>static text</span>
+  <span>{{ dynamic }}</span>
+</div>
+
+// After compile (pseudocode)
+const _hoisted_1 = createVNode('span', null, 'static text', -1 /* HOISTED */)
+function render() {
+  return createBlock('div', null, [
+    _hoisted_1,  // reuse; not part of diff
+    createVNode('span', null, ctx.dynamic, 1 /* TEXT */)
+  ])
+}
+```
+
+Benefit: static nodes are created once. Later re-renders reuse the same reference, saving memory and skipping diff.
+
+### Day 35: Patch Flag fast paths
+
+```text
+patch(n1, n2):
+  if (patchFlag & TEXT)   → only update el.textContent
+  if (patchFlag & CLASS)  → only update el.className
+  if (patchFlag & STYLE)  → only update el.style
+  if (patchFlag & PROPS)  → only diff properties in the dynamicProps list
+  if (patchFlag === HOISTED) → skip, no diff
+```
+
+### Day 36: Renderer entry architecture
+
+```text
+patch(n1, n2, container)
+  → branch on n2.type:
+    string     → processElement
+    Component  → processComponent
+    Fragment   → processFragment
+    Text       → processText
+```
+
+- `n1 === null` → mount (first mount)
+- `n1 !== null` → patch (update comparison)
+- `n1` exists but `n2 === null` → unmount (unmount)
+
+### Day 36: patchElement flow
+
+```text
+patchElement(n1, n2):
+  1. patchProps(el, oldProps, newProps, patchFlag)
+  2. patchChildren(n1, n2, el, patchFlag)
+  3. n2.el = n1.el  // reuse the DOM node
+```
+
+### Day 36: Three stages of children diff (Vue 3)
+
+```text
+Stage 1: compare from the head — i starts at 0; same key+type → patch directly
+Stage 2: compare from the tail — e1/e2 start at the end; same key+type → patch directly
+Stage 3: handle the disordered middle
+  → build keyToNewIndex Map
+  → walk old nodes, look up new positions in the Map
+  → use longest increasing subsequence (LIS) to find nodes that do not need to move
+  → remaining nodes are moved or newly mounted
+```
+
+### Day 36: Longest increasing subsequence (LIS)
+
+- Role: find the **largest set of nodes that do not need to move** in the disordered section; only the rest need DOM moves.
+- Algorithm: greedy + binary search, O(n log n).
+- Benefit: minimize DOM moves. React does not use LIS; Vue 3 is better here.
+
+### Day 36: Role of key
+
+- key is the unique identity of a vnode, used to **quickly match old and new nodes** during diff.
+- Without key → match by index, which can scramble component state and cause unnecessary DOM work.
+- With key → look up the matching node precisely via the `keyToNewIndex` Map.
+
+### Day 36: Full children diff flowchart
+
+```text
+old: [a, b, c, d, e, f]    new: [a, d, b, g, f]
+
+Stage 1 head-to-head: a === a → patch ✓, i = 1
+Stage 2 tail-to-tail: f === f → patch ✓, e1 = 4, e2 = 3
+
+Disordered middle:
+  old: [b, c, d, e]  new: [d, b, g]
+
+  keyToNewIndex: { d→0, b→1, g→2 }
+  walk old nodes:
+    b → new index 1
+    c → missing → unmount
+    d → new index 0
+    e → missing → unmount
+
+  newIndexToOldIndex: [3, 1, 0]  (d was at 3, b was at 1, g is new)
+  LIS([3, 1]) = [1] → the node at index 1 (b) stays
+
+  reverse walk: g(mount) → b(stay) → d(move)
+```
+
+### Day 36: LIS algorithm core
+
+```js
+function getSequence(arr) {
+  const result = [0]
+  const p = arr.slice()
+  for (let i = 1; i < arr.length; i++) {
+    if (arr[i] === 0) continue // skip newly added nodes
+    const last = arr[result[result.length - 1]]
+    if (arr[i] > last) {
+      p[i] = result[result.length - 1]
+      result.push(i)
+    } else {
+      // binary search replace
+      let lo = 0, hi = result.length - 1
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1
+        if (arr[result[mid]] < arr[i]) lo = mid + 1
+        else hi = mid
+      }
+      if (arr[i] < arr[result[lo]]) {
+        if (lo > 0) p[i] = result[lo - 1]
+        result[lo] = i
+      }
+    }
+  }
+  // backtrack
+  let len = result.length, idx = result[len - 1]
+  while (len-- > 0) { result[len] = idx; idx = p[idx] }
+  return result
+}
+```
+
+### Day 37: Component update trigger chain
+
+```text
+Reactive data changes
+  → dep.trigger()
+  → the current component’s ReactiveEffect is marked dirty
+  → scheduler queues the update (queueJob)
+  → batch-run after nextTick
+  → effect.run() → call component render to produce a new VNode
+  → patch(oldVNode, newVNode) → recurse the subtree
+```
+
+### Day 37: setupRenderEffect
+
+Each component instance has a `ReactiveEffect`, created in `setupRenderEffect`:
+
+```js
+const effect = new ReactiveEffect(
+  () => componentUpdateFn,  // render + patch
+  () => queueJob(update)    // scheduler: do not run immediately; queue and wait for nextTick
+)
+```
+
+### Day 37: shouldUpdateComponent
+
+When the parent re-renders, a child component VNode calls `shouldUpdateComponent(n1, n2)` to decide:
+
+```text
+Shallow-compare props
+  → props unchanged → skip child update
+  → props changed → trigger child update
+Extra checks: whether slots / emits / dirs changed
+```
+
+### Day 37: Component vs element update
+
+| Dimension | Element update | Component update |
+|------|----------|----------|
+| Trigger | patchElement | processComponent → updateComponent |
+| Core | patchProps + patchChildren | shouldUpdateComponent → re-render → patch subtree |
+| Optimization | Patch Flag fast path | shallow props compare + v-memo |
+
+### Day 37: Performance techniques
+
+- **`v-memo`**: conditionally cache a subtree; skip the whole subtree re-render when deps are unchanged.
+- **`shallowRef / shallowReactive`**: only track the first layer, reducing deep dependency collection.
+- **`markRaw`**: mark an object so it is not wrapped by reactive (large objects, third-party instances).
+- **`defineProps` destructure**: Vue 3.3+ keeps reactivity automatically; `toRefs` is no longer required.
+- **Split components**: extract frequently updating parts into independent components to shrink the update range.
+
+### Day 37: Full update flow
+
+```text
+state.count++ (Proxy set)
+  → trigger(target, 'count')
+  → dep.effects includes component A’s effect
+  → scheduler: queueJob(updateA)
+  → sync code finishes
+  → nextTick flush queue
+  → updateA():
+      const newTree = render()
+      patch(prevTree, newTree, container)
+        → patchElement: update own DOM
+        → encounter child <Child>:
+            shouldUpdateComponent(oldChild, newChild)?
+              → props unchanged → skip
+              → props changed → child.update() → child re-render
+```
+
+### Day 37: Props change decision
+
+```text
+shouldUpdateComponent(n1, n2):
+  1. has dynamicSlots → true
+  2. new node has children (slots) → compare slots
+  3. compare props:
+     - oldProps === newProps → false
+     - different count → true
+     - walk newProps, different value → true
+  4. all the same → false (skip update)
+```
+
+### Day 39: VNode shape
+
+```js
+{
+  type: 'div' | Component | Fragment | Text,
+  props: { class, style, onClick, ... } | null,
+  children: string | VNode[] | null,
+  el: HTMLElement | null,  // corresponding real DOM
+  key: string | number | null
+}
+```
+
+### Day 39: patch dispatch logic
+
+```text
+patch(n1, n2, container):
+  if (n1 && n1.type !== n2.type) → unmount(n1); n1 = null
+  switch (n2.type):
+    string    → processElement(n1, n2, container)
+    Text      → processText(n1, n2, container)
+    Fragment  → processFragment(n1, n2, container)
+    Component → processComponent(n1, n2, container)
+```
+
+### Day 39: Four kinds of patchProps
+
+| Type | Handling |
+|------|----------|
+| `class` | `el.className = value` |
+| `style` | walk the object and set `el.style[key]` |
+| `on*` events | `el.addEventListener / removeEventListener` |
+| Plain attributes | `el.setAttribute / removeAttribute` |
+
+### Day 39: Minimal renderer implementation
+
+```js
+function h(type, props, children) {
+  return { type, props, children, el: null, key: props?.key ?? null }
+}
+
+function mount(vnode, container) {
+  const el = (vnode.el = document.createElement(vnode.type))
+  // props
+  if (vnode.props) {
+    for (const key in vnode.props) {
+      if (key.startsWith('on')) {
+        el.addEventListener(key.slice(2).toLowerCase(), vnode.props[key])
+      } else {
+        el.setAttribute(key, vnode.props[key])
+      }
+    }
+  }
+  // children
+  if (typeof vnode.children === 'string') {
+    el.textContent = vnode.children
+  } else if (Array.isArray(vnode.children)) {
+    vnode.children.forEach(child => mount(child, el))
+  }
+  container.appendChild(el)
+}
+
+function patch(n1, n2) {
+  if (n1.type !== n2.type) {
+    const parent = n1.el.parentNode
+    unmount(n1)
+    mount(n2, parent)
+    return
+  }
+  const el = (n2.el = n1.el)
+  // patch props
+  const oldProps = n1.props || {}
+  const newProps = n2.props || {}
+  for (const key in newProps) {
+    if (newProps[key] !== oldProps[key]) {
+      el.setAttribute(key, newProps[key])
+    }
+  }
+  for (const key in oldProps) {
+    if (!(key in newProps)) el.removeAttribute(key)
+  }
+  // patch children (simplified: string vs array)
+  const oldCh = n1.children
+  const newCh = n2.children
+  if (typeof newCh === 'string') {
+    if (newCh !== oldCh) el.textContent = newCh
+  } else if (Array.isArray(newCh)) {
+    if (typeof oldCh === 'string') {
+      el.textContent = ''
+      newCh.forEach(child => mount(child, el))
+    } else {
+      // simplified diff: compare one by one, delete extras, mount missing
+      const commonLen = Math.min(oldCh.length, newCh.length)
+      for (let i = 0; i < commonLen; i++) patch(oldCh[i], newCh[i])
+      if (newCh.length > oldCh.length) {
+        newCh.slice(commonLen).forEach(child => mount(child, el))
+      } else {
+        oldCh.slice(commonLen).forEach(child => unmount(child))
+      }
+    }
+  }
+}
+
+function unmount(vnode) {
+  vnode.el.parentNode.removeChild(vnode.el)
+}
+```
+
+### Day 39: createApp sketch
+
+```js
+function createApp(rootComponent) {
+  return {
+    mount(selector) {
+      const container = document.querySelector(selector)
+      let prevVNode = null
+      // combine with reactivity effect
+      effect(() => {
+        const vnode = rootComponent.render()
+        if (!prevVNode) mount(vnode, container)
+        else patch(prevVNode, vnode)
+        prevVNode = vnode
+      })
+    }
+  }
+}
+```

@@ -232,3 +232,48 @@ function fibonacci(n) {
 1. `sort()` 默认按字符串排序，数字排序要传比较函数。
 2. 原地修改和非原地方法混用导致副作用（如 `sort/splice`）。
 3. 大数组场景下频繁 `shift` 导致性能退化。
+
+## 每日练习参考
+
+### Day 10：数组高频操作
+
+- **去重**：`[...new Set(arr)]` 或排序后双指针。
+- **扁平化**：`arr.flat(Infinity)` 或递归 `reduce + concat`。
+- **排序**：`arr.sort((a, b) => a - b)` 注意默认是字典序。
+
+### Day 10：两数之和（LeetCode 1）
+
+```js
+function twoSum(nums, target) {
+  const map = new Map()
+  for (let i = 0; i < nums.length; i++) {
+    const complement = target - nums[i]
+    if (map.has(complement)) return [map.get(complement), i]
+    map.set(nums[i], i)
+  }
+}
+```
+
+### Day 10：三数之和（LeetCode 15）
+
+```js
+function threeSum(nums) {
+  nums.sort((a, b) => a - b)
+  const result = []
+  for (let i = 0; i < nums.length - 2; i++) {
+    if (i > 0 && nums[i] === nums[i - 1]) continue // 去重
+    let left = i + 1, right = nums.length - 1
+    while (left < right) {
+      const sum = nums[i] + nums[left] + nums[right]
+      if (sum === 0) {
+        result.push([nums[i], nums[left], nums[right]])
+        while (left < right && nums[left] === nums[left + 1]) left++
+        while (left < right && nums[right] === nums[right - 1]) right--
+        left++; right--
+      } else if (sum < 0) left++
+      else right--
+    }
+  }
+  return result
+}
+```

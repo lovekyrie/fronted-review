@@ -292,3 +292,78 @@ export default {
 1. 选择器/计算属性只暴露必要派生状态。
 2. 避免在 store 中保存过大冗余结构。
 3. 大对象更新尽量精细化，减少无关组件响应。
+
+## 每日练习参考
+
+### Day 41：Pinia vs Vuex 对比
+
+| 维度 | Pinia | Vuex |
+|------|-------|------|
+| API | `defineStore` | `new Vuex.Store` |
+| mutations | ❌ 不需要 | ✅ 必须通过 mutations 修改 |
+| TypeScript | 天然友好 | 需要额外类型声明 |
+| 模块化 | 每个 store 独立，按需导入 | 全局单 store + modules |
+| devtools | ✅ 支持 | ✅ 支持 |
+| 组合式 API | ✅ setup store | ❌ |
+| 体积 | ~1KB | ~10KB |
+
+### Day 41：Pinia 两种 store 写法
+
+```ts
+// 1. Options Store
+export const useCounterStore = defineStore('counter', {
+  state: () => ({ count: 0 }),
+  getters: { double: (state) => state.count * 2 },
+  actions: { increment() { this.count++ } }
+})
+
+// 2. Setup Store（推荐）
+export const useCounterStore = defineStore('counter', () => {
+  const count = ref(0)
+  const double = computed(() => count.value * 2)
+  function increment() { count.value++ }
+  return { count, double, increment }
+})
+```
+
+### Day 41：状态分层架构
+
+| 层级 | 存储位置 | 示例 |
+|------|----------|------|
+| 组件状态 | `ref / reactive` | 表单输入、UI 开关 |
+| 全局状态 | Pinia store | 用户信息、权限、主题 |
+| 服务端缓存 | TanStack Query / SWR | API 数据、列表、分页 |
+| URL 状态 | 路由 query/params | 搜索条件、页码、tab |
+| 持久状态 | localStorage / IndexedDB | token、用户偏好 |
+
+### Day 41：持久化方案
+
+```ts
+// pinia-plugin-persistedstate
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+pinia.use(piniaPluginPersistedstate)
+
+defineStore('user', {
+  state: () => ({ token: '' }),
+  persist: true  // 默认 localStorage
+})
+```
+
+### Day 41：Pinia 核心原理简示
+
+```text
+defineStore('id', setup)
+  → 创建一个 reactive store 对象
+  → 注册到 pinia 实例（app.use(pinia)）
+  → 组件调用 useStore() → 从 pinia._stores 取已有 / 新建
+  → store 内部的 ref/reactive 自动被追踪
+  → 组件 render 时收集依赖，数据变化时更新
+```
+
+### Day 41：Vuex 数据流
+
+```text
+Component → dispatch(action) → commit(mutation) → state 变化 → 组件更新
+                 ↓
+           可以异步               必须同步
+```

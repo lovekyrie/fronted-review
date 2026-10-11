@@ -221,4 +221,70 @@ function ImageGallery({ images }) {
    - 使用数据预加载
    - 实现数据缓存
    - 使用懒加载
-   - 优化图片加载 
+   - 优化图片加载
+
+## 每日练习参考
+
+### Day 46：三件套本质
+
+| API | 缓存什么 | 本质 |
+|-----|----------|------|
+| `useMemo(fn, deps)` | 缓存**计算结果** | deps 不变则返回上次结果 |
+| `useCallback(fn, deps)` | 缓存**函数引用** | 等价于 `useMemo(() => fn, deps)` |
+| `React.memo(Comp)` | 缓存**组件渲染** | props 浅比较不变则跳过 re-render |
+
+### Day 46：使用准则
+
+**该用的场景：**
+- 传给 `memo` 子组件的 props（函数/对象）需要稳定引用。
+- 计算量大的派生值（排序、过滤大数组）用 `useMemo`。
+- 作为 `useEffect` 依赖的对象/函数需要稳定引用。
+
+**不该用的场景：**
+- 简单运算（`a + b`）不需要 `useMemo`，缓存本身有开销。
+- 组件渲染很轻的情况，`memo` 的比较成本可能高于直接 re-render。
+- 到处无脑包 memo 会增加代码复杂度，降低可读性。
+
+### Day 46：引用稳定的 4 类需求
+
+1. 传给 `memo` 子组件的 callback → `useCallback`
+2. 传给 `memo` 子组件的对象/数组 → `useMemo`
+3. `useEffect` 的依赖是对象/函数 → `useMemo` / `useCallback`
+4. 第三方库（如 react-query 的 queryKey）需要稳定引用 → `useMemo`
+
+### Day 46：React Compiler（未来）
+
+React Compiler 会在编译阶段自动分析组件，插入等价于 `useMemo / useCallback / memo` 的优化，开发者不再需要手写。目前实验阶段，生产项目仍需手动。
+
+### Day 46：反例：memo 失效
+
+```jsx
+const Child = React.memo(({ config }) => {
+  console.log('Child render')
+  return <div>{config.name}</div>
+})
+
+function Parent() {
+  const [count, setCount] = useState(0)
+  // ❌ 每次 render 创建新对象，memo 的浅比较永远是 false
+  return <Child config={{ name: 'test' }} />
+}
+```
+
+### Day 46：正例：稳定引用
+
+```jsx
+const Child = React.memo(({ config, onClick }) => {
+  console.log('Child render')
+  return <div onClick={onClick}>{config.name}</div>
+})
+
+function Parent() {
+  const [count, setCount] = useState(0)
+  // ✅ useMemo 稳定对象引用
+  const config = useMemo(() => ({ name: 'test' }), [])
+  // ✅ useCallback 稳定函数引用
+  const onClick = useCallback(() => console.log('click'), [])
+  return <Child config={config} onClick={onClick} />
+}
+```

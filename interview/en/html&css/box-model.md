@@ -221,3 +221,11 @@ The CSS box model describes how an element's content, padding, border, and margi
    - Vertical centering: Flex layout
    - Absolute positioning: transform
    - Grid layout: place-items: center
+
+## Daily practice reference
+
+### Day 8: Box model
+
+- **`content-box`** (default): `width` is content only; actual space = width + padding + border.
+- **`border-box`**: `width` includes content + padding + border; more intuitive.
+- Engineering default: `*, *::before, *::after { box-sizing: border-box; }`

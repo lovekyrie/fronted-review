@@ -1,10 +1,4 @@
-# Day 42 Vue SSR / Nuxt + Vue 专题追问 执行记录
-
-## 快速导航
-
-| 今日 | 主题 | 核心文件 |
-|------|------|----------|
-| Day 42 | SSR + Vue 复盘 | [SSR/SSG](../advanced/ssr-ssg)、[Week 3 路线图](../advanced/week3/roadmap)、[Vue 性能优化](../framework/vue/performance-optimization) |
+# Day 42 Vue SSR / Nuxt + Vue 专题追问
 
 ## 今日目标
 
@@ -12,13 +6,36 @@
 - 输出 Vue SSR 答题稿：双端同构、hydrate、序列化、环境差异
 - 汇总 Day 29–41，形成《Vue 方向 20 题答题本》
 
-## 阅读卡点
+## 按顺序阅读
+
+1. [SSR/SSG](../advanced/ssr-ssg)
+2. [Week 3 路线图](../advanced/week3/roadmap)
+3. [Vue 性能优化](../framework/vue/performance-optimization)
+
+## 实操与自测
+
+**检查点**
 
 - SSR 的痛点：双端 API 差异（`window / document` 不能随便用）、状态序列化、请求合并
 - `hydrate` 失败的典型原因：服务端和客户端 HTML 不一致（时间戳、随机数、条件渲染）
 - Nuxt 3 的 `useAsyncData / useFetch` 帮你做了请求去重和状态复用
 
-## 速记卡 / 知识点
+**先独立完成，再对照专题**
+
+- SSR / SSG / CSR 对比
+- Vue SSR 流程
+- Hydrate 机制
+- Hydration 失败常见原因
+- Nuxt 3 关键 API
+- SSR 完整链路
+- 环境差异处理
+
+**脱稿口述题**
+
+- 1. SSR / SSG / CSR 怎么选？
+- 2. Hydrate 失败有哪些坑？
+
+**模拟流程与评分**
 
 ### SSR / SSG / CSR 对比
 
@@ -60,8 +77,6 @@
 | `useState` | SSR 安全的共享状态 |
 | `definePageMeta` | 页面级配置（layout、middleware） |
 
-## 手写 / 流程图
-
 ### SSR 完整链路
 
 ```text
@@ -79,50 +94,9 @@
 
 ### 环境差异处理
 
-```vue
-<script setup>
-// 只在客户端执行
-onMounted(() => {
-  // 可以安全使用 window / document
-})
+[参考代码](../advanced/ssr-ssg#day-42-practice-code)
 
-// 只在服务端执行
-onServerPrefetch(async () => {
-  await fetchData()
-})
-
-// 条件组件
-</script>
-<template>
-  <ClientOnly>
-    <EchartsChart />
-  </ClientOnly>
-</template>
-```
-
-## 口述题
-
-### 1. SSR / SSG / CSR 怎么选？
-
-回答模板：
-
-> 选型取决于三个因素：SEO 需求、首屏速度要求、数据动态性。如果页面内容是静态或低频更新（博客、文档），用 SSG，构建时生成 HTML，部署到 CDN，首屏最快、成本最低。如果内容因用户/请求不同而变（电商商品页、社交 feed），需要 SSR，每次请求服务端渲染。如果不需要 SEO 且可以接受白屏加载（管理后台），用 CSR 最简单。
->
-> Nuxt 3 支持混合渲染（`routeRules`），不同路由可以用不同策略，比如首页 SSR、文档页 SSG、后台 CSR，这是目前最灵活的方案。
-
-### 2. Hydrate 失败有哪些坑？
-
-回答模板：
-
-> 最常见的四个坑。第一，时间相关：服务端渲染时的 `Date.now()` 和客户端不同，导致 HTML 不一致。解决：把时间在服务端获取后通过 state 传给客户端。
->
-> 第二，仅客户端 API：服务端没有 `window / document`，如果在 setup 里直接调用，服务端要么报错要么渲染空，客户端渲染不同内容。解决：用 `onMounted` 或 `<ClientOnly>`。
->
-> 第三，异步数据不同步：服务端获取了数据但没序列化到 `__INITIAL_STATE__`，客户端 hydrate 时没数据，渲染结果不同。解决：用 Nuxt 的 `useFetch` / `useAsyncData` 自动处理。
->
-> 第四，随机值：`Math.random()` / `uuid()` 每次不同。解决：在服务端生成后序列化到客户端复用。
-
-## 8 分钟录音顺序（Vue 专题总结）
+**录音练习**
 
 1. 响应式（Proxy / track-trigger / 依赖收集三层结构）（2 分钟）
 2. 编译优化（Patch Flag / Block Tree / 静态提升）（2 分钟）
@@ -130,7 +104,7 @@ onServerPrefetch(async () => {
 4. 组件调度（setupRenderEffect / shouldUpdateComponent / nextTick）（1 分钟）
 5. 生态（Router 三模式 + 守卫 / Pinia 状态分层 / SSR hydrate）（1.5 分钟）
 
-## 今日复盘
+## 复盘
 
 Vue 方向最容易被击穿的 3 题：
 

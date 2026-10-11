@@ -200,3 +200,89 @@ function validatePassword(password) {
    - Salting
    - Password policy
    - Secure storage
+
+## Daily practice reference
+
+### Day 62: Three kinds of XSS
+
+| Type | Injection point | Stored | Example |
+|------|----------|------|------|
+| **Stored** | Server database | Persistent | Inject `<script>` in comments |
+| **Reflected** | URL params | Not stored | Search `?q=<script>alert(1)</script>` |
+| **DOM-based** | Client JS | Does not go through the server | `innerHTML = location.hash` |
+
+### Day 62: XSS defense
+
+| Layer | Measure |
+|----|------|
+| Output escaping | HTML entity encoding (`<` → `&lt;`); avoid `innerHTML` |
+| CSP | `script-src 'self'` forbids inline scripts |
+| HttpOnly | Set HttpOnly on cookies so JS cannot read them |
+| Input validation | Allowlist filtering (mainly backend) |
+| Framework defaults | React escapes by default; watch Vue `v-html` |
+
+### Day 62: How a CSRF attack works
+
+```text
+User logs into site A → browser stores A's cookie
+→ user visits malicious site B → B's page sends a request to A
+→ browser automatically attaches A's cookie → A treats it as a user action
+```
+
+### Day 62: CSRF defense
+
+| Measure | How it works |
+|------|------|
+| **SameSite Cookie** | `SameSite=Lax/Strict`; cross-site requests do not send the cookie |
+| **CSRF Token** | Form includes a server-generated token the attacker cannot get |
+| **Origin / Referer check** | Server checks the source origin |
+| **CAPTCHA / second confirmation** | Add a human check on sensitive actions |
+
+### Day 62: Common CSP directives
+
+```http
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' 'nonce-abc123';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data: https://cdn.example.com;
+  connect-src 'self' https://api.example.com;
+  frame-ancestors 'none';
+```
+
+| Directive | Controls |
+|------|------|
+| `default-src` | Default policy |
+| `script-src` | JS sources (`'nonce-xxx'` allows specific inline) |
+| `style-src` | CSS sources |
+| `img-src` | Image sources |
+| `connect-src` | XHR / fetch / WebSocket sources |
+| `frame-ancestors` | Who can embed this page (anti-clickjacking) |
+
+### Day 62: XSS defense: output-escaping helper
+
+```js
+function escapeHtml(str) {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+  }
+  return str.replace(/[&<>"']/g, ch => map[ch])
+}
+```
+
+### Day 62: CSRF attack flow
+
+```text
+User's browser
+  ├─ already logged into bank.com (cookie: session=xxx)
+  ├─ visits evil.com
+  │   └─ <img src="https://bank.com/transfer?to=hacker&amount=10000">
+  │       → the browser automatically attaches bank.com's cookie!
+  └─ bank.com receives the request, treats it as a user action → transfer succeeds
+
+Defense: SameSite=Lax → cross-site GET does not send the cookie → attack fails
+```

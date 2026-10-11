@@ -42,65 +42,9 @@ promise.then(function(value) {
 *   **Promise.resolve(value)**: returns a Promise resolved with the given value.
 *   **Promise.reject(reason)**: returns a Promise rejected with the given reason.
 
-## 4. Common Interview Question: Hand-write a Simplified Promise
+## 4. Handwrite a Promise
 
-In interviews you usually do not need a full Promise/A+ implementation, but you do need the core logic (state management and callback storage).
-
-```javascript
-class MyPromise {
-    constructor(executor) {
-        this.state = 'pending';
-        this.value = undefined;
-        this.reason = undefined;
-        this.onResolvedCallbacks = [];
-        this.onRejectedCallbacks = [];
-
-        const resolve = (value) => {
-            if (this.state === 'pending') {
-                this.state = 'fulfilled';
-                this.value = value;
-                this.onResolvedCallbacks.forEach(fn => fn());
-            }
-        };
-
-        const reject = (reason) => {
-            if (this.state === 'pending') {
-                this.state = 'rejected';
-                this.reason = reason;
-                this.onRejectedCallbacks.forEach(fn => fn());
-            }
-        };
-
-        try {
-            executor(resolve, reject);
-        } catch (err) {
-            reject(err);
-        }
-    }
-
-    then(onFulfilled, onRejected) {
-        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : value => value;
-        onRejected = typeof onRejected === 'function' ? onRejected : err => { throw err };
-
-        if (this.state === 'fulfilled') {
-            onFulfilled(this.value);
-        }
-        
-        if (this.state === 'rejected') {
-            onRejected(this.reason);
-        }
-
-        if (this.state === 'pending') {
-            this.onResolvedCallbacks.push(() => {
-                onFulfilled(this.value);
-            });
-            this.onRejectedCallbacks.push(() => {
-                onRejected(this.reason);
-            });
-        }
-    }
-}
-```
+The implementation exercise lives in [Handwrite Promise](../../handwrite/promise). Focus on states, queued callbacks, handler pass-through, and a new Promise from `then`; then explain how a full implementation adopts returned thenables.
 
 ## 5. Exam Point: Value Penetration
 

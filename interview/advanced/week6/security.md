@@ -303,3 +303,17 @@ XSS 是攻击者让你的站点执行恶意脚本；CSRF 是攻击者借用户�
 4. 最后补一条真实工程取舍，比如为什么不能只靠 localStorage 或只靠前端过滤
 
 这样答案会从“知道攻击名词”升级成“理解浏览器与应用的安全边界”。
+
+## 每日练习参考
+
+### Day 62：前端安全 Checklist
+
+```text
+□ 不使用 innerHTML / v-html 渲染用户输入
+□ Cookie 设 HttpOnly + Secure + SameSite=Lax
+□ 部署 CSP 头部
+□ 敏感操作带 CSRF Token
+□ API 域名加 CORS 白名单
+□ 第三方脚本用 integrity 校验（SRI）
+□ 避免 eval / new Function / document.write
+```

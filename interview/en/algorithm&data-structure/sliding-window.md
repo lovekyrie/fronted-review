@@ -231,3 +231,27 @@ function minWindow(s, t) {
 1. Forgetting to roll back counts when shrinking the window, which makes the answer too large or too small.
 2. Moving `left` backward (it should only move forward), which breaks linear complexity.
 3. Getting `valid` counting or the `need` size check wrong in minimum window substring.
+
+## Daily practice reference
+
+### Day 10: Sliding-window template
+
+```js
+function slidingWindow(s) {
+  const map = new Map()
+  let left = 0, result = 0
+  for (let right = 0; right < s.length; right++) {
+    // 1. Expand the window: add s[right]
+    map.set(s[right], (map.get(s[right]) || 0) + 1)
+    // 2. Shrink the window: move left while the condition fails
+    while (/* window is invalid */) {
+      map.set(s[left], map.get(s[left]) - 1)
+      if (map.get(s[left]) === 0) map.delete(s[left])
+      left++
+    }
+    // 3. Update the result
+    result = Math.max(result, right - left + 1)
+  }
+  return result
+}
+```

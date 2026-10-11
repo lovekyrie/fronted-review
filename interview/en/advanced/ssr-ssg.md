@@ -23,3 +23,26 @@ The server emits HTML first. The client then “takes over” that DOM with even
 
 - Next.js (React) and Nuxt (Vue) both mix SSR and SSG.
 - Real apps pick a strategy per page, not one mode for the whole site.
+
+## Day 42 practice code
+
+```vue
+<script setup>
+// Client-only
+onMounted(() => {
+  // safe to use window / document
+})
+
+// Server-only
+onServerPrefetch(async () => {
+  await fetchData()
+})
+
+// Conditional component
+</script>
+<template>
+  <ClientOnly>
+    <EchartsChart />
+  </ClientOnly>
+</template>
+```

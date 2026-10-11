@@ -586,3 +586,185 @@ Effect 回调捕获的是某次 render 的变量。如果依赖数组漏掉响�
 8. Hooks 的规则和 React 并发渲染有关：render 必须纯净、可中断、可重试，副作用只能放到提交后的 Effect 阶段
 
 这样回答能从用法推进到 Fiber、状态队列、Effect 提交阶段和并发模型。
+
+## 每日练习参考
+
+### Day 44：state 更新模型
+
+```text
+setState(value) → 创建 Update { action: value } → 入队 fiber.updateQueue
+                                                   ↓
+                                         本次 render 不变，下次 render 处理队列
+```
+
+- React 的 state 在一次 render 内是**快照**，不管调多少次 setState，读到的 state 都是本次 render 的值。
+- 更新在下次 render 时才批量处理。
+
+### Day 44：直接值 vs 函数式更新
+
+```jsx
+// 直接值：用的是本次 render 快照
+setCount(count + 1) // count = 0 → 入队 1
+setCount(count + 1) // count = 0 → 入队 1
+setCount(count + 1) // count = 0 → 入队 1
+// 结果：count = 1（最后一个覆盖前面的）
+
+// 函数式：用的是队列累积值
+setCount(c => c + 1) // 0 → 1
+setCount(c => c + 1) // 1 → 2
+setCount(c => c + 1) // 2 → 3
+// 结果：count = 3
+```
+
+### Day 44：队列处理规则
+
+```text
+遍历 updateQueue:
+  if (update.action 是函数) → newState = action(prevState)
+  if (update.action 是值)   → newState = action
+```
+
+### Day 44：stale closure 典型场景
+
+```jsx
+function Timer() {
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => {
+      console.log(count)    // 永远是 0！闭包捕获了初始 render 的 count
+      setCount(count + 1)   // 永远设 1
+    }, 1000)
+    return () => clearInterval(id)
+  }, [])  // 空依赖 → effect 只执行一次 → 闭包锁死初始值
+}
+```
+
+修复方式：
+1. **函数式更新**：`setCount(c => c + 1)`（最常用）
+2. **加依赖**：`[count]`，但每次清除重建定时器
+3. **useRef**：把最新值存 ref，effect 内读 ref.current
+
+### Day 44：3 道经典输出题
+
+```jsx
+// 题 1：直接值 × 3
+function App() {
+  const [count, setCount] = useState(0)
+  function handleClick() {
+    setCount(count + 1) // 0 + 1 = 1
+    setCount(count + 1) // 0 + 1 = 1
+    setCount(count + 1) // 0 + 1 = 1
+  }
+  return <button onClick={handleClick}>{count}</button>
+  // 点击后 count = 1
+}
+
+// 题 2：函数式 × 3
+function App() {
+  const [count, setCount] = useState(0)
+  function handleClick() {
+    setCount(c => c + 1) // 0 → 1
+    setCount(c => c + 1) // 1 → 2
+    setCount(c => c + 1) // 2 → 3
+  }
+  return <button onClick={handleClick}>{count}</button>
+  // 点击后 count = 3
+}
+
+// 题 3：混合
+function App() {
+  const [count, setCount] = useState(0)
+  function handleClick() {
+    setCount(count + 5)  // 入队值 5
+    setCount(c => c + 1) // 5 → 6
+    setCount(42)         // 入队值 42（覆盖）
+  }
+  return <button onClick={handleClick}>{count}</button>
+  // 点击后 count = 42
+}
+```
+
+### Day 45：useEffect 执行时机
+
+```text
+组件 render → DOM 更新 → 浏览器绘制 → useEffect 异步执行
+                                      ↑ 不阻塞绘制
+
+对比 useLayoutEffect:
+组件 render → DOM 更新 → useLayoutEffect 同步执行 → 浏览器绘制
+                         ↑ 阻塞绘制
+```
+
+### Day 45：cleanup 执行时机
+
+1. **组件卸载时**：执行 cleanup。
+2. **依赖变化时**：先执行**旧 effect 的 cleanup**，再执行**新 effect**。
+3. 顺序：旧 cleanup → 新 effect。
+
+### Day 45：三大坑清单
+
+| 坑 | 表现 | 修复 |
+|----|------|------|
+| 依赖不全 | effect 内读了 state/props 但没加到 deps | 把所有响应式值加入 deps，或用 `useEffectEvent` |
+| cleanup 漏写 | 订阅/定时器/请求没清理 → 内存泄漏/竞态 | return cleanup 函数 |
+| 对象/函数引用不稳 | 每次 render 创建新对象/函数 → effect 无限执行 | `useMemo` / `useCallback` 稳定引用 |
+
+### Day 45：Strict Mode 双执行
+
+- **仅开发模式**下，React 会 mount → unmount → mount 组件。
+- 目的：暴露**不幂等**的 effect（如 cleanup 没写、重复订阅、重复请求）。
+- 如果你的 effect 正确写了 cleanup，双执行不会有副作用。
+
+### Day 45：竞态请求处理
+
+```jsx
+useEffect(() => {
+  const controller = new AbortController()
+
+  async function fetchData() {
+    try {
+      const res = await fetch(`/api/user/${id}`, {
+        signal: controller.signal
+      })
+      const data = await res.json()
+      setUser(data)  // 只有未取消才设值
+    } catch (e) {
+      if (e.name !== 'AbortError') throw e
+    }
+  }
+
+  fetchData()
+
+  return () => controller.abort()  // 依赖变化时取消上一次请求
+}, [id])
+```
+
+### Day 45：不稳定引用的坑
+
+```jsx
+// ❌ 每次 render 都创建新对象 → effect 无限执行
+useEffect(() => {
+  fetch('/api', { headers: { token } })
+}, [{ token }])  // 每次都是新引用！
+
+// ✅ 用 useMemo 稳定引用
+const headers = useMemo(() => ({ token }), [token])
+useEffect(() => {
+  fetch('/api', { headers })
+}, [headers])
+```
+
+### Day 45：useEffect vs useLayoutEffect
+
+```jsx
+// useEffect: 异步，不阻塞绘制。适合大多数场景
+useEffect(() => {
+  document.title = `Count: ${count}`
+}, [count])
+
+// useLayoutEffect: 同步，阻塞绘制。适合读/写 DOM 布局
+useLayoutEffect(() => {
+  const rect = ref.current.getBoundingClientRect()
+  // 基于 rect 调整位置，避免闪烁
+}, [])
+```

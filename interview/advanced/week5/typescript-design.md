@@ -314,3 +314,450 @@ const user = data as User
 ##### 10.4 类型设计和运行时校验是什么关系
 
 类型设计负责开发期建模和约束，运行时校验负责处理不可信输入。两者互补，不能相互替代。
+
+## 每日练习参考
+
+### Day 52：条件类型语法
+
+```ts
+T extends U ? X : Y
+// 如果 T 可赋值给 U，结果是 X，否则是 Y
+```
+
+### Day 52：分发条件类型（Distributive）
+
+```ts
+type ToArray<T> = T extends any ? T[] : never
+
+// T 是联合类型时会分发：
+type R = ToArray<string | number>
+// = (string extends any ? string[] : never) | (number extends any ? number[] : never)
+// = string[] | number[]
+
+// 关闭分发：用 [] 包裹
+type ToArrayNonDist<T> = [T] extends [any] ? T[] : never
+type R2 = ToArrayNonDist<string | number>
+// = (string | number)[]
+```
+
+分发条件：T 是 **naked type parameter**（裸类型参数）且 T 是联合类型时自动分发。
+
+### Day 52：infer 关键字
+
+`infer` 只能出现在条件类型的 `extends` 右侧，用于从结构中"掏出"一个类型。
+
+```ts
+// 提取函数返回类型
+type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never
+
+// 提取函数参数类型
+type Parameters<T> = T extends (...args: infer P) => any ? P : never
+
+// 提取 Promise 内部类型（递归解包）
+type Awaited<T> = T extends Promise<infer U> ? Awaited<U> : T
+
+// 提取数组元素类型
+type ElementOf<T> = T extends (infer E)[] ? E : never
+
+// 提取第一个参数类型
+type FirstArg<T> = T extends (first: infer F, ...rest: any[]) => any ? F : never
+```
+
+### Day 52：infer 在不同位置的推断规则
+
+| 位置 | 推断结果 |
+|------|----------|
+| 协变位置（返回值） | 推断为联合类型 |
+| 逆变位置（参数） | 推断为交叉类型 |
+
+```ts
+type Foo<T> = T extends { a: infer U; b: infer U } ? U : never
+type R1 = Foo<{ a: string; b: number }>  // string | number（协变：联合）
+
+type Bar<T> = T extends { a: (x: infer U) => void; b: (x: infer U) => void } ? U : never
+type R2 = Bar<{ a: (x: string) => void; b: (x: number) => void }>  // string & number = never（逆变：交叉）
+```
+
+### Day 52：常见工具类型实现
+
+```ts
+// 1. ReturnType
+type MyReturnType<T extends (...args: any[]) => any> =
+  T extends (...args: any[]) => infer R ? R : never
+
+// 2. Parameters
+type MyParameters<T extends (...args: any[]) => any> =
+  T extends (...args: infer P) => any ? P : never
+
+// 3. Awaited（递归解包 Promise）
+type MyAwaited<T> =
+  T extends Promise<infer U> ? MyAwaited<U> : T
+
+// 4. ExtractPromise（从联合中提取 Promise 类型）
+type ExtractPromise<T> = T extends Promise<any> ? T : never
+type R = ExtractPromise<string | Promise<number> | boolean>  // Promise<number>
+
+// 5. Flatten（数组扁平化类型）
+type Flatten<T> = T extends (infer E)[] ? Flatten<E> : T
+type R2 = Flatten<number[][][]>  // number
+```
+
+### Day 53：映射类型基础语法
+
+```ts
+type Mapped<T> = {
+  [K in keyof T]: T[K]  // 遍历 T 的所有 key，值类型保持
+}
+```
+
+### Day 53：修饰符增删
+
+```ts
+// 添加 readonly
+type Readonly<T> = { readonly [K in keyof T]: T[K] }
+
+// 移除 readonly
+type Mutable<T> = { -readonly [K in keyof T]: T[K] }
+
+// 添加可选
+type Partial<T> = { [K in keyof T]?: T[K] }
+
+// 移除可选
+type Required<T> = { [K in keyof T]-?: T[K] }
+```
+
+### Day 53：Key Remapping（as 子句，TS 4.1+）
+
+```ts
+// 改变 key 名
+type Getters<T> = {
+  [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K]
+}
+// { name: string } → { getName: () => string }
+
+// 过滤 key（返回 never 的 key 会被移除）
+type OmitByType<T, U> = {
+  [K in keyof T as T[K] extends U ? never : K]: T[K]
+}
+// OmitByType<{ a: string; b: number }, string> → { b: number }
+```
+
+### Day 53：内置工具类型实现
+
+```ts
+type Pick<T, K extends keyof T> = { [P in K]: T[P] }
+type Record<K extends keyof any, T> = { [P in K]: T }
+type Omit<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>
+```
+
+### Day 53：5 个内置工具类型手写
+
+```ts
+// 1. Partial
+type MyPartial<T> = { [K in keyof T]?: T[K] }
+
+// 2. Required
+type MyRequired<T> = { [K in keyof T]-?: T[K] }
+
+// 3. Readonly
+type MyReadonly<T> = { readonly [K in keyof T]: T[K] }
+
+// 4. Pick
+type MyPick<T, K extends keyof T> = { [P in K]: T[P] }
+
+// 5. Record
+type MyRecord<K extends keyof any, T> = { [P in K]: T }
+```
+
+### Day 53：DeepPartial 递归实现
+
+```ts
+type DeepPartial<T> = T extends object
+  ? { [K in keyof T]?: DeepPartial<T[K]> }
+  : T
+
+// 使用
+type Config = { db: { host: string; port: number }; debug: boolean }
+type PartialConfig = DeepPartial<Config>
+// { db?: { host?: string; port?: number }; debug?: boolean }
+```
+
+### Day 53：DeepReadonly
+
+```ts
+type DeepReadonly<T> = T extends object
+  ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+  : T
+```
+
+### Day 53：实战：API 响应类型生成
+
+```ts
+// 从接口类型自动生成查询参数类型
+type QueryParams<T> = {
+  [K in keyof T as T[K] extends string | number ? K : never]?: T[K]
+}
+
+interface User { id: number; name: string; avatar: File }
+type UserQuery = QueryParams<User>  // { id?: number; name?: string }
+```
+
+### Day 54：模板字面量类型语法
+
+```ts
+type Greeting = `Hello, ${string}`  // 匹配 "Hello, xxx"
+type EventName = `on${Capitalize<string>}`  // "onClick" | "onChange" | ...
+
+// 联合自动分发
+type Color = 'red' | 'blue'
+type Size = 'sm' | 'lg'
+type Style = `${Color}-${Size}`  // "red-sm" | "red-lg" | "blue-sm" | "blue-lg"
+```
+
+### Day 54：内置字符串工具类型
+
+| 类型 | 作用 | 示例 |
+|------|------|------|
+| `Uppercase<S>` | 全大写 | `'hello'` → `'HELLO'` |
+| `Lowercase<S>` | 全小写 | `'HELLO'` → `'hello'` |
+| `Capitalize<S>` | 首字母大写 | `'hello'` → `'Hello'` |
+| `Uncapitalize<S>` | 首字母小写 | `'Hello'` → `'hello'` |
+
+### Day 54：infer + 模板字面量 = 字符串模式匹配
+
+```ts
+// 提取第一个字符
+type FirstChar<S> = S extends `${infer F}${infer _}` ? F : never
+
+// 按分隔符拆分
+type Split<S extends string, D extends string> =
+  S extends `${infer H}${D}${infer T}` ? [H, ...Split<T, D>] : [S]
+
+type R = Split<'a.b.c', '.'>  // ['a', 'b', 'c']
+```
+
+### Day 54：路由参数类型推导
+
+```ts
+type ExtractParams<S extends string> =
+  S extends `${infer _}:${infer Param}/${infer Rest}`
+    ? { [K in Param | keyof ExtractParams<`/${Rest}`>]: string }
+    : S extends `${infer _}:${infer Param}`
+      ? { [K in Param]: string }
+      : {}
+
+type R = ExtractParams<'/user/:id/post/:postId'>
+// { id: string; postId: string }
+```
+
+### Day 54：CamelCase
+
+```ts
+type CamelCase<S extends string> =
+  S extends `${infer H}-${infer T}`
+    ? `${Lowercase<H>}${CamelCase<Capitalize<T>>}`
+    : S
+
+type R = CamelCase<'foo-bar-baz'>  // 'fooBarBaz'
+```
+
+### Day 54：KebabCase
+
+```ts
+type KebabCase<S extends string> =
+  S extends `${infer H}${infer T}`
+    ? T extends Uncapitalize<T>
+      ? `${Lowercase<H>}${KebabCase<T>}`
+      : `${Lowercase<H>}-${KebabCase<T>}`
+    : S
+
+type R = KebabCase<'fooBarBaz'>  // 'foo-bar-baz'
+```
+
+### Day 54：Join
+
+```ts
+type Join<T extends string[], D extends string> =
+  T extends [infer F extends string, ...infer R extends string[]]
+    ? R['length'] extends 0
+      ? F
+      : `${F}${D}${Join<R, D>}`
+    : ''
+
+type R = Join<['a', 'b', 'c'], '.'>  // 'a.b.c'
+```
+
+### Day 54：实战：事件类型
+
+```ts
+type EventMap = {
+  click: { x: number; y: number }
+  change: { value: string }
+}
+
+type EventHandler<T extends Record<string, any>> = {
+  [K in keyof T as `on${Capitalize<string & K>}`]: (payload: T[K]) => void
+}
+
+type Handlers = EventHandler<EventMap>
+// { onClick: (payload: { x: number; y: number }) => void; onChange: ... }
+```
+
+### Day 55：15 个工具类型分 5 组
+
+| 分组 | 类型 | 一句话 |
+|------|------|--------|
+| **属性修饰** | `Partial<T>` | 所有属性变可选 |
+| | `Required<T>` | 所有属性变必填 |
+| | `Readonly<T>` | 所有属性变只读 |
+| **选取** | `Pick<T, K>` | 从 T 选取 K 对应属性 |
+| | `Omit<T, K>` | 从 T 排除 K 对应属性 |
+| | `Record<K, T>` | 构造 key 为 K、值为 T 的对象 |
+| **联合操作** | `Exclude<U, E>` | 从联合 U 中移除 E |
+| | `Extract<U, E>` | 从联合 U 中提取 E |
+| | `NonNullable<T>` | 移除 null 和 undefined |
+| **函数** | `ReturnType<T>` | 提取函数返回类型 |
+| | `Parameters<T>` | 提取函数参数元组 |
+| | `ConstructorParameters<T>` | 提取构造函数参数 |
+| | `ThisParameterType<T>` | 提取 this 参数类型 |
+| | `OmitThisParameter<T>` | 移除 this 参数 |
+| **异步** | `Awaited<T>` | 递归解包 Promise |
+
+### Day 55：底层实现分类
+
+```text
+基于映射类型：Partial / Required / Readonly / Pick / Record
+基于条件类型（分发）：Exclude / Extract / NonNullable
+基于条件类型 + infer：ReturnType / Parameters / Awaited / ConstructorParameters
+组合：Omit = Pick + Exclude
+```
+
+### Day 55：15 个工具类型实现
+
+```ts
+// 属性修饰
+type MyPartial<T> = { [K in keyof T]?: T[K] }
+type MyRequired<T> = { [K in keyof T]-?: T[K] }
+type MyReadonly<T> = { readonly [K in keyof T]: T[K] }
+
+// 选取
+type MyPick<T, K extends keyof T> = { [P in K]: T[P] }
+type MyOmit<T, K extends keyof any> = MyPick<T, Exclude<keyof T, K>>
+type MyRecord<K extends keyof any, T> = { [P in K]: T }
+
+// 联合操作（分发条件类型）
+type MyExclude<T, U> = T extends U ? never : T
+type MyExtract<T, U> = T extends U ? T : never
+type MyNonNullable<T> = T extends null | undefined ? never : T
+
+// 函数（infer）
+type MyReturnType<T extends (...args: any) => any> =
+  T extends (...args: any) => infer R ? R : never
+type MyParameters<T extends (...args: any) => any> =
+  T extends (...args: infer P) => any ? P : never
+type MyConstructorParameters<T extends abstract new (...args: any) => any> =
+  T extends abstract new (...args: infer P) => any ? P : never
+type MyThisParameterType<T> =
+  T extends (this: infer U, ...args: any) => any ? U : unknown
+type MyOmitThisParameter<T> =
+  T extends (this: any, ...args: infer A) => infer R ? (...args: A) => R : T
+
+// 异步（递归 infer）
+type MyAwaited<T> = T extends Promise<infer U> ? MyAwaited<U> : T
+```
+
+### Day 55：JS → TS 改造 Checklist
+
+```text
+1. 启用 strict 模式（tsconfig.json: "strict": true）
+2. 从 API 边界开始：函数参数 + 返回值 + props 接口
+3. 把 any 替换为 unknown，再逐步缩窄
+4. 定义核心业务类型（User / Order / ApiResponse）
+5. 利用 typeof / ReturnType / Parameters 从运行时代码提取类型
+6. 配置 ESLint TS 规则（no-explicit-any / strict-boolean-expressions）
+7. 渐进式：先 .js → .ts，再逐步补类型
+```
+
+## Day 56 practice code
+
+```ts
+// ❌ 反模式：loading + error + data 可以任意组合
+type BadState = {
+  loading: boolean
+  error: string | null
+  data: User | null
+}
+
+// ✅ 正确：用 discriminated union，每种状态只包含合法属性
+type State =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'error'; error: string }
+  | { status: 'success'; data: User }
+```
+
+```ts
+type EventMap = {
+  login: { userId: string; timestamp: number }
+  logout: void
+  error: { code: number; message: string }
+}
+
+class TypedEmitter<T extends Record<string, any>> {
+  private handlers = new Map<keyof T, Set<Function>>()
+
+  on<K extends keyof T>(
+    event: K,
+    handler: T[K] extends void ? () => void : (payload: T[K]) => void
+  ) {
+    if (!this.handlers.has(event)) this.handlers.set(event, new Set())
+    this.handlers.get(event)!.add(handler)
+    return () => this.handlers.get(event)?.delete(handler)
+  }
+
+  emit<K extends keyof T>(
+    event: K,
+    ...args: T[K] extends void ? [] : [payload: T[K]]
+  ) {
+    this.handlers.get(event)?.forEach(fn => fn(...args))
+  }
+}
+
+const emitter = new TypedEmitter<EventMap>()
+emitter.on('login', (payload) => { /* payload: { userId, timestamp } */ })
+emitter.emit('login', { userId: '1', timestamp: Date.now() })
+emitter.emit('logout')  // 无参数
+```
+
+```ts
+type ApiRoutes = {
+  'GET /users': { response: User[]; query: { page: number } }
+  'GET /users/:id': { response: User; params: { id: string } }
+  'POST /users': { response: User; body: CreateUserDto }
+}
+
+type Method = 'GET' | 'POST' | 'PUT' | 'DELETE'
+
+function api<K extends keyof ApiRoutes>(
+  route: K,
+  ...args: ApiRoutes[K] extends { body: infer B }
+    ? [options: { body: B }]
+    : ApiRoutes[K] extends { query: infer Q }
+      ? [options?: { query: Q }]
+      : []
+): Promise<ApiRoutes[K]['response']> {
+  // 实现...
+  return {} as any
+}
+
+// 使用时有完整类型提示
+const users = await api('GET /users', { query: { page: 1 } })
+```
+
+### Day 51：泛型设计 3 准则
+
+```text
+1. 只保留必要的泛型参数 — 能推断的不要求传入
+2. 用 extends 约束范围 — 给泛型设边界，报错更友好
+3. 让类型能自动推断 — 泛型参数放在函数参数位置
+```

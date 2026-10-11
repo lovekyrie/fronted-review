@@ -69,3 +69,97 @@ function createChunks(file: File, chunkSize = 5 * 1024 * 1024) {
 
 - Per-chunk signature or checksum.
 - Re-hash the whole file after merge. The backend check is authoritative.
+
+## Daily practice reference
+
+### Day 71: Core large-file upload flow
+
+```text
+1. Pick a file → File object
+2. Slice → Blob.slice(start, end) → chunks[]
+3. Compute hash → Web Worker + spark-md5, append per chunk
+4. Instant-upload check → send hash, ask if the server already has it
+5. Resume → server returns uploaded chunk indexes, client skips them
+6. Concurrent upload → cap concurrency (3-6), POST each chunk
+7. Merge → when every chunk is up, tell the server to merge
+```
+
+### Day 71: Chunk params
+
+| Param | Recommended | Why |
+|------|--------|------|
+| Chunk size | 2-5 MB | Too small → too many requests; too large → a failed retry is expensive |
+| Concurrency | 3-6 | Browsers cap same-origin connections at 6; leave headroom for other requests |
+| Retries | 3 | Absorb network jitter |
+
+### Day 71: Hashing
+
+- Use a **Web Worker** so the main thread is not blocked.
+- Use spark-md5 `ArrayBuffer.append` to hash incrementally per chunk.
+- For huge files (>1GB), a **sampled hash** (head + tail + a few middle slices) can speed things up.
+
+### Day 71: Instant upload & resume
+
+| Feature | How it works | Depends on |
+|------|------|------|
+| **Instant upload** | File hash already exists on the server → return the URL directly | Server hash store |
+| **Resume** | Server returns the uploaded chunk list → client skips those | Server records per-chunk state |
+
+### Day 71: Full flow
+
+```text
+User picks a file (200MB)
+  ↓
+Web Worker computes hash (spark-md5 append per chunk, UI stays responsive)
+  ↓
+POST /upload/check { hash, filename, totalChunks }
+  ├─ Already exists → instant upload, return URL
+  └─ Partially exists → return uploadedChunks: [0, 1, 3]
+       ↓
+Filter out uploaded chunks → leftover [2, 4, 5, ...]
+  ↓
+Concurrent upload (limit=4): each chunk POST /upload/chunk { hash, index, chunk }
+  ├─ Failure → retry 3 times
+  └─ All succeed → POST /upload/merge { hash, filename, totalChunks }
+       ↓
+Server merges chunks → return file URL
+```
+
+### Day 71: Core code
+
+```ts
+// chunking
+function createChunks(file: File, chunkSize = 5 * 1024 * 1024) {
+  const chunks: Blob[] = []
+  let cur = 0
+  while (cur < file.size) {
+    chunks.push(file.slice(cur, cur + chunkSize))
+    cur += chunkSize
+  }
+  return chunks
+}
+
+// concurrency control
+async function uploadWithLimit(tasks: (() => Promise<void>)[], limit = 4) {
+  const executing = new Set<Promise<void>>()
+  for (const task of tasks) {
+    const p = task().then(() => executing.delete(p))
+    executing.add(p)
+    if (executing.size >= limit) {
+      await Promise.race(executing)
+    }
+  }
+  await Promise.all(executing)
+}
+
+// hash in a Web Worker (worker.ts)
+self.onmessage = async (e) => {
+  const { chunks } = e.data
+  const spark = new SparkMD5.ArrayBuffer()
+  for (const chunk of chunks) {
+    spark.append(await chunk.arrayBuffer())
+    self.postMessage({ progress: /* ... */ })
+  }
+  self.postMessage({ hash: spark.end() })
+}
+```

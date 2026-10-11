@@ -554,3 +554,129 @@ function process() {
 - [MDN 作用域](https://developer.mozilla.org/zh-CN/docs/Glossary/Scope)
 - [V8 闭包优化](https://v8.dev/blog/closures)
 - [Module Pattern 详解](https://addyosmani.com/resources/essentialjsdesignpatterns/ detail/#modulepatternjavascript
+
+## 每日练习参考
+
+### Day 2：作用域与作用域链
+
+JavaScript 是**词法作用域**（静态作用域），作用域在函数定义时就确定了，与调用位置无关。
+
+三类作用域：
+
+- 全局作用域：贯穿整个程序生命周期。
+- 函数作用域：`function` 创建，外部不可见。
+- 块级作用域：`let / const / class` 在 `{}` 内创建。
+
+作用域链查找：
+
+```text
+当前作用域
+  -> 外层函数作用域
+  -> ...
+  -> 全局作用域
+  -> 找不到则 ReferenceError
+```
+
+### Day 2：变量声明对比
+
+| 维度 | `var` | `let` | `const` |
+|------|-------|-------|---------|
+| 作用域 | 函数 | 块 | 块 |
+| 提升 | 提升并初始化为 `undefined` | 提升但有 TDZ | 提升但有 TDZ |
+| 重复声明 | 允许 | 不允许 | 不允许 |
+| 重新赋值 | 允许 | 允许 | 引用不可变 |
+| 全局声明挂到 `window` | 是 | 否 | 否 |
+
+### Day 2：闭包
+
+定义：**闭包 = 函数 + 它定义时能访问的外层变量环境**。
+
+产生原因：词法作用域 + 内部函数被外部长期引用，导致外层变量无法被 GC 回收。
+
+常见应用：
+
+- 数据私有化（模块模式）。
+- 柯里化、偏函数。
+- 防抖、节流、缓存（memoize）。
+- 循环中保留每轮的索引。
+
+泄漏风险：
+
+- 闭包持有 DOM 引用 + 监听器未解绑。
+- `setTimeout / setInterval` 长期持有大对象。
+- 循环引用没有手动 `= null`。
+
+### Day 2：执行上下文（简化版）
+
+- 创建阶段：确定 `this`、创建变量环境（VariableEnvironment）和词法环境（LexicalEnvironment）。
+- 执行阶段：逐行执行、赋值。
+- 调用栈：函数调用入栈，返回出栈。
+
+### Day 2：闭包计数器（经典闭包）
+
+```js
+function createCounter() {
+  let count = 0
+  return {
+    inc: () => ++count,
+    dec: () => --count,
+    get: () => count,
+  }
+}
+
+const counter = createCounter()
+counter.inc()
+counter.inc()
+counter.get() // 2
+```
+
+### Day 2：循环 + 闭包陷阱与三种解法
+
+```js
+// 问题：var 没有块级作用域，3 个回调共享同一个 i
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 0) // 3 3 3
+}
+
+// 解法1：let（每轮新建块作用域）
+for (let i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 0) // 0 1 2
+}
+
+// 解法2：IIFE 显式建立闭包
+for (var i = 0; i < 3; i++) {
+  ;(function (j) {
+    setTimeout(() => console.log(j), 0)
+  })(i)
+}
+```
+
+### Day 2：闭包导致的内存泄漏流程图
+
+```text
+createLeak() 执行
+  -> 创建大对象 bigData (10MB)
+  -> 返回内部函数 fn
+  -> 外部 fn = createLeak()
+
+createLeak 执行结束
+  -> 但 fn 仍然引用闭包作用域
+  -> 闭包作用域引用 bigData
+  -> GC 无法回收 bigData
+
+解除：fn = null
+  -> 闭包失去引用
+  -> bigData 可被回收
+```
+
+### Day 2：简化版防抖（闭包应用）
+
+```js
+function debounce(fn, delay) {
+  let timer = null
+  return function (...args) {
+    if (timer) clearTimeout(timer)
+    timer = setTimeout(() => fn.apply(this, args), delay)
+  }
+}
+```

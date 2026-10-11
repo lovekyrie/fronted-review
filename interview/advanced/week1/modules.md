@@ -269,3 +269,76 @@ Babel 可以转换模块语法，也可以转换其他语法，但它不等于�
 4. 最后落到真实工程里的模块边界设计
 
 这样答案才会从“知道概念”升级成“理解工程含义”。
+
+## 每日练习参考
+
+### Day 15：模块规范对照表
+
+| 维度 | ESM | CommonJS | UMD |
+|------|-----|----------|-----|
+| 语法 | `import / export` | `require / module.exports` | IIFE 包裹 |
+| 加载时机 | 编译时静态分析 | 运行时动态执行 | 运行时 |
+| 值绑定 | live binding（引用） | 值拷贝 | 取决于内部实现 |
+| 循环依赖 | 能拿到最新值 | 拿到的是执行到那一刻的快照 | — |
+| tree-shaking | ✅ 支持 | ❌ 不支持 | ❌ |
+| 浏览器原生 | ✅ `<script type="module">` | ❌ 需要打包 | ❌ 需要打包 |
+
+### Day 15：ESM 核心特性
+
+- **静态结构**：`import / export` 必须在顶层，不能放在 if 里。这让打包工具能在编译时分析依赖图。
+- **live binding**：导入的是绑定（引用），导出模块修改值后，导入方能看到最新值。
+- **严格模式**：ESM 默认严格模式，不需要 `"use strict"`。
+- **异步加载**：`import()` 动态导入返回 Promise。
+
+### Day 15：CJS 核心特性
+
+- **动态执行**：`require()` 可以出现在任何地方，支持条件导入。
+- **值拷贝**：`module.exports` 导出的是值的拷贝，导出后修改不影响导入方。
+- **同步加载**：适合 Node.js 服务端，不适合浏览器。
+- **缓存机制**：`require` 第一次执行后缓存结果，后续直接返回缓存。
+
+### Day 15：Node.js 中的 interop
+
+- `.mjs` 文件强制 ESM，`.cjs` 文件强制 CJS。
+- `package.json` 中 `"type": "module"` 让 `.js` 默认走 ESM。
+- ESM 可以 `import` CJS 模块（取 `module.exports` 作为默认导出）。
+- CJS 不能直接 `require` ESM 模块（需要用 `import()` 动态导入）。
+
+### Day 15：ESM live binding 演示
+
+```js
+// counter.mjs
+export let count = 0
+export function increment() { count++ }
+
+// main.mjs
+import { count, increment } from './counter.mjs'
+console.log(count)   // 0
+increment()
+console.log(count)   // 1  ← live binding，能看到最新值
+
+// 如果是 CJS，第二次 console.log 仍然是 0（值拷贝）
+```
+
+### Day 15：循环依赖行为对比
+
+```js
+// === CJS 循环依赖 ===
+// a.js
+exports.loaded = false
+const b = require('./b.js')  // 执行 b.js
+console.log('b.loaded:', b.loaded)  // true
+exports.loaded = true
+
+// b.js
+const a = require('./a.js')  // 拿到 a 的部分导出（loaded = false）
+console.log('a.loaded:', a.loaded)  // false ← 值拷贝快照
+exports.loaded = true
+
+// === ESM 循环依赖 ===
+// a.mjs
+import { loaded as bLoaded } from './b.mjs'
+export let loaded = false
+console.log('b.loaded:', bLoaded)  // true（live binding）
+loaded = true
+```

@@ -385,3 +385,102 @@ CLS 差通常不是因为“慢”，而是因为页面元素在加载过程中�
 4. 最后结合一条真实链路讲收益和取舍
 
 这样答案会从“懂一些优化技巧”升级成“能系统做性能治理”。
+
+## 每日练习参考
+
+### Day 60：首屏优化 4 层
+
+| 层 | 优化方向 | 关键措施 |
+|----|----------|----------|
+| **网络层** | 减少请求 + 加速传输 | HTTP/2 / CDN / gzip / Brotli / 域名收敛 |
+| **资源层** | 减少体积 + 优先加载 | Tree Shaking / Code Splitting / preload / WebP |
+| **渲染层** | 减少阻塞 + 尽快显示 | SSR / 骨架屏 / 内联关键 CSS / defer JS |
+| **运行时** | 减少主线程阻塞 | 虚拟列表 / Web Worker / 懒加载 / 按需加载 |
+
+### Day 60：关键渲染路径
+
+```text
+HTML → 发现 CSS → 阻塞渲染 → CSSOM ready
+HTML → 发现 JS → 阻塞解析（无 async/defer）→ JS 执行
+             ↓
+       两者都 ready → Render Tree → Layout → Paint → 首屏可见
+```
+
+关键：**CSS 阻塞渲染，JS 阻塞解析**。
+
+### Day 60：preload / preconnect / prefetch
+
+| 指令 | 作用 | 时机 | 适用 |
+|------|------|------|------|
+| `preload` | 提前加载**当前页**必需资源 | 当前页立即 | 关键字体、LCP 图片、关键 JS |
+| `preconnect` | 提前建立 TCP + TLS 连接 | 当前页 | API 域名、CDN 域名 |
+| `prefetch` | 空闲时预加载**下一页**资源 | 低优先级 | 下一页路由的 JS chunk |
+| `dns-prefetch` | 只做 DNS 解析 | 当前页 | 第三方域名 |
+
+### Day 60：SSR vs 骨架屏 vs Loading
+
+| 方案 | 首屏速度 | 实现成本 | SEO | 适用 |
+|------|----------|----------|-----|------|
+| SSR | 最快 | 高 | ✅ | 内容页 |
+| 骨架屏 | 中等 | 低 | ❌ | SPA |
+| Loading spinner | 最慢感知 | 最低 | ❌ | 后台 |
+
+### Day 60：SPA 首屏瀑布流 + 优化点
+
+```text
+时间 →
+├── DNS + TCP + TLS ──────── [preconnect 可省]
+├── HTML 下载 ──────────── [SSR 直出内容]
+├── CSS 下载 + 解析 ────── [内联关键 CSS / preload]
+├── JS 下载 ────────────── [Code Split / defer / preload]
+├── JS 执行 ────────────── [Tree Shaking 减小体积]
+├── API 请求 ──────────── [接口合并 / preconnect / 服务端预取]
+├── 数据渲染 ──────────── [骨架屏占位 / 虚拟列表]
+└── 图片加载 ──────────── [WebP / lazy loading / fetchpriority]
+```
+
+### Day 60：关键资源加载示例
+
+```html
+<!-- 预连接 API 域名 -->
+<link rel="preconnect" href="https://api.example.com" />
+
+<!-- 预加载关键字体 -->
+<link rel="preload" href="/fonts/main.woff2" as="font" type="font/woff2" crossorigin />
+
+<!-- 预加载 LCP 图片 -->
+<link rel="preload" href="/hero.webp" as="image" fetchpriority="high" />
+
+<!-- 预取下一页 -->
+<link rel="prefetch" href="/about.chunk.js" />
+
+<!-- 非关键 JS defer -->
+<script src="/analytics.js" defer></script>
+```
+
+### Day 59：LCP 优化
+
+LCP 元素通常是：`<img>` / `<video>` / 背景图 / 大文本块。
+
+| 优化方向 | 措施 |
+|----------|------|
+| 减少资源加载时间 | `<link rel="preload">` 关键图片 / 用 CDN / WebP/AVIF 格式 |
+| 减少渲染阻塞 | 内联关键 CSS / `async` / `defer` 非关键 JS |
+| 减少服务端时间 | SSR / Edge 渲染 / TTFB 优化 |
+| 优先级 | `fetchpriority="high"` 给 LCP 图片 |
+
+### Day 59：INP 优化
+
+| 问题 | 措施 |
+|------|------|
+| 长任务阻塞主线程 | 拆分任务（`yield to main thread`）/ Web Worker |
+| 事件处理慢 | 减少 handler 复杂度 / debounce / 用 `startTransition` |
+| 大量 DOM 操作 | 虚拟列表 / `content-visibility` |
+
+### Day 59：CLS 优化
+
+| 问题 | 措施 |
+|------|------|
+| 图片无尺寸 | 始终设置 `width / height` 或 `aspect-ratio` |
+| 字体替换跳动 | `font-display: optional` 或 `size-adjust` |
+| 动态注入内容 | 预留空间 / `min-height` / 骨架屏 |

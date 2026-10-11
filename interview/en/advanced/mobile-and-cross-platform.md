@@ -30,3 +30,14 @@ Notched devices need `env(safe-area-inset-*)`.
 ## 3. How to answer
 
 Tie it to a mobile project you shipped: problem → approach → result. That beats reciting terms.
+
+## Daily practice reference
+
+### Day 74: Three cross-platform lines
+
+| Line | Tech | Traits | Fits |
+|------|------|------|------|
+| **Hybrid** | WebView + JSBridge | Fast to ship, average perf | Heavy presentation, light interaction |
+| **Native render** | React Native / Weex | Near-native perf | Medium interaction |
+| **Self-drawn engine** | Flutter | High perf, consistent across platforms | Heavy interaction / animation |
+| **Mini program** | WeChat / Alipay | Distribution inside the ecosystem | Light apps, marketing |

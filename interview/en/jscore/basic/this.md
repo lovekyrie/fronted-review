@@ -684,3 +684,24 @@ new bound() // {} — the new instance has no name
 - [MDN this](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/this)
 - [You Don't Know JS - this](https://github.com/getify/You-Dont-Know-JS/tree/2nd-ed/scope-closures)
 - [JavaScript softBind polyfill](https://github.com/getify/You-Dont-Know-JS/blob/2nd-ed/this%20%26%20object%20prototypes/ch6.md)
+
+## Daily practice reference
+
+### Day 1: this
+
+Where `this` points is decided by how the function is called, not by where it is defined.
+
+Common binding rules:
+
+1. Default binding: a plain function called standalone; in non-strict mode it points to the global object, in strict mode it is `undefined`.
+2. Implicit binding: called as an object method; `this` points to the object that called it.
+3. Explicit binding: `this` is specified via `call / apply / bind`.
+4. `new` binding: when called as a constructor, `this` points to the newly created instance.
+
+Priority:
+
+```text
+new binding > explicit binding > implicit binding > default binding
+```
+
+Arrow functions have no `this` of their own. They capture the outer scope’s `this` at definition time and cannot be changed with `call / apply / bind`.

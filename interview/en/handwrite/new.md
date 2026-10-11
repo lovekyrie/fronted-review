@@ -22,3 +22,18 @@ const person2 = selfNew(Person, 'lilly', 28)
 console.log(person1)
 console.log(person2)
 ```
+
+## Daily practice reference
+
+### Day 11: myNew
+
+```js
+function myNew(Ctor, ...args) {
+  // 1. Create a new object whose prototype is Ctor.prototype
+  const obj = Object.create(Ctor.prototype)
+  // 2. Run the constructor with this bound
+  const result = Ctor.apply(obj, args)
+  // 3. If the constructor returns an object, use that value; otherwise use the new instance
+  return result !== null && typeof result === 'object' ? result : obj
+}
+```

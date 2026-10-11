@@ -69,3 +69,97 @@ function createChunks(file: File, chunkSize = 5 * 1024 * 1024) {
 
 - 每个分片可带签名或 checksum。
 - 合并后做全文件 hash 复验，最终以后端校验为准。
+
+## 每日练习参考
+
+### Day 71：大文件上传核心流程
+
+```text
+1. 选择文件 → File 对象
+2. 分片 → Blob.slice(start, end) → chunks[]
+3. 计算 hash → Web Worker + spark-md5 分片累加
+4. 秒传检查 → 带 hash 问服务端是否已存在
+5. 断点续传 → 服务端返回已上传 chunk 索引，前端跳过
+6. 并发上传 → 控制并发数（3-6），逐片 POST
+7. 合并 → 全部上传完，通知服务端合并
+```
+
+### Day 71：分片参数
+
+| 参数 | 推荐值 | 原因 |
+|------|--------|------|
+| 分片大小 | 2-5 MB | 太小请求数多、太大失败重传代价高 |
+| 并发数 | 3-6 | 浏览器同域并发限制 6，留余量给其他请求 |
+| 重试次数 | 3 | 网络波动兜底 |
+
+### Day 71：Hash 计算
+
+- 用 **Web Worker** 避免阻塞主线程。
+- 用 **spark-md5** 的 `ArrayBuffer.append` 分片增量计算。
+- 大文件（>1GB）可以用**抽样 hash**（首尾 + 中间几段）提速。
+
+### Day 71：秒传 & 断点续传
+
+| 功能 | 原理 | 依赖 |
+|------|------|------|
+| **秒传** | 文件 hash 在服务端已存在 → 直接返回 URL | 服务端 hash 库 |
+| **断点续传** | 服务端返回已上传 chunk 列表 → 前端跳过 | 服务端记录分片状态 |
+
+### Day 71：完整流程图
+
+```text
+用户选择文件（200MB）
+  ↓
+Web Worker 计算 hash（spark-md5 分片累加，不阻塞 UI）
+  ↓
+POST /upload/check { hash, filename, totalChunks }
+  ├─ 已存在 → 秒传，直接返回 URL
+  └─ 部分存在 → 返回 uploadedChunks: [0, 1, 3]
+       ↓
+过滤掉已上传的 chunks → 剩余 [2, 4, 5, ...]
+  ↓
+并发上传（limit=4）：每片 POST /upload/chunk { hash, index, chunk }
+  ├─ 失败 → 重试 3 次
+  └─ 全部成功 → POST /upload/merge { hash, filename, totalChunks }
+       ↓
+服务端合并分片 → 返回文件 URL
+```
+
+### Day 71：核心代码
+
+```ts
+// 分片
+function createChunks(file: File, chunkSize = 5 * 1024 * 1024) {
+  const chunks: Blob[] = []
+  let cur = 0
+  while (cur < file.size) {
+    chunks.push(file.slice(cur, cur + chunkSize))
+    cur += chunkSize
+  }
+  return chunks
+}
+
+// 并发控制
+async function uploadWithLimit(tasks: (() => Promise<void>)[], limit = 4) {
+  const executing = new Set<Promise<void>>()
+  for (const task of tasks) {
+    const p = task().then(() => executing.delete(p))
+    executing.add(p)
+    if (executing.size >= limit) {
+      await Promise.race(executing)
+    }
+  }
+  await Promise.all(executing)
+}
+
+// Web Worker 算 hash（worker.ts）
+self.onmessage = async (e) => {
+  const { chunks } = e.data
+  const spark = new SparkMD5.ArrayBuffer()
+  for (const chunk of chunks) {
+    spark.append(await chunk.arrayBuffer())
+    self.postMessage({ progress: /* ... */ })
+  }
+  self.postMessage({ hash: spark.end() })
+}
+```

@@ -479,3 +479,171 @@ const user = response as User
 4. 最后补一条经验：怎样避免 `any` 泛滥、怎样设计更好推断的 API
 
 这样答案才会从“会用 TypeScript”升级成“会用类型系统设计前端代码”。
+
+## 每日练习参考
+
+### Day 50：type vs interface
+
+| 维度 | `type` | `interface` |
+|------|--------|-------------|
+| 联合类型 | ✅ `type A = B \| C` | ❌ |
+| 交叉类型 | ✅ `type A = B & C` | ✅ extends 多个 |
+| 元组 | ✅ `type T = [string, number]` | ❌ |
+| 声明合并 | ❌ | ✅ 同名自动合并 |
+| 计算属性 | ✅ 映射类型 | ❌ |
+| extends | ❌ | ✅ `interface A extends B` |
+
+选型：定义对象结构用 `interface`（可扩展）；定义联合、元组、工具类型用 `type`。
+
+### Day 50：字面量类型 + widening
+
+```ts
+let a = 'hello'        // 类型：string（widen）
+const b = 'hello'      // 类型：'hello'（字面量）
+const c = { x: 1 }     // 类型：{ x: number }（对象属性 widen）
+const d = { x: 1 } as const  // 类型：{ readonly x: 1 }（as const 锁定）
+```
+
+### Day 50：联合类型缩窄（Narrowing）
+
+```ts
+// typeof
+function fn(x: string | number) {
+  if (typeof x === 'string') { /* x: string */ }
+}
+
+// instanceof
+if (x instanceof Date) { /* x: Date */ }
+
+// in
+if ('name' in x) { /* x: { name: ... } */ }
+
+// discriminated union（最推荐）
+type Result = { ok: true; data: string } | { ok: false; error: string }
+function handle(r: Result) {
+  if (r.ok) { r.data }    // TS 自动缩窄
+  else { r.error }
+}
+```
+
+### Day 50：交叉类型
+
+```ts
+type A = { name: string }
+type B = { age: number }
+type C = A & B  // { name: string; age: number }
+
+// 注意：基础类型交叉会得到 never
+type D = string & number  // never
+```
+
+### Day 50：5 个 demo
+
+```ts
+// 1. 字面量类型
+type Direction = 'up' | 'down' | 'left' | 'right'
+
+// 2. as const
+const routes = ['/', '/about', '/contact'] as const
+type Route = (typeof routes)[number]  // '/' | '/about' | '/contact'
+
+// 3. discriminated union
+type Shape =
+  | { kind: 'circle'; radius: number }
+  | { kind: 'rect'; width: number; height: number }
+
+function area(s: Shape): number {
+  switch (s.kind) {
+    case 'circle': return Math.PI * s.radius ** 2
+    case 'rect': return s.width * s.height
+  }
+}
+
+// 4. 交叉类型合并
+type WithTimestamp<T> = T & { createdAt: Date; updatedAt: Date }
+type User = WithTimestamp<{ name: string; email: string }>
+
+// 5. exhaustive check
+function assertNever(x: never): never {
+  throw new Error('Unexpected: ' + x)
+}
+```
+
+### Day 51：泛型 3 个使用动机
+
+1. **输入输出关联**：函数参数类型决定返回值类型（`function identity<T>(x: T): T`）。
+2. **容器抽象**：`Array<T>`、`Promise<T>`、`Ref<T>` 等通用容器。
+3. **约束但灵活**：`extends` 限定范围，但具体类型由调用方决定。
+
+### Day 51：泛型约束
+
+```ts
+// 基础约束
+function getLength<T extends { length: number }>(x: T): number {
+  return x.length
+}
+
+// keyof 约束
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key]
+}
+
+// 多泛型协作
+function merge<T extends object, U extends object>(a: T, b: U): T & U {
+  return { ...a, ...b }
+}
+```
+
+### Day 51：泛型默认值
+
+```ts
+type ApiResponse<T = unknown> = {
+  code: number
+  data: T
+  message: string
+}
+// 使用时可以不传：ApiResponse → data: unknown
+// 也可以指定：ApiResponse<User> → data: User
+```
+
+### Day 51：推断方向
+
+```ts
+// ✅ 让 TS 从参数推断，不需要手动传泛型
+function first<T>(arr: T[]): T | undefined { return arr[0] }
+const x = first([1, 2, 3])  // T 自动推断为 number
+
+// ❌ 避免：强迫调用方手动传泛型
+const y = first<number>([1, 2, 3])
+```
+
+### Day 51：3 个泛型工具函数
+
+```ts
+// 1. pick：从对象中选取指定 key
+function pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+  const result = {} as Pick<T, K>
+  keys.forEach(key => { result[key] = obj[key] })
+  return result
+}
+
+// 2. pluck：从对象数组中提取某个 key 的值
+function pluck<T, K extends keyof T>(arr: T[], key: K): T[K][] {
+  return arr.map(item => item[key])
+}
+
+// 3. deepMerge（简化版）
+function deepMerge<T extends object, U extends object>(target: T, source: U): T & U {
+  const result = { ...target } as T & U
+  for (const key in source) {
+    const sv = source[key]
+    const tv = (result as any)[key]
+    if (typeof sv === 'object' && sv !== null && typeof tv === 'object' && tv !== null) {
+      (result as any)[key] = deepMerge(tv, sv)
+    } else {
+      (result as any)[key] = sv
+    }
+  }
+  return result
+}
+```

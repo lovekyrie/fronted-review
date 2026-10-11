@@ -1,23 +1,34 @@
-# Day 7 First Basic Mock Interview Execution Log
+# Day 7 First Basic Mock Interview
 
-## Quick nav
-
-| Day | Topic | Core files |
-|------|------|----------|
-| Day 7 | Basic mock interview 1 | [14-Day Sprint](../sprint-14-days), [High-Frequency 50](../high-frequency-50) |
-
-## Today's goals
+## Goals
 
 - Revisit weak spots from Days 1–6
 - Do one 60-minute self mock (JS / browser / network)
 - Produce a 10-item “basic stuck-question list”, classified as `don’t know / know but rusty / poor delivery`
 
-## Reading checkpoints
+## Read in order
+
+1. [14-Day Sprint](../sprint-14-days)
+2. [High-Frequency 50](../high-frequency-50)
+
+## Practice and self-check
+
+**Checkpoints**
 
 - The mock must be strictly timed; looking back at docs is not allowed
 - Score each answer immediately: **fluent / stalled / wrong**; phrases only, no long sentences
 
-## Cheat sheet / knowledge points
+**Produce or redraw from memory**
+
+- Mock question list (high-frequency from Days 1–6, 60-minute limit)
+- Whiteboard handwritten questions (reference)
+
+**Answer aloud without reading a reference answer**
+
+- 1. Mock A: `this` binding priority
+- 2. Mock B: closures and memory leaks
+
+**Mock format and scoring**
 
 ### Mock question list (high-frequency from Days 1–6, 60-minute limit)
 
@@ -38,48 +49,17 @@
 
 Self-score rubric: ✅ fluent / ⚠️ stalled / ❌ wrong
 
-## Handwritten notes / flowcharts
-
 ### Whiteboard handwritten questions (reference)
 
-```js
-// Question 1: handwritten call
-Function.prototype.myCall = function (thisArg, ...args) {
-  const context = thisArg == null ? globalThis : Object(thisArg)
-  const fnKey = Symbol('fn')
-  context[fnKey] = this
-  const result = context[fnKey](...args)
-  delete context[fnKey]
-  return result
-}
+[Reference code](../handwrite/call#day-7-practice-code)
 
-// Question 2: handwritten debounce
-function debounce(fn, delay) {
-  let timer = null
-  return function (...args) {
-    if (timer) clearTimeout(timer)
-    timer = setTimeout(() => fn.apply(this, args), delay)
-  }
-}
-```
-
-## Oral questions
-
-### 1. Mock A: `this` binding priority
-
-> Answer recap: first the four bindings (default / implicit / explicit / new), then the priority `new > explicit > implicit > default`, and finally that arrow functions have no `this` of their own.
-
-### 2. Mock B: closures and memory leaks
-
-> Answer recap: first define a closure (function + outer variable environment), then 3 use cases (privacy, currying, debounce), then leaks (unbound listeners, long-lived setInterval), and emphasize closure ≠ leak.
-
-## 5-minute recording order
+**Recording drill**
 
 1. Pick the least familiar question and answer it fully (2 minutes)
 2. Retell it with the correct structure (2 minutes)
 3. Mark the difference between the two takes and find the weak delivery points (1 minute)
 
-## Today's review
+## Recap
 
 Stuck-question Top 3:
 

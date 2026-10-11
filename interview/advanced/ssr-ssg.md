@@ -23,3 +23,26 @@
 
 - Next.js（React 生态）和 Nuxt（Vue 生态）都支持 SSR/SSG 混合模式。
 - 实际项目常按页面粒度选择渲染策略，而不是全站统一。
+
+## Day 42 practice code
+
+```vue
+<script setup>
+// 只在客户端执行
+onMounted(() => {
+  // 可以安全使用 window / document
+})
+
+// 只在服务端执行
+onServerPrefetch(async () => {
+  await fetchData()
+})
+
+// 条件组件
+</script>
+<template>
+  <ClientOnly>
+    <EchartsChart />
+  </ClientOnly>
+</template>
+```

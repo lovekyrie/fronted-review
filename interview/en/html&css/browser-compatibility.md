@@ -215,3 +215,21 @@ if (window.localStorage) {
    - Use online testing tools
    - Use automated tests
    - Run cross-browser tests
+
+## Daily practice reference
+
+### Day 9: Browser compatibility pipeline
+
+```text
+Write modern syntax in development
+  → PostCSS + Autoprefixer add prefixes automatically
+  → Browserslist configures target browsers
+  → Babel / core-js handle JS polyfills
+  → Build output matches the target range
+```
+
+Browserslist config example:
+
+```text
+> 0.5%, last 2 versions, not dead
+```

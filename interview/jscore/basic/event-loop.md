@@ -39,20 +39,19 @@ first();
 1. **宏任务**
    - `setTimeout` / `setInterval`
    - `setImmediate` (Node)
-   - `requestAnimationFrame` (浏览器)
    - I/O (文件读写、网络请求)
-   - UI rendering
 
 2. **微任务**
    - `Promise.then/catch/finally`
-   - `process.nextTick` (Node, 优先级最高)
    - `MutationObserver`
    - `queueMicrotask`
+
+`requestAnimationFrame` 是渲染回调，不属于宏任务或微任务；渲染本身也不是宏任务。Node.js 的 `process.nextTick` 使用独立队列，通常先于 Promise 微任务执行。
 
 #### 事件循环过程 (Event Loop)
 这是 JS 实现异步的核心机制。
 1. **同步代码**：从上到下执行，压入执行栈，执行完清空。
-2. **清空微任务**：当执行栈为空时，立即执行**所有**微任务队列中的任务。
+2. **清空微任务**：在微任务检查点持续执行微任务，直到队列清空。
 3. **渲染 UI**：(浏览器) 此时可能会进行一次页面渲染。
 4. **执行宏任务**：从宏任务队列中取**一个**执行。
 5. **循环**：回到步骤 2。
@@ -145,8 +144,8 @@ setTimeout(() => {
 
 #### 最佳实践
 1. **避免长时间的同步任务**：这会阻塞事件循环，导致页面卡顿。对于复杂计算，使用 `Web Workers`。
-2. **理解微任务优先级**：`Promise` 和 `MutationObserver` 优先于 `setTimeout`，适合处理高优先级的数据更新。
-3. **不要滥用定时器**：`setTimeout` 有最小延迟（4ms），不适合高精度计时。动画请用 `requestAnimationFrame`。
+2. **理解宏任务与微任务的执行时机**：`Promise` 和 `MutationObserver` 优先于 `setTimeout`，适合处理高优先级的数据更新。
+3. **不要滥用定时器**：重复嵌套定时器可能被钳制到至少 4ms，普通零延迟定时器不一定有 4ms 下限，不适合高精度计时。动画请用 `requestAnimationFrame`。
 
 ---
 
@@ -200,7 +199,7 @@ Node.js 的事件循环分多个**阶段（Phase）**，每个阶段处理特定
 #### 微任务在 Node.js 中的执行时机
 
 ```js
-// Node.js 中，微任务在每个阶段结束后执行，而不是每个宏任务后
+// 当前 Node.js 在回调执行后也会处理 nextTick 与 Promise 微任务
 
 // 阶段：timers
 setTimeout(() => console.log('timeout'))
@@ -247,25 +246,9 @@ function chunkedTask(tasks, callback) {
 
 #### RAF 的执行时机
 
-```
-┌─────────────────────────────────────────┐
-│            执行栈（Call Stack）           │
-└─────────────────────────────────────────┘
-                    ↓
-┌─────────────────────────────────────────┐
-│        微任务队列（Microtasks）          │
-└─────────────────────────────────────────┘
-                    ↓
-┌─────────────────────────────────────────┐
-│          渲染（Rendering）               │ ← 这里！
-│    - 计算样式（style recalc）            │
-│    - 布局（layout）                       │
-│    - 重绘（paint）                       │
-└─────────────────────────────────────────┘
-                    ↓
-┌─────────────────────────────────────────┐
-│              宏任务（Macrotasks）         │
-└─────────────────────────────────────────┘
+```text
+任务 → 微任务检查点 → 渲染机会（如果需要）
+                         → rAF 回调 → style/layout/paint
 ```
 
 **RAF 的回调在渲染之前执行**，所以适合做动画。
@@ -285,16 +268,16 @@ function animate(time) {
 
 // RAF 方案（推荐）
 function animate() {
-  // 浏览器自动保证 60fps，自动在渲染前调用
+  // 浏览器在绘制机会前调度，不保证固定 60fps
   requestAnimationFrame(animate)
 }
 ```
 
 | 维度 | setTimeout | RAF |
 |------|-----------|-----|
-| 精度 | 不稳定，可能掉帧 | 稳定 60fps |
+| 精度 | 不稳定，可能掉帧 | 跟随屏幕刷新时机 |
 | 节流 | 手动计算时间差 | 自动 |
-| 页面隐藏 | 继续执行 | 暂停（节省 CPU） |
+| 页面隐藏 | 可能被节流 | 通常暂停（节省 CPU） |
 | 移动端省电 | 不支持 | 支持 |
 
 ---
@@ -337,7 +320,7 @@ queueMicrotask(() => {
 |------|--------|---------|
 | 渲染 | 有（每个 tick 可能渲染） | 无（无 UI） |
 | 阶段 | 无（简单循环） | 多个阶段（timers/poll/check/close） |
-| 微任务时机 | 每个宏任务后 | 每个阶段后 |
+| 微任务时机 | 每个任务后的检查点 | 当前 Node.js 通常在回调后处理微任务 |
 | setImmediate | 不支持 | 支持 |
 | process.nextTick | 不支持 | 支持（高于 Promise） |
 | queueMicrotask | 支持 | 支持 |
@@ -372,12 +355,12 @@ Promise.resolve().then(() => console.log('2'))
 > 1. **执行栈**执行同步代码
 > 2. 执行栈清空后，**微任务队列**全部执行（Promise、queueMicrotask、MutationObserver）
 > 3. 如果是浏览器，可能触发一次**渲染**
-> 4. 从**宏任务队列**取一个执行（setTimeout、setInterval、I/O、RAF）
+> 4. 从**任务队列**取一个执行（setTimeout、setInterval、I/O）；RAF 属于渲染阶段
 > 5. 回到步骤 2，循环
 >
 > 关键点：**微任务在每个宏任务后全部清空**，所以 `Promise.then` 比 `setTimeout` 先执行。
 >
-> Node.js 有多个阶段（timers/poll/check），微任务在每个阶段结束后执行。`process.nextTick` 优先级高于 Promise。
+> Node.js 有多个阶段（timers/poll/check）；当前版本会在回调之后处理 `process.nextTick` 与 Promise 微任务，`nextTick` 通常先执行。
 
 ---
 
@@ -385,4 +368,31 @@ Promise.resolve().then(() => console.log('2'))
 
 - [Node.js 事件循环文档](https://nodejs.org/en/guides/event-loop-timers-and-nexttick)
 - [MDN 并发模型](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Event_loop)
-- [Jake Archibald's event loop article](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/) 
+- [Jake Archibald's event loop article](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/)
+
+## 事件循环输出练习
+
+先写出每一步的入队时机，再核对输出：
+
+```js
+console.log('1')
+setTimeout(() => console.log('2'), 0)
+Promise.resolve().then(() => console.log('3'))
+Promise.resolve().then(() => {
+  console.log('4')
+  setTimeout(() => console.log('5'), 0)
+})
+console.log('6')
+// 1 → 6 → 3 → 4 → 2 → 5
+```
+
+下面的 `micro` 先于下一任务执行；`timeout` 与 `rAF` 的先后取决于下一次渲染机会，不能写死。`rAF` 回调里排入的微任务也会在之后的微任务检查点运行。
+
+```js
+requestAnimationFrame(() => {
+  console.log('rAF')
+  Promise.resolve().then(() => console.log('micro in rAF'))
+})
+setTimeout(() => console.log('timeout'), 0)
+Promise.resolve().then(() => console.log('micro'))
+```

@@ -376,3 +376,85 @@ div {
 ```
 
 > **Interview follow-up**: For a `position: absolute` element, what is its containing block? — The nearest ancestor with `position: relative/absolute/fixed`. If none exists, it is the ICB (initial containing block).
+
+## Daily practice reference
+
+### Day 8: BFC (Block Formatting Context)
+
+Trigger conditions:
+
+- `overflow` is not `visible` (e.g. `hidden / auto`)
+- `display: flow-root` (the cleanest way)
+- `float` is not `none`
+- `position: absolute / fixed`
+- `display: inline-block / flex / grid`
+
+Use cases:
+
+- Clear floats (parent `display: flow-root`).
+- Prevent margin collapsing.
+- Adaptive two-column layout (a BFC does not overlap floats).
+
+### Day 8: Flex layout
+
+```text
+main axis     →   justify-content  aligns on the main axis
+cross axis    →   align-items      aligns on the cross axis
+```
+
+Common properties:
+
+- `flex: 1` = `flex-grow: 1; flex-shrink: 1; flex-basis: 0%`
+- `gap`: spacing without margin, cleaner.
+- `order`: reorder children.
+
+### Day 8: Grid layout
+
+```css
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+```
+
+- `fr` unit: remaining space by ratio.
+- `grid-template-areas`: named regions, good for complex page layouts.
+- `minmax(200px, 1fr)`: responsive column width.
+
+### Day 8: Three-column layout comparison
+
+```css
+/* Option 1: Flex (recommended) */
+.container { display: flex; }
+.left { width: 200px; }
+.center { flex: 1; }
+.right { width: 200px; }
+
+/* Option 2: Grid */
+.container {
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+}
+
+/* Option 3: float + BFC */
+.left { float: left; width: 200px; }
+.right { float: right; width: 200px; }
+.center { overflow: hidden; /* BFC does not overlap floats */ }
+```
+
+### Day 8: Horizontal and vertical centering (4 ways)
+
+```css
+/* 1. Flex */
+.parent { display: flex; justify-content: center; align-items: center; }
+
+/* 2. Grid */
+.parent { display: grid; place-items: center; }
+
+/* 3. Absolute positioning + transform */
+.child { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+/* 4. Absolute positioning + margin: auto */
+.child { position: absolute; inset: 0; margin: auto; width: 100px; height: 100px; }
+```

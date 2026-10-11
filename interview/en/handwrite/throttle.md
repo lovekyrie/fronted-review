@@ -43,3 +43,20 @@ function throttle(func, time = 100, options = {
   return _throttle
 }
 ```
+
+## Daily practice reference
+
+### Day 12: throttle (timestamp version)
+
+```js
+function throttle(fn, delay) {
+  let lastTime = 0
+  return function (...args) {
+    const now = Date.now()
+    if (now - lastTime >= delay) {
+      lastTime = now
+      fn.apply(this, args)
+    }
+  }
+}
+```

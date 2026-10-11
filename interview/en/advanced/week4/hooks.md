@@ -586,3 +586,185 @@ If the interviewer asks about “how Hooks work,” answer in this order:
 8. Hook rules are connected to concurrent rendering: render must stay pure, interruptible, and retryable; side effects belong in Effects after commit
 
 That answer moves from usage into Fiber, the state queue, the Effect commit phase, and the concurrent model.
+
+## Daily practice reference
+
+### Day 44: State update model
+
+```text
+setState(value) → create Update { action: value } → enqueue on fiber.updateQueue
+                                                   ↓
+                                         unchanged this render; the next render processes the queue
+```
+
+- React state in one render is a **snapshot**: no matter how many times you call setState, the state you read is this render’s value.
+- Updates are processed in batch on the next render.
+
+### Day 44: Direct value vs functional updates
+
+```jsx
+// Direct value: uses this render’s snapshot
+setCount(count + 1) // count = 0 → enqueue 1
+setCount(count + 1) // count = 0 → enqueue 1
+setCount(count + 1) // count = 0 → enqueue 1
+// Result: count = 1 (the last one overwrites the previous)
+
+// Functional: uses the queue-accumulated value
+setCount(c => c + 1) // 0 → 1
+setCount(c => c + 1) // 1 → 2
+setCount(c => c + 1) // 2 → 3
+// Result: count = 3
+```
+
+### Day 44: Queue processing rules
+
+```text
+Walk updateQueue:
+  if (update.action is a function) → newState = action(prevState)
+  if (update.action is a value)   → newState = action
+```
+
+### Day 44: Typical stale closure scenario
+
+```jsx
+function Timer() {
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => {
+      console.log(count)    // always 0! the closure captured count from the initial render
+      setCount(count + 1)   // always sets 1
+    }, 1000)
+    return () => clearInterval(id)
+  }, [])  // empty deps → effect runs only once → the closure is locked to the initial value
+}
+```
+
+How to fix it:
+1. **Functional update**: `setCount(c => c + 1)` (most common)
+2. **Add a dependency**: `[count]`, but the timer is cleared and recreated each time
+3. **useRef**: store the latest value in a ref, read `ref.current` inside the effect
+
+### Day 44: 3 classic output questions
+
+```jsx
+// Q1: direct value × 3
+function App() {
+  const [count, setCount] = useState(0)
+  function handleClick() {
+    setCount(count + 1) // 0 + 1 = 1
+    setCount(count + 1) // 0 + 1 = 1
+    setCount(count + 1) // 0 + 1 = 1
+  }
+  return <button onClick={handleClick}>{count}</button>
+  // after click, count = 1
+}
+
+// Q2: functional × 3
+function App() {
+  const [count, setCount] = useState(0)
+  function handleClick() {
+    setCount(c => c + 1) // 0 → 1
+    setCount(c => c + 1) // 1 → 2
+    setCount(c => c + 1) // 2 → 3
+  }
+  return <button onClick={handleClick}>{count}</button>
+  // after click, count = 3
+}
+
+// Q3: mixed
+function App() {
+  const [count, setCount] = useState(0)
+  function handleClick() {
+    setCount(count + 5)  // enqueue value 5
+    setCount(c => c + 1) // 5 → 6
+    setCount(42)         // enqueue value 42 (overwrites)
+  }
+  return <button onClick={handleClick}>{count}</button>
+  // after click, count = 42
+}
+```
+
+### Day 45: When useEffect runs
+
+```text
+component render → DOM update → browser paint → useEffect runs asynchronously
+                                      ↑ does not block paint
+
+Compare useLayoutEffect:
+component render → DOM update → useLayoutEffect runs synchronously → browser paint
+                         ↑ blocks paint
+```
+
+### Day 45: When cleanup runs
+
+1. **On unmount**: run cleanup.
+2. **When deps change**: first run the **old effect’s cleanup**, then run the **new effect**.
+3. Order: old cleanup → new effect.
+
+### Day 45: Three-pitfall checklist
+
+| Pitfall | Symptom | Fix |
+|----|------|------|
+| Incomplete deps | The effect reads state/props but they are not in deps | Add every reactive value to deps, or use `useEffectEvent` |
+| Missing cleanup | Subscriptions/timers/requests are not cleaned up → leaks / races | return a cleanup function |
+| Unstable object/function refs | Each render creates a new object/function → the effect runs forever | Stabilize the ref with `useMemo` / `useCallback` |
+
+### Day 45: Strict Mode double invoke
+
+- **Development only**: React will mount → unmount → mount the component.
+- Purpose: expose **non-idempotent** effects (missing cleanup, duplicate subscriptions, duplicate requests).
+- If your effect writes cleanup correctly, double invoke has no extra side effects.
+
+### Day 45: Handling racing requests
+
+```jsx
+useEffect(() => {
+  const controller = new AbortController()
+
+  async function fetchData() {
+    try {
+      const res = await fetch(`/api/user/${id}`, {
+        signal: controller.signal
+      })
+      const data = await res.json()
+      setUser(data)  // set only if not aborted
+    } catch (e) {
+      if (e.name !== 'AbortError') throw e
+    }
+  }
+
+  fetchData()
+
+  return () => controller.abort()  // abort the previous request when deps change
+}, [id])
+```
+
+### Day 45: The unstable-ref pitfall
+
+```jsx
+// ❌ each render creates a new object → the effect runs forever
+useEffect(() => {
+  fetch('/api', { headers: { token } })
+}, [{ token }])  // a new reference every time!
+
+// ✅ stabilize the reference with useMemo
+const headers = useMemo(() => ({ token }), [token])
+useEffect(() => {
+  fetch('/api', { headers })
+}, [headers])
+```
+
+### Day 45: useEffect vs useLayoutEffect
+
+```jsx
+// useEffect: async, does not block paint. Fine for most cases
+useEffect(() => {
+  document.title = `Count: ${count}`
+}, [count])
+
+// useLayoutEffect: sync, blocks paint. For reading/writing DOM layout
+useLayoutEffect(() => {
+  const rect = ref.current.getBoundingClientRect()
+  // adjust position from rect to avoid flicker
+}, [])
+```

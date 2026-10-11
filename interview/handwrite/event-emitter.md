@@ -63,3 +63,53 @@ dep.trigger('mouseover')
 dep.trigger('mouseover')
 console.groupEnd()
 ```
+
+## 每日练习参考
+
+### Day 12：EventEmitter 最小 API
+
+```text
+on(event, fn)    → 订阅
+off(event, fn)   → 取消
+emit(event, ...args)  → 发布
+once(event, fn)  → 订阅一次（执行后自动取消）
+```
+
+### Day 12：EventEmitter
+
+```js
+class EventEmitter {
+  constructor() {
+    this._events = Object.create(null)
+  }
+
+  on(event, fn) {
+    (this._events[event] || (this._events[event] = [])).push(fn)
+    return this
+  }
+
+  off(event, fn) {
+    const fns = this._events[event]
+    if (!fns) return this
+    this._events[event] = fns.filter(f => f !== fn && f._orig !== fn)
+    return this
+  }
+
+  emit(event, ...args) {
+    const fns = this._events[event]
+    if (!fns) return false
+    fns.forEach(fn => fn.apply(this, args))
+    return true
+  }
+
+  once(event, fn) {
+    const wrapper = (...args) => {
+      fn.apply(this, args)
+      this.off(event, wrapper)
+    }
+    wrapper._orig = fn  // off 时能匹配原函数
+    this.on(event, wrapper)
+    return this
+  }
+}
+```

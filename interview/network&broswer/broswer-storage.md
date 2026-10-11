@@ -226,3 +226,16 @@ async function networkFirst(request) {
 ##### 8.4 多标签页同步
 - `storage` 事件可同步 localStorage 变更（同源不同标签页）。
 - 更复杂实时同步可用 `BroadcastChannel`。
+
+## 每日练习参考
+
+### Day 6：浏览器存储对比
+
+| 维度 | Cookie | localStorage | sessionStorage | IndexedDB |
+|------|--------|-------------|----------------|-----------|
+| 大小 | ~4KB | ~5MB | ~5MB | 无硬性上限 |
+| 生命周期 | 可设过期 | 永久 | 会话级 | 永久 |
+| 随请求发送 | 是 | 否 | 否 | 否 |
+| 适用 | 身份/跟踪 | 用户偏好 | 临时状态 | 大量结构化数据 |
+
+Cookie 安全：`HttpOnly`（禁 JS 读取）、`Secure`（仅 HTTPS）、`SameSite`（Lax / Strict / None+Secure）。

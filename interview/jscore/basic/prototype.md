@@ -580,3 +580,31 @@ Object.setPrototypeOf(obj, new prototype)
 - [MDN 继承与原型链](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain)
 - [MDN class 语法](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Classes)
 - [V8 隐藏类博客](https://v8.dev/blog/elements-kinds)
+
+## 每日练习参考
+
+### Day 1：原型链
+
+核心关系：
+
+```js
+instance.__proto__ === Constructor.prototype
+Constructor.prototype.constructor === Constructor
+```
+
+属性查找过程：
+
+```text
+对象自身
+  -> 对象.__proto__
+  -> 构造函数.prototype
+  -> Object.prototype
+  -> null
+```
+
+`new` 的过程：
+
+1. 创建一个新对象。
+2. 将新对象的原型连接到构造函数的 `prototype`。
+3. 用新对象作为 `this` 执行构造函数。
+4. 如果构造函数返回对象，则返回该对象；否则返回新对象。

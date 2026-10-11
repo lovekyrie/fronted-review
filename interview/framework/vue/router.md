@@ -231,3 +231,66 @@ router.beforeEach((to, from, next) => {
 ##### 7.4 keep-alive 与路由缓存边界
 - 适合列表页返回保留滚动位置和筛选条件。
 - 不适合实时性强的页面（需要每次进入刷新数据）。
+
+## 每日练习参考
+
+### Day 40：三种路由模式
+
+| 模式 | URL | 原理 | 后端配合 |
+|------|-----|------|----------|
+| hash | `/#/about` | `hashchange` 事件 | 不需要 |
+| history | `/about` | `popstate` + `pushState` | 需要兜底 index.html |
+| memory | 无变化 | 内存存储 | 不需要 |
+
+### Day 40：导航守卫完整顺序
+
+```text
+1. beforeRouteLeave（离开组件）
+2. beforeEach（全局前置）
+3. beforeRouteUpdate（复用组件，如 /user/1 → /user/2）
+4. beforeEnter（路由独享）
+5. 解析异步组件
+6. beforeRouteEnter（进入组件，无 this）
+7. beforeResolve（全局解析）
+8. afterEach（全局后置）
+9. DOM 更新
+10. beforeRouteEnter 的 next(vm => {}) 回调
+```
+
+### Day 40：router-view 更新机制
+
+`currentRoute` 是响应式 ref → 路由切换时变化 → `<router-view>` 通过 inject 拿到匹配组件 → re-render。
+
+### Day 40：动态路由 + 懒加载
+
+```js
+{ path: '/user/:id', component: () => import('./User.vue') }
+// 通过 useRoute().params.id 获取参数
+```
+
+### Day 40：最小 hash router
+
+```js
+class MiniRouter {
+  constructor(routes) {
+    this.routes = routes
+    this.current = window.location.hash.slice(1) || '/'
+    window.addEventListener('hashchange', () => {
+      this.current = window.location.hash.slice(1)
+    })
+  }
+  push(path) { window.location.hash = path }
+  match() { return this.routes.find(r => r.path === this.current) }
+}
+```
+
+### Day 40：push 到 router-view 更新链路
+
+```text
+router.push('/about')
+  → history.pushState / location.hash = '#/about'
+  → 匹配路由表 → 找到 matched 组件
+  → 更新 currentRoute（shallowRef）
+  → router-view 检测到响应式变化
+  → 渲染新组件
+```

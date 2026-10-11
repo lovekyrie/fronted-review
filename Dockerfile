@@ -3,8 +3,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# install pnpm
-RUN npm install -g pnpm
+# pnpm 9 仍会执行依赖的 postinstall，esbuild 二进制能装上
+RUN npm install -g pnpm@9.15.9
 
 # Copy dependency manifests
 COPY package.json ./

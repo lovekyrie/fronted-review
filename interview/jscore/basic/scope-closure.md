@@ -20,6 +20,8 @@ var globalVar = 'global';
 let globalLet = 'global';
 const globalConst = 'global';
 
+var定义的全局作用域变量可以挂载到window上，let跟const的不可以
+
 function globalFunc() {
   console.log(globalVar); // 可以访问
 }

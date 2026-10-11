@@ -11,7 +11,7 @@ JavaScript 主要有三种作用域：
 1. **全局作用域**：在代码任何地方都能访问，生命周期贯穿整个应用。
 2. **函数作用域**：函数内部定义的变量，外部无法访问。
 3. **块级作用域**（ES6+）：由 `{}` 包裹的区域（如 if/for/switch），仅 `let/const` 遵循此规则。
-
+ <!-- 不同作用域说明 -->
 1. **全局作用域 (Global Scope)**
 
 ```js
@@ -427,8 +427,8 @@ function process() {
 
 ```js
 // 代码实际执行顺序
-console.log(foo) // function foo() { return 2 }
-console.log(bar) // undefined
+console.log(foo) // undefined
+console.log(bar) // function bar() { return 2 }
 
 var foo = 1
 function bar() { return 2 }
@@ -495,7 +495,7 @@ try {
 console.log(e) // ReferenceError: e is not defined
 ```
 
-#### try-catch 的性能考量
+#### try-catch 的性能考量 ?
 
 V8 会对 try-catch 进行优化，但要注意：
 

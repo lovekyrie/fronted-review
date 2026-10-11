@@ -86,8 +86,10 @@ const { foo: f, bar: b } = { foo: 'a', bar: 'b' }
 console.log(f) // 'a'
 console.log(b) // 'b'
 
-// 嵌套解构 比如接口返回值是 res.data.data
-const {data: {data}} = res
+// 嵌套解构 比如接口返回值是 res.data.obj
+const {data: {obj}} = res
+// step1: const {data} = res
+// step2: const {obj} = data
 ```
 
 #### 4. 模板字符串

@@ -419,7 +419,7 @@ addEventListener('click', function() {
 ```js
 const arrayLike = { 0: 'a', 1: 'b', length: 2 }
 
-// 这里 this 没有指向 arrayLike，arrayLike 会被当成 start 参数
+// 这里 this 没有指向 arrayLike，arrayLike 会被当成 start 参数 (就是slice的第一个参数)
 const slice = Array.prototype.slice
 const result = slice(arrayLike)
 ```

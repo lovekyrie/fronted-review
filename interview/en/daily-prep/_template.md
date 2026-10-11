@@ -1,4 +1,4 @@
-# Day N <topic> — execution log
+# Day N `<topic>` — execution log
 
 > Daily template: copy and rename to `dayN-<slug>.md`. Budget 2–3 hours a day. Four stages: input → output → drill → recap.
 

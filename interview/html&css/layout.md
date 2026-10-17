@@ -97,6 +97,7 @@ CSS提供了多种布局方式，其中Flex和Grid是最常用的现代布局方
   grid-template-columns: repeat(3, 100px);
   grid-template-columns: 1fr 2fr 1fr;
   grid-template-columns: minmax(100px, 1fr);
+  grid-template-columns: 1fr auto 1fr; /* 3列左右平均分配，中间固定宽度 */
 
   /* 定义行 */
   grid-template-rows: 100px 100px 100px;

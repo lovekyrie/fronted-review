@@ -11,6 +11,7 @@
   "scripts": {
     "test": "node test.js",
     "dev": "node vue/demo.js",
+    "html:dev": "live-server . --host=127.0.0.1 --port=5500 --no-browser --ignore=node_modules,**/node_modules/**,.git,.vitepress",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "docs:dev": "vitepress dev",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^4.12.0",
     "eslint": "^9.25.1",
+    "live-server": "^1.2.2",
     "rxjs": "^7.8.2"
   }
 }

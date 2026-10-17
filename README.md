@@ -2,6 +2,31 @@
 
 前端知识巩固 - 面向高级前端面试的系统化知识库
 
+## HTML 实时预览（WSL2）
+
+首次使用，在 WSL2 项目根目录安装依赖：
+
+```bash
+pnpm install
+```
+
+启动预览服务：
+
+```bash
+pnpm html:dev
+```
+
+在 Windows 浏览器打开：
+
+- `http://localhost:5500/`：浏览项目目录，点击进入任意 HTML 练习页面。
+- `http://localhost:5500/html/semantics/flex.html`：直接预览 Flex 示例。
+- `http://localhost:5500/html/semantics/demo.html`：直接预览语义化示例。
+- `http://localhost:5500/css/flex/demo.html`：也可预览其他目录中的 HTML。
+
+服务以项目根目录提供文件，页面地址与文件相对路径一致。新增 HTML 后可以直接访问，无需重启。保存 HTML、JS 或内联样式后，已打开的页面自动刷新；修改外部 CSS 后直接更新样式。
+
+建议通过 VS Code Remote WSL 或 WSL 内的编辑器修改文件，默认使用文件事件监听。服务仅监听本机，不自动启动浏览器，并忽略依赖目录和文档构建目录的文件变化。端口被占用时，以终端输出的实际端口为准。按 `Ctrl+C` 停止服务。
+
 ## 项目目录结构
 
 ```

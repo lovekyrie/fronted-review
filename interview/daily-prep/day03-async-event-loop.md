@@ -23,7 +23,30 @@
 
 **先独立完成，再对照专题**
 
-- 预测 `console.log('1'); setTimeout(() => console.log('2'), 0); Promise.resolve().then(() => console.log('3')); console.log('4')` 的输出，并画出任务与微任务队列。[核对事件循环](../jscore/basic/event-loop#event-loop-事件循环)
+- 预测 
+```js
+console.log('1'); 
+setTimeout(() => console.log('2'), 0); 
+Promise.resolve().then(() => console.log('3')); 
+console.log('4')
+```
+```js
+console.log('1')
+
+setTimeout(() => {
+  console.log('2')
+  Promise.resolve().then(() => {
+    console.log('3')
+  })
+}, 0)
+
+Promise.resolve().then(() => {
+  console.log('4')
+})
+
+console.log('5')
+```
+ 的输出，并画出任务与微任务队列。[核对事件循环](../jscore/basic/event-loop#event-loop-事件循环)
 - 解释 Promise 三态、值穿透及 `then` 返回新 Promise。[核对 Promise 专题](../jscore/advanced/promise#_4-手写-promise)
 - 脱稿实现 Promise 状态机、回调队列和 `then` 链。[核对手写实现](../handwrite/promise#核心骨架)
 - 解释 `await` 的让出时机，并比较独立请求的串行与并行。[核对 async/await](../jscore/advanced/async-await#_4-常见坑点-串行与并行)

@@ -9,7 +9,7 @@
 3. 冒泡阶段（从目标节点向上冒泡）。
 
 ```js
-parent.addEventListener('click', () => console.log('capture'), true)
+parent.addEventListener('click', () => console.log('capture'), true) // true参数表示事件登记到捕获阶段, 在下面有解释
 child.addEventListener('click', () => console.log('bubble'))
 ```
 
